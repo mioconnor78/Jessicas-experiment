@@ -142,3 +142,48 @@ coef(modERm2)
 ## add lines to plot
 abline(coef(modchl1)[1], coef(modchl1)[2], lty = 1, lwd = 3, col = 'black')
 legend(40.5, -1, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'), bty = 'n')
+
+
+## Does zooplankton carbon vary with temperature?  
+## figures 
+hist(data$zooplankton.carbon.per.L)
+plot(log(data$zooplankton.carbon.per.L)~data$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-1,3), xlim=c(38.5,41),  xlab='inv Temperature (C)', ylab='ZP biomass ln(g C / L)') 
+axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-1, lwd=2, cex.lab=1.5)
+axis(2, at=c(-1,0,1,2,3), pos=38.5, lwd=2, cex.lab=1.5)
+points(log(data[(data$trophic.level=='PZ'),]$zooplankton.carbon.per.L)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
+points(log(data[(data$trophic.level=='PZN'),]$zooplankton.carbon.per.L)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+
+## analysis
+modzpc0<-lm(log(data$zooplankton.carbon.per.L)~1)
+modzpc1<-lm(log(data$zooplankton.carbon.per.L)~1+data$invT)
+modzpc2<-lm(log(data$zooplankton.carbon.per.L)~1+data$invT*data$trophic.level)
+anova(modzpc0, modzpc1)
+anova(modzpc1, modzpc2)
+summary(modzpc2)
+
+## add lines to plot
+abline(coef(modzpc2)[1], coef(modzpc2)[2], lty = 2, lwd = 3, col = 'brown')
+abline((coef(modzpc2)[1]+coef(modzpc2)[3]), (coef(modzpc2)[2]+coef(modzpc2)[4]), lty = 3, lwd = 3, col = 'blue')
+legend(38.5, 3, c('2 TL','3 TL'), pch = c(15, 17), col = c('brown', 'blue'), bty = 'n')
+
+## Does zooplankton density vary with temperature?  
+## figures 
+hist(data$ZP.per.L)
+plot(log(data$ZP.per.L)~data$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-2,4), xlim=c(38.5,41),  xlab='inv Temperature (C)', ylab='ZP biomass ln(ind / L)') 
+axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-2, lwd=2, cex.lab=1.5)
+axis(2, at=c(-2,-1,0,1,2,3,4), pos=38.5, lwd=2, cex.lab=1.5)
+points(log(data[(data$trophic.level=='PZ'),]$ZP.per.L)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
+points(log(data[(data$trophic.level=='PZN'),]$ZP.per.L)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+
+## analysis
+modzp0<-lm(log(data$ZP.per.L)~1)
+modzp1<-lm(log(data$ZP.per.L)~1+data$invT)
+modzp2<-lm(log(data$ZP.per.L)~1+data$invT*data$trophic.level)
+anova(modzp0, modzp1)
+anova(modzp1, modzp2)
+summary(modzp2)
+
+## add lines to plot
+abline(coef(modzp2)[1], coef(modzp2)[2], lty = 2, lwd = 3, col = 'brown')
+abline((coef(modzp2)[1]+coef(modzp2)[3]), (coef(modzp2)[2]+coef(modzp2)[4]), lty = 3, lwd = 3, col = 'blue')
+legend(38.5, 4, c('2 TL','3 TL'), pch = c(15, 17), col = c('brown', 'blue'), bty = 'n')
