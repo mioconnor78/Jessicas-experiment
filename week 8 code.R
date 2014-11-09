@@ -24,23 +24,26 @@ axis(2, at=c(-3,-2,-1,0,1,2), pos=38.5, lwd=2, cex.lab=1.5)
 points(log(data[(data$trophic.level=='P'),]$NPP)~data[(data$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
 points(log(data[(data$trophic.level=='PZ'),]$NPP)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
 points(log(data[(data$trophic.level=='PZN'),]$NPP)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+
 ## analysis
 modNPP0<-lm(log(data$NPP)~1)
 modNPP1<-lm(log(data$NPP)~1+data$invT)
-modNPP2<-lm(log(data$NPP)~1+data$invT*data$trophic.level)
+modNPP2<-lm(log(data$NPP)~1+data$invT+data$trophic.level)
+modNPP3<-lm(log(data$NPP)~1+data$invT*data$trophic.level)
 anova(modNPP0, modNPP1)
-anova(modNPP1, modNPP2)
 anova(modNPP0, modNPP2)
+anova(modNPP2, modNPP3)
 AIC(modNPP0, modNPP1, modNPP2)
 
 summary(modNPP2)
 coef(modNPP2)
+confint(modNPP2)
 
 ## add lines to plot
 abline(coef(modNPP2)[1], coef(modNPP2)[2], lty = 1, lwd = 3, col = 'seagreen')
-abline((coef(modNPP2)[1]+coef(modNPP2)[3]), (coef(modNPP2)[2]+coef(modNPP2)[5]), lty = 2, lwd = 3, col = 'brown')
-abline((coef(modNPP2)[1]+coef(modNPP2)[4]), (coef(modNPP2)[2]+coef(modNPP2)[6]), lty = 3, lwd = 3, col = 'blue')
-legend(40.5, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'), bty = 'n')
+abline((coef(modNPP2)[1]+coef(modNPP2)[3]), coef(modNPP2)[2], lty = 2, lwd = 3, col = 'brown')
+abline((coef(modNPP2)[1]+coef(modNPP2)[4]), coef(modNPP2)[2], lty = 3, lwd = 3, col = 'blue')
+legend(40.5, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'))
 
 
 
