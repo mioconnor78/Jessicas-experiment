@@ -17,6 +17,11 @@ k <- 8.62*10^-5
 data$invT <-  1/((data$average.temp + 273)*k)
 data$invT <- as.numeric(as.character(data$invT))
 
+data$PP.biomass <- (data$chla/55)*1000
+data$total.carbon <- data$PP.biomass + data$zooplankton.carbon.per.L
+data$NPP.mass <- data$NPP / data$PP.biomass
+data$ER.mass <- data$ER/data$total.carbon
+
 ## Does NPP vary with temperature?  
 ## figures
 hist(data$NPP)
@@ -109,7 +114,6 @@ legend(40.7, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen
 
 ## Does mass specific ER vary with temperature?  
 ## figures 
-data$ER.mass <- data$ER/data$total.carbon
 hist(data$ER.mass)
 plot(log(data$ER.mass)~data$invT, cex=1.5, pch='',  axes=FALSE, xlim=c(38.5,41), ylim=c(-8,2), xlab='inv Temperature (C)', ylab='ER ln(mg O/g C/L/hr)') 
 axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-8, lwd=2, cex.lab=1.5)
@@ -161,12 +165,12 @@ confint(modchl1)
 abline(coef(modchl1)[1], coef(modchl1)[2], lty = 1, lwd = 3, col = 'black')
 legend(40.5, -1, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'), bty = 'n')
 
-## Does total PP biomass vary with temperature and FCL?  
+## Does total PP biomass vary with temperature and FCL?   
 ## figures 
 hist(data$PP.biomass)
-plot(log(data$PP.biomass)~data$invT, cex=1.5, pch='',  axes=FALSE, xlim=c(38.5,41), ylim=c(1,6), xlab='inv Temperature (C)', ylab='PP biomass ln(ug C / L)') 
-axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=1, lwd=2, cex.lab=1.5)
-axis(2, at=c(1,2,3,4,5,6), pos=38.5, lwd=2, cex.lab=1.5)
+plot(log(data$PP.biomass)~data$invT, cex=1.5, pch='',  axes=FALSE, xlim=c(38.5,41), ylim=c(-2,6), xlab='inv Temperature (C)', ylab='PP biomass ln(mg C / L)') 
+axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-2, lwd=2, cex.lab=1.5)
+axis(2, at=c(-2,0,2,4,6), pos=38.5, lwd=2, cex.lab=1.5)
 points(log(data[(data$trophic.level=='P'),]$PP.biomass)~data[(data$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
 points(log(data[(data$trophic.level=='PZ'),]$PP.biomass)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
 points(log(data[(data$trophic.level=='PZN'),]$PP.biomass)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
@@ -184,7 +188,7 @@ confint(modPb1)
 
 ## add lines to plot
 abline(coef(modPb1)[1], coef(modPb1)[2], lty = 1, lwd = 3, col = 'black')
-legend(40.5, -1, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'), bty = 'n')
+legend(40.5, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'), bty = 'n')
 
 
 
