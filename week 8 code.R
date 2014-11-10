@@ -244,9 +244,9 @@ legend(38.5, 4, c('2 TL','3 TL'), pch = c(15, 17), col = c('brown', 'blue'), bty
 ## Does total biomass vary with temperature and trohpic structure?  
 ## figures 
 hist(data$total.carbon)
-plot(log(data$total.carbon)~data$invT, cex=1.5, pch='',  axes=FALSE, xlim=c(38.5,41), ylim=c(0,6), xlab='inv Temperature (C)', ylab='Biomass ln(g C/L)') 
-axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=0, lwd=2, cex.lab=1.5)
-axis(2, at=c(0,2,4,6), pos=38.5, lwd=2, cex.lab=1.5)
+plot(log(data$total.carbon)~data$invT, cex=1.5, pch='',  axes=FALSE, xlim=c(38.5,41), ylim=c(-2,6), xlab='inv Temperature (C)', ylab='Biomass ln(g C/L)') 
+axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-2, lwd=2, cex.lab=1.5)
+axis(2, at=c(-2,0,2,4,6), pos=38.5, lwd=2, cex.lab=1.5)
 points(log(data[(data$trophic.level=='P'),]$total.carbon)~data[(data$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
 points(log(data[(data$trophic.level=='PZ'),]$total.carbon)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
 points(log(data[(data$trophic.level=='PZN'),]$total.carbon)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
