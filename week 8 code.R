@@ -5,6 +5,8 @@
 ### set working directory and load data
 setwd("/Users/maryo/Documents/temporary files/Jessicas experment")
 data <- read.csv("week8.csv")
+dim(data)
+data <- data[-31,] # not sure what that last row was; ask Jessica
 head(data)
 
 
@@ -159,6 +161,32 @@ confint(modchl1)
 abline(coef(modchl1)[1], coef(modchl1)[2], lty = 1, lwd = 3, col = 'black')
 legend(40.5, -1, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'), bty = 'n')
 
+## Does total PP biomass vary with temperature and FCL?  
+## figures 
+hist(data$PP.biomass)
+plot(log(data$PP.biomass)~data$invT, cex=1.5, pch='',  axes=FALSE, xlim=c(38.5,41), ylim=c(1,6), xlab='inv Temperature (C)', ylab='PP biomass ln(ug C / L)') 
+axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=1, lwd=2, cex.lab=1.5)
+axis(2, at=c(1,2,3,4,5,6), pos=38.5, lwd=2, cex.lab=1.5)
+points(log(data[(data$trophic.level=='P'),]$PP.biomass)~data[(data$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
+points(log(data[(data$trophic.level=='PZ'),]$PP.biomass)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
+points(log(data[(data$trophic.level=='PZN'),]$PP.biomass)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+
+## analysis
+modPb0<-lm(log(data$PP.biomass)~1)
+modPb1<-lm(log(data$PP.biomass)~1+data$invT)
+modPb2<-lm(log(data$PP.biomass)~1+data$invT+data$trophic.level)
+modPb3<-lm(log(data$PP.biomass)~1+data$invT*data$trophic.level)
+anova(modPb0, modPb1)
+anova(modPb1, modPb2)
+anova(modPb1, modPb3)
+summary(modPb1)
+confint(modPb1)
+
+## add lines to plot
+abline(coef(modPb1)[1], coef(modPb1)[2], lty = 1, lwd = 3, col = 'black')
+legend(40.5, -1, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'), bty = 'n')
+
+
 
 ## Does zooplankton carbon vary with temperature?  
 ## figures 
@@ -188,7 +216,7 @@ legend(38.5, 3, c('2 TL','3 TL'), pch = c(15, 17), col = c('brown', 'blue'), bty
 ## Does zooplankton density vary with temperature?  
 ## figures 
 hist(data$ZP.per.L)
-plot(log(data$ZP.per.L)~data$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-2,4), xlim=c(38.5,41),  xlab='inv Temperature (C)', ylab='ZP biomass ln(ind / L)') 
+plot(log(data$ZP.per.L)~data$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-2,4), xlim=c(38.5,41),  xlab='inv Temperature (C)', ylab='ZP density ln(ind / L)') 
 axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-2, lwd=2, cex.lab=1.5)
 axis(2, at=c(-2,-1,0,1,2,3,4), pos=38.5, lwd=2, cex.lab=1.5)
 points(log(data[(data$trophic.level=='PZ'),]$ZP.per.L)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
@@ -205,6 +233,32 @@ anova(modzp1, modzp3)
 summary(modzp3)
 
 ## add lines to plot
-abline(coef(modzp2)[1], coef(modzp2)[2], lty = 2, lwd = 3, col = 'brown')
-abline((coef(modzp2)[1]+coef(modzp2)[3]), (coef(modzp2)[2]+coef(modzp2)[4]), lty = 3, lwd = 3, col = 'blue')
+abline(coef(modzp3)[1], coef(modzp3)[2], lty = 2, lwd = 3, col = 'brown')
+abline((coef(modzp3)[1]+coef(modzp3)[3]), (coef(modzp3)[2]+coef(modzp3)[4]), lty = 3, lwd = 3, col = 'blue')
 legend(38.5, 4, c('2 TL','3 TL'), pch = c(15, 17), col = c('brown', 'blue'), bty = 'n')
+
+## Does total biomass vary with temperature and trohpic structure?  
+## figures 
+hist(data$total.carbon)
+plot(log(data$total.carbon)~data$invT, cex=1.5, pch='',  axes=FALSE, xlim=c(38.5,41), ylim=c(0,6), xlab='inv Temperature (C)', ylab='Biomass ln(g C/L)') 
+axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=0, lwd=2, cex.lab=1.5)
+axis(2, at=c(0,2,4,6), pos=38.5, lwd=2, cex.lab=1.5)
+points(log(data[(data$trophic.level=='P'),]$total.carbon)~data[(data$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
+points(log(data[(data$trophic.level=='PZ'),]$total.carbon)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
+points(log(data[(data$trophic.level=='PZN'),]$total.carbon)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+
+## analysis
+modTCm0<-lm(log(data$total.carbon)~1)
+modTCm1<-lm(log(data$total.carbon)~1+data$invT)
+modTCm2<-lm(log(data$total.carbon)~1+data$invT+data$trophic.level)
+modTCm3<-lm(log(data$total.carbon)~1+data$invT*data$trophic.level)
+anova(modTCm0, modTCm1)
+anova(modTCm1, modTCm2)
+anova(modTCm1, modTCm3)
+summary(modTCm1)
+confint(modTCm1)
+
+## add lines to plot
+abline(coef(modTCm1)[1], coef(modTCm1)[2], lty = 1, lwd = 3, col = 'black')
+legend(40.5, 3, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'))
+
