@@ -13,7 +13,7 @@ tail(data)
 ### load libraries, define variables and add columns
 library(qpcR)
 library(nlme)
-k <- 8.62*10^-5
+k <- 8.62*10^-5  # eV/K
 data$invT <-  1/((data$average.temp + 273)*k)
 data$invT <- as.numeric(as.character(data$invT))
 
@@ -275,5 +275,5 @@ legend(40.5, 3, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen
 plot(data$PP.biomass ~ data$total.carbon)
 abline(0, 1)
 
-plot(data$PP.biomass ~ data$zooplankton.carbon.per.L, pch = 19)
+plot(data$PP.biomass ~ data$zooplankton.carbon.per.L, pch = 19, col = c(data$average.temp))
 abline(0, 1)
