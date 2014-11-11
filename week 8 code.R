@@ -6,7 +6,6 @@
 setwd("/Users/maryo/Documents/temporary files/Jessicas experment")
 data <- read.csv("week8.csv")
 dim(data)
-data <- data[-31,] # not sure what that last row was; ask Jessica
 head(data)
 tail(data)
 
@@ -19,8 +18,8 @@ data$invT <- as.numeric(as.character(data$invT))
 
 data$PP.biomass <- (data$chla*55) #chla (ug/L)* 55 C in PP / 1 chla = ugPPC/L
 data$total.carbon <- data$PP.biomass + data$zooplankton.carbon.per.L #I'm pretty sure zp was in ugC/L
-data$NPP.mass <- data$NPP / data$PP.biomass
-data$ER.mass <- data$ER/data$total.carbon
+data$NPP.mass <- data$NPP / (data$PP.biomass*300)
+data$ER.mass <- data$ER/(data$total.carbon*300)
 
 ## Does NPP vary with temperature?  
 ## figures
@@ -58,10 +57,10 @@ legend(40.5, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen
 ## Does mass-specific NPP vary with temperature?  
 ## figures 
 hist(data$NPP.mass)
-plot(log(data$NPP.mass)~data$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-8,2), xlim=c(38.5,41), xlab='inv Temperature (C)', ylab='NPP ln(mg O/gC/L/hr)') 
-axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-8, lwd=2, cex.lab=1.5)
-axis(2, at=c(-8,-6,-4,-2,0,2), pos=38.5, lwd=2, cex.lab=1.5)
-abline(12, -0.32, lwd = 3, col = 2)
+plot(log(data$NPP.mass)~data$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-14,-4), xlim=c(38.5,41), xlab='inv Temperature (C)', ylab='NPP ln(mg O/gC/L/hr)') 
+axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-14, lwd=2, cex.lab=1.5)
+axis(2, at=c(-14,-12,-10,-8,-6,-4), pos=38.5, lwd=2, cex.lab=1.5)
+abline(2, -0.32, lwd = 3, col = 2)
 points(log(data[(data$trophic.level=='P'),]$NPP.mass)~data[(data$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
 points(log(data[(data$trophic.level=='PZ'),]$NPP.mass)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
 points(log(data[(data$trophic.level=='PZN'),]$NPP.mass)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
@@ -118,10 +117,10 @@ legend(40.7, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen
 ## Does mass specific ER vary with temperature?  
 ## figures 
 hist(data$ER.mass)
-plot(log(data$ER.mass)~data$invT, cex=1.5, pch='',  axes=FALSE, xlim=c(38.5,41), ylim=c(-8,2), xlab='inv Temperature (C)', ylab='ER ln(mg O/g C/L/hr)') 
-axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-8, lwd=2, cex.lab=1.5)
-axis(2, at=c(-8,-6,-4,-2,0,2), pos=38.5, lwd=2, cex.lab=1.5)
-abline(22, -0.65, lwd = 3, col = 2)
+plot(log(data$ER.mass)~data$invT, cex=1.5, pch='',  axes=FALSE, xlim=c(38.5,41), ylim=c(-14,-4), xlab='inv Temperature (C)', ylab='ER ln(mg O/g C/L/hr)') 
+axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-14, lwd=2, cex.lab=1.5)
+axis(2, at=c(-14,-12,-10,-8,-6,-4), pos=38.5, lwd=2, cex.lab=1.5)
+abline(12, -0.65, lwd = 3, col = 2)
 points(log(data[(data$trophic.level=='P'),]$ER.mass)~data[(data$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
 points(log(data[(data$trophic.level=='PZ'),]$ER.mass)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
 points(log(data[(data$trophic.level=='PZN'),]$ER.mass)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
@@ -147,9 +146,9 @@ legend(40.5, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen
 ## Does chla vary with temperature?  
 ## figures 
 hist(data$chla)
-plot(log(data$chla)~data$invT, cex=1.5, pch='',  axes=FALSE, xlim=c(38.5,41), ylim=c(-3,3), xlab='inv Temperature (C)', ylab='Chl a ln(ug Chla / L)') 
-axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-3, lwd=2, cex.lab=1.5)
-axis(2, at=c(-3,-2,-1,0,1,2), pos=38.5, lwd=2, cex.lab=1.5)
+plot(log(data$chla)~data$invT, cex=1.5, pch='',  axes=FALSE, xlim=c(38.5,41), ylim=c(-4,3), xlab='inv Temperature (C)', ylab='Chl a ln(ug Chla / L)') 
+axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-4, lwd=2, cex.lab=1.5)
+axis(2, at=c(-4,-3,-2,-1,0,1,2), pos=38.5, lwd=2, cex.lab=1.5)
 points(log(data[(data$trophic.level=='P'),]$chla)~data[(data$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
 points(log(data[(data$trophic.level=='PZ'),]$chla)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
 points(log(data[(data$trophic.level=='PZN'),]$chla)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
@@ -223,22 +222,22 @@ legend(38.5, 3, c('2 TL','3 TL'), pch = c(15, 17), col = c('brown', 'blue'), bty
 
 ## Does zooplankton density vary with temperature?  
 ## figures 
-hist(data$ZP.per.L)
-plot(log(data$ZP.per.L)~data$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-2,4), xlim=c(38.5,41),  xlab='inv Temperature (C)', ylab='ZP density ln(ind / L)') 
+hist(data$zp.L.2)
+plot(log(data$zp.L.2)~data$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-2,3), xlim=c(38.5,41),  xlab='inv Temperature (C)', ylab='ZP density ln(ind / L)') 
 axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-2, lwd=2, cex.lab=1.5)
-axis(2, at=c(-2,-1,0,1,2,3,4), pos=38.5, lwd=2, cex.lab=1.5)
-points(log(data[(data$trophic.level=='PZ'),]$ZP.per.L)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
-points(log(data[(data$trophic.level=='PZN'),]$ZP.per.L)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+axis(2, at=c(-2,-1,0,1,2,3), pos=38.5, lwd=2, cex.lab=1.5)
+points(log(data[(data$trophic.level=='PZ'),]$zp.L.2)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
+points(log(data[(data$trophic.level=='PZN'),]$zp.L.2)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
 
 ## analysis
-modzp0<-lm(log(data$ZP.per.L)~1)
-modzp1<-lm(log(data$ZP.per.L)~1+data$invT)
-modzp2<-lm(log(data$ZP.per.L)~1+data$invT+data$trophic.level)
-modzp3<-lm(log(data$ZP.per.L)~1+data$invT*data$trophic.level)
+modzp0<-lm(log(data$zp.L.2)~1)
+modzp1<-lm(log(data$zp.L.2)~1+data$invT)
+modzp2<-lm(log(data$zp.L.2)~1+data$invT+data$trophic.level)
+modzp3<-lm(log(data$zp.L.2)~1+data$invT*data$trophic.level)
 anova(modzp0, modzp1)
-anova(modzp1, modzp2)
-anova(modzp1, modzp3)
-summary(modzp3)
+anova(modzp0, modzp2)
+anova(modzp0, modzp3)
+
 
 ## add lines to plot
 abline(coef(modzp3)[1], coef(modzp3)[2], lty = 2, lwd = 3, col = 'brown')
