@@ -1,16 +1,18 @@
 ### Mary's analysis of Jessica's experimet
-### November 9, 2014
-### for WSN talk
+### Feb 9, 2015
+### building on WSN talk code for manuscript with complete and revised datafile
+
+### load libraries
+library(qpcR)
+library(nlme)
 
 ### set working directory and load data
-data <- read.csv("./week8.csv")
+data <- read.csv("./temporal_data.csv")
 dim(data)
 head(data)
 tail(data)
 
 ### load libraries, define variables and add columns
-library(qpcR)
-library(nlme)
 k <- 8.62*10^-5  # eV/K
 data$invT <-  1/((data$average.temp + 273)*k)
 data$invT <- as.numeric(as.character(data$invT))
@@ -18,32 +20,35 @@ data$invT <- as.numeric(as.character(data$invT))
 #data$kT <- as.numeric(as.character(data$kT))*100
 
 data$PP.biomass <- (data$chla*55) #chla (ug/L)* 55 C in PP / 1 chla = ugPPC/L
-data$total.carbon <- data$PP.biomass + data$zooplankton.carbon.per.L #I'm pretty sure zp was in ugC/L
-data$NPP.mass <- data$NPP / (data$PP.biomass)
-data$ER.mass <- data$ER/(data$total.carbon)
+#data$total.carbon <- data$PP.biomass + data$zooplankton.carbon.per.L #I'm pretty sure zp was in ugC/L
+data$NPP.mass <- data$calc.NPP / (data$PP.biomass)
+#data$ER.mass <- data$ER/(data$total.carbon)
+
+## just week 8
+week8 <- data[which(data$week == '8'),]
 
 ## Does NPP vary with temperature?  
 ## figures on invT
-hist(data$NPP)
-plot(log(data$NPP)~data$Tank, col = data$trophic.level)
-plot(log(data$NPP)~data$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-3,2), xlim=c(38.5,41), xlab='inv(Temperature) 1/eV', ylab='NPP ln(mg O/L/hr)') 
+hist(week8$calc.NPP)
+plot(log(week8$calc.NPP)~week8$Tank, pch = 19, col = week8$trophic.level)
+plot(log(week8$calc.NPP)~week8$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-3,2), xlim=c(38.5,41), xlab='inv(Temperature) 1/eV', ylab='NPP ln(mg O/L/hr)') 
 axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-3, lwd=2, cex.lab=1.5)
 axis(2, at=c(-3,-2,-1,0,1,2), pos=38.5, lwd=2, cex.lab=1.5)
 abline(12, -0.32, lwd = 3, col = 2)
-points(log(data[(data$trophic.level=='P'),]$NPP)~data[(data$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
-points(log(data[(data$trophic.level=='PZ'),]$NPP)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
-points(log(data[(data$trophic.level=='PZN'),]$NPP)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+points(log(week8[(week8$trophic.level=='P'),]$calc.NPP)~week8[(week8$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
+points(log(week8[(week8$trophic.level=='PZ'),]$calc.NPP)~week8[(week8$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
+points(log(week8[(week8$trophic.level=='PZN'),]$calc.NPP)~week8[(week8$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
 
 
 ## analysis
-modNPP0<-lm(log(data$NPP)~1)
-modNPP1<-lm(log(data$NPP)~1+data$invT)
-modNPP2<-lm(log(data$NPP)~1+data$invT+data$trophic.level)
-modNPP3<-lm(log(data$NPP)~1+data$invT*data$trophic.level)
+modNPP0<-lm(log(week8$calc.NPP)~1)
+modNPP1<-lm(log(week8$calc.NPP)~1+week8$invT)
+modNPP2<-lm(log(week8$calc.NPP)~1+week8$invT+week8$trophic.level)
+modNPP3<-lm(log(week8$calc.NPP)~1+week8$invT*week8$trophic.level)
 anova(modNPP0, modNPP1)
-anova(modNPP0, modNPP2)
+anova(modNPP1, modNPP2)
 anova(modNPP2, modNPP3)
-AIC(modNPP0, modNPP1, modNPP2)
+AIC(modNPP0, modNPP1, modNPP2, modNPP3)
 
 summary(modNPP2)
 coef(modNPP2)
@@ -54,6 +59,8 @@ abline(coef(modNPP2)[1], coef(modNPP2)[2], lty = 1, lwd = 3, col = 'seagreen')
 abline((coef(modNPP2)[1]+coef(modNPP2)[3]), coef(modNPP2)[2], lty = 2, lwd = 3, col = 'brown')
 abline((coef(modNPP2)[1]+coef(modNPP2)[4]), coef(modNPP2)[2], lty = 3, lwd = 3, col = 'blue')
 legend(40.5, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'))
+
+
 
 # net ecosystem metabolism
 data$NEM <- 18*data$NPP - 24*data$ER  #this is not a thing; because ER is already part of NPP. Could
@@ -128,20 +135,20 @@ legend(40.5, -2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagree
 
 ## Does ER vary with temperature?  
 ## figures 
-hist(data$ER)
-plot(log(data$ER)~data$invT, cex=1.5, pch='',  axes=FALSE,ylim=c(-3,2), xlim=c(38.5,41),  xlab='inv Temperature (C)', ylab='ER ln(mg O/L/hr)') 
+hist(week8$calc.ER)
+plot(log(week8$calc.ER)~week8$invT, cex=1.5, pch='',  axes=FALSE,ylim=c(-3,2), xlim=c(38.5,41),  xlab='inv Temperature (C)', ylab='ER ln(mg O/L/hr)') 
 axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-3, lwd=2, cex.lab=1.5)
 axis(2, at=c(-3,-2,-1,0,1,2), pos=38.5, lwd=2, cex.lab=1.5)
 abline(20, -0.65, lwd = 3, col = 2)
-points(log(data[(data$trophic.level=='P'),]$ER)~data[(data$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
-points(log(data[(data$trophic.level=='PZ'),]$ER)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
-points(log(data[(data$trophic.level=='PZN'),]$ER)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+points(log(week8[(week8$trophic.level=='P'),]$calc.ER)~week8[(week8$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
+points(log(week8[(week8$trophic.level=='PZ'),]$calc.ER)~week8[(week8$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
+points(log(week8[(week8$trophic.level=='PZN'),]$calc.ER)~week8[(week8$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
 
 ## analysis
-modER0<-lm(log(data$ER)~1)
-modER1<-lm(log(data$ER)~1+data$invT)
-modER2<-lm(log(data$ER)~1+data$invT+data$trophic.level)
-modER3<-lm(log(data$ER)~1+data$invT*data$trophic.level)
+modER0<-lm(log(week8$calc.ER)~1)
+modER1<-lm(log(week8$calc.ER)~1+week8$invT)
+modER2<-lm(log(week8$calc.ER)~1+week8$invT+week8$trophic.level)
+modER3<-lm(log(week8$calc.ER)~1+week8$invT*week8$trophic.level)
 anova(modER0, modER1)
 anova(modER1, modER2)
 anova(modER2, modER3)
@@ -187,9 +194,10 @@ legend(40.5, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen
 
 ## Does chla vary with temperature?  
 ## figures 
-hist(data$chla)
-plot(log(data$chla)~data$Tank, col = data$trophic.level)
-data1 <- data[-which(data$Tank=='30'),]
+hist(week8$chla)
+plot(log(week8$chla)~week8$Tank, pch = 19, col = week8$trophic.level)
+data1 <- week8
+  # week8[-which(week8$Tank=='30'),]
 plot(log(data1$chla)~data1$invT, cex=1.5, pch='',  axes=FALSE, xlim=c(38.5,41), ylim=c(-4,3), xlab='inv Temperature (C)', ylab='Chl a ln(ug Chla / L)') 
 axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-4, lwd=2, cex.lab=1.5)
 axis(2, at=c(-4,-3,-2,-1,0,1,2), pos=38.5, lwd=2, cex.lab=1.5)
@@ -205,13 +213,17 @@ modchl2<-lm(log(data1$chla)~1+data1$invT+data1$trophic.level)
 modchl3<-lm(log(data1$chla)~1+data1$invT*data1$trophic.level)
 anova(modchl0, modchl1)
 anova(modchl1, modchl2)
-anova(modchl1, modchl3)
-summary(modchl1)
-confint(modchl1)
+anova(modchl2, modchl3)
+summary(modchl3)
+confint(modchl3)
 
 ## add lines to plot
-abline(coef(modchl1)[1], coef(modchl1)[2], lty = 1, lwd = 3, col = 'black')
+abline(coef(modchl3)[1], coef(modchl3)[2], lty = 1, lwd = 3, col = 'seagreen')
+abline((coef(modchl3)[1]+coef(modchl3)[3]), (coef(modchl3)[2]+coef(modchl3)[5]), lty = 2, lwd = 3, col = 'brown')
+abline((coef(modchl3)[1]+coef(modchl3)[4]), (coef(modchl3)[2]+coef(modchl3)[6]), lty = 3, lwd = 3, col = 'blue')
 legend(40.5, -1, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'), bty = 'n')
+
+
 
 ## Does total PP biomass vary with temperature and FCL?   
 ## figures 
