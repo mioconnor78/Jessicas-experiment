@@ -27,7 +27,7 @@ data$ER.mass <- data$ER/(data$total.carbon)
 ## figures on invT
 hist(data$NPP)
 plot(log(data$NPP)~data$Tank, col = data$trophic.level)
-plot(log(data$NPP)~data$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-3,2), xlim=c(38.5,41), xlab='inv(Temperature) 1/eV', ylab='NPP ln(mg/L/hr)') 
+plot(log(data$NPP)~data$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-3,2), xlim=c(38.5,41), xlab='inv(Temperature) 1/eV', ylab='NPP ln(mg O/L/hr)') 
 axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-3, lwd=2, cex.lab=1.5)
 axis(2, at=c(-3,-2,-1,0,1,2), pos=38.5, lwd=2, cex.lab=1.5)
 abline(12, -0.32, lwd = 3, col = 2)
@@ -56,58 +56,62 @@ abline((coef(modNPP2)[1]+coef(modNPP2)[3]), coef(modNPP2)[2], lty = 2, lwd = 3, 
 abline((coef(modNPP2)[1]+coef(modNPP2)[4]), coef(modNPP2)[2], lty = 3, lwd = 3, col = 'blue')
 legend(40.5, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'))
 
+# net ecosystem metabolism
+data$NEM <- 18*data$NPP - 24*data$ER  #this is not a thing; because ER is already part of NPP. Could
+# look at the two over a 24 hour period... so ER*24 but NPP*18...
+plot(log(4+data$NEM)~data$invT, pch = 19, col = data$trophic.level)
+data$NEM
 
-
-## figures on kT
-hist(data$NPP)
-plot(log(data$NPP)~data$kT, cex=1.5, pch='',  axes=FALSE, ylim=c(-3,2), xlim=c(2.45,2.6), xlab='inv Temperature (C)', ylab='NPP ln(mg/L/hr)') 
-axis(1, at=c(2.45,2.50,2.55,2.60), pos=-3, lwd=2, cex.lab=1.5)
-axis(2, at=c(-3,-2,-1,0,1,2), pos=2.45, lwd=2, cex.lab=1.5)
-abline(12, -0.32, lwd = 3, col = 2)
-points(log(data[(data$trophic.level=='P'),]$NPP)~data[(data$trophic.level=='P'),]$kT, pch=19, col = 'seagreen', cex = 1.5)
-points(log(data[(data$trophic.level=='PZ'),]$NPP)~data[(data$trophic.level=='PZ'),]$kT, pch=15, col = 'brown', cex = 1.5)
-points(log(data[(data$trophic.level=='PZN'),]$NPP)~data[(data$trophic.level=='PZN'),]$kT, pch=17, col = 'blue')
+plot(log(3+data$NEM)~data$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-1,4), xlim=c(38.5,41), xlab='inv(Temperature) 1/eV', ylab='NEM ln(mg O/L/hr)') 
+axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-1, lwd=2, cex.lab=1.5)
+axis(2, at=c(-1,0,1,2,3,4), pos=38.5, lwd=2, cex.lab=1.5)
+abline(3, 0, lwd = 3, col = 1, lty = 2)
+points(log(3+data[(data$trophic.level=='P'),]$NEM)~data[(data$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
+points(log(3+data[(data$trophic.level=='PZ'),]$NEM)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
+points(log(3+data[(data$trophic.level=='PZN'),]$NEM)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
 
 
 ## analysis
-modNPP0<-lm(log(data$NPP)~1)
-modNPP1<-lm(log(data$NPP)~1+data$kT)
-modNPP2<-lm(log(data$NPP)~1+data$kT+data$trophic.level)
-modNPP3<-lm(log(data$NPP)~1+data$kT*data$trophic.level)
-anova(modNPP0, modNPP1)
-anova(modNPP0, modNPP2)
-anova(modNPP2, modNPP3)
-AIC(modNPP0, modNPP1, modNPP2)
+modNEM0<-lm(log(3+data$NEM)~1)
+modNEM1<-lm(log(3+data$NEM)~1+data$invT)
+modNEM2<-lm(log(3+data$NEM)~1+data$invT+data$trophic.level)
+modNEM3<-lm(log(3+data$NEM)~1+data$invT*data$trophic.level)
+anova(modNEM0, modNEM1)
+anova(modNEM0, modNEM2)
+anova(modNEM2, modNEM3)
+AIC(modNEM0, modNEM1, modNEM2, modNEM3)
 
-summary(modNPP2)
-coef(modNPP2)
-confint(modNPP2)
+summary(modNEM2)
+coef(modNEM3)
+confint(modNEM2)
 
 ## add lines to plot
-abline(coef(modNPP2)[1], coef(modNPP2)[2], lty = 1, lwd = 3, col = 'seagreen')
-abline((coef(modNPP2)[1]+coef(modNPP2)[3]), coef(modNPP2)[2], lty = 2, lwd = 3, col = 'brown')
-abline((coef(modNPP2)[1]+coef(modNPP2)[4]), coef(modNPP2)[2], lty = 3, lwd = 3, col = 'blue')
+abline(coef(modNEM3)[1], coef(modNEM3)[2], lty = 1, lwd = 3, col = 'seagreen')
+abline((coef(modNEM3)[1]+coef(modNEM3)[3]), (coef(modNEM3)[2]+coef(modNEM3)[5]), lty = 2, lwd = 3, col = 'brown')
+abline((coef(modNEM3)[1]+coef(modNEM3)[4]), (coef(modNEM3)[2]+coef(modNEM3)[6]), lty = 3, lwd = 3, col = 'blue')
 legend(40.5, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'))
 
 
-
-
 ## Does mass-specific NPP vary with temperature?  
-## figures 
+## figures  
 hist(data$NPP.mass)
-plot(log(data$NPP.mass)~data$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-14,-4), xlim=c(38.5,41), xlab='inv Temperature (C)', ylab='NPP ln(mg O/gC/L/hr)') 
-axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-14, lwd=2, cex.lab=1.5)
-axis(2, at=c(-14,-12,-10,-8,-6,-4), pos=38.5, lwd=2, cex.lab=1.5)
-abline(2, -0.32, lwd = 3, col = 2)
-points(log(data[(data$trophic.level=='P'),]$NPP.mass)~data[(data$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
-points(log(data[(data$trophic.level=='PZ'),]$NPP.mass)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
-points(log(data[(data$trophic.level=='PZN'),]$NPP.mass)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+plot(log(data$NPP.mass)~data$Tank, col = data$trophic.level)
+plot(log(data$chla)~data$Tank, col = data$trophic.level)
+data1 <- data[-which(data$Tank=='30'),]
+
+plot(log(data1$NPP.mass)~data1$invT, cex=1.5, pch='', ylim=c(-8,-2),  axes=FALSE, xlim=c(38.5,41), xlab='inv Temperature (C)', ylab='NPP ln(mg O/gC/L/hr)') 
+axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-8, lwd=2, cex.lab=1.5)
+axis(2, at=c(-8,-6,-4,-2), pos=38.5, lwd=2, cex.lab=1.5)
+abline(10, -0.32, lwd = 3, col = 2)
+points(log(data1[(data1$trophic.level=='P'),]$NPP.mass)~data1[(data1$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
+points(log(data1[(data1$trophic.level=='PZ'),]$NPP.mass)~data1[(data1$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
+points(log(data1[(data1$trophic.level=='PZN'),]$NPP.mass)~data1[(data1$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
 
 ## analysis
-modNPPm0<-lm(log(data$NPP.mass)~1)
-modNPPm1<-lm(log(data$NPP.mass)~1+data$invT)
-modNPPm2<-lm(log(data$NPP.mass)~1+data$invT+data$trophic.level)
-modNPPm3<-lm(log(data$NPP.mass)~1+data$invT*data$trophic.level)
+modNPPm0<-lm(log(data1$NPP.mass)~1)
+modNPPm1<-lm(log(data1$NPP.mass)~1+data1$invT)
+modNPPm2<-lm(log(data1$NPP.mass)~1+data1$invT+data1$trophic.level)
+modNPPm3<-lm(log(data1$NPP.mass)~1+data1$invT*data1$trophic.level)
 anova(modNPPm0, modNPPm1)
 anova(modNPPm1, modNPPm2)
 anova(modNPPm2, modNPPm3)
@@ -119,7 +123,7 @@ confint(modNPPm2)
 abline(coef(modNPPm2)[1], coef(modNPPm2)[2], lty = 1, lwd = 3, col = 'seagreen')
 abline((coef(modNPPm2)[1]+coef(modNPPm2)[3]), coef(modNPPm2)[2], lty = 2, lwd = 3, col = 'brown')
 abline((coef(modNPPm2)[1]+coef(modNPPm2)[4]), coef(modNPPm2)[2], lty = 3, lwd = 3, col = 'blue')
-legend(40.5, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'), bty = 'n')
+legend(40.5, -2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'))
 
 
 
@@ -129,10 +133,11 @@ hist(data$ER)
 plot(log(data$ER)~data$invT, cex=1.5, pch='',  axes=FALSE,ylim=c(-3,2), xlim=c(38.5,41),  xlab='inv Temperature (C)', ylab='ER ln(mg O/L/hr)') 
 axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-3, lwd=2, cex.lab=1.5)
 axis(2, at=c(-3,-2,-1,0,1,2), pos=38.5, lwd=2, cex.lab=1.5)
-abline(27, -0.65, lwd = 3, col = 2)
+abline(20, -0.65, lwd = 3, col = 2)
 points(log(data[(data$trophic.level=='P'),]$ER)~data[(data$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
 points(log(data[(data$trophic.level=='PZ'),]$ER)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
 points(log(data[(data$trophic.level=='PZN'),]$ER)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+
 ## analysis
 modER0<-lm(log(data$ER)~1)
 modER1<-lm(log(data$ER)~1+data$invT)
@@ -184,18 +189,21 @@ legend(40.5, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen
 ## Does chla vary with temperature?  
 ## figures 
 hist(data$chla)
-plot(log(data$chla)~data$invT, cex=1.5, pch='',  axes=FALSE, xlim=c(38.5,41), ylim=c(-4,3), xlab='inv Temperature (C)', ylab='Chl a ln(ug Chla / L)') 
+plot(log(data$chla)~data$Tank, col = data$trophic.level)
+data1 <- data[-which(data$Tank=='30'),]
+plot(log(data1$chla)~data1$invT, cex=1.5, pch='',  axes=FALSE, xlim=c(38.5,41), ylim=c(-4,3), xlab='inv Temperature (C)', ylab='Chl a ln(ug Chla / L)') 
 axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-4, lwd=2, cex.lab=1.5)
 axis(2, at=c(-4,-3,-2,-1,0,1,2), pos=38.5, lwd=2, cex.lab=1.5)
-points(log(data[(data$trophic.level=='P'),]$chla)~data[(data$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
-points(log(data[(data$trophic.level=='PZ'),]$chla)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
-points(log(data[(data$trophic.level=='PZN'),]$chla)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+abline(-25.5, 0.65, lwd = 3, col = 2)
+points(log(data1[(data1$trophic.level=='P'),]$chla)~data1[(data1$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
+points(log(data1[(data1$trophic.level=='PZ'),]$chla)~data1[(data1$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
+points(log(data1[(data1$trophic.level=='PZN'),]$chla)~data1[(data1$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
 
 ## analysis
-modchl0<-lm(log(data$chla)~1)
-modchl1<-lm(log(data$chla)~1+data$invT)
-modchl2<-lm(log(data$chla)~1+data$invT+data$trophic.level)
-modchl3<-lm(log(data$chla)~1+data$invT*data$trophic.level)
+modchl0<-lm(log(data1$chla)~1)
+modchl1<-lm(log(data1$chla)~1+data1$invT)
+modchl2<-lm(log(data1$chla)~1+data1$invT+data1$trophic.level)
+modchl3<-lm(log(data1$chla)~1+data1$invT*data1$trophic.level)
 anova(modchl0, modchl1)
 anova(modchl1, modchl2)
 anova(modchl1, modchl3)
@@ -231,7 +239,10 @@ confint(modPb1)
 abline(coef(modPb1)[1], coef(modPb1)[2], lty = 1, lwd = 3, col = 'black')
 legend(40.5, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'), bty = 'n')
 
-
+plot((data$PO4)~data$invT, col = data$trophic.level)
+plot((data$PO4)~data$Tank, col = data$trophic.level)
+plot((data$NO3.NO2)~data$invT, col = data$trophic.level)
+plot((data$NO3.NO2)~data$Tank, col = data$trophic.level)
 
 ## Does zooplankton carbon vary with temperature?  
 ## figures 
@@ -281,6 +292,33 @@ anova(modzp0, modzp3)
 abline(coef(modzp3)[1], coef(modzp3)[2], lty = 2, lwd = 3, col = 'brown')
 abline((coef(modzp3)[1]+coef(modzp3)[3]), (coef(modzp3)[2]+coef(modzp3)[4]), lty = 3, lwd = 3, col = 'blue')
 legend(38.5, 4, c('2 TL','3 TL'), pch = c(15, 17), col = c('brown', 'blue'), bty = 'n')
+
+
+## Does adult zooplankton density vary with temperature?  
+## figures 
+hist(data$zp.adults)
+plot((data$zp.adults)~data$invT, cex=1.5, pch='',  axes=FALSE,  ylim=c(0,8), xlim=c(38.5,41),  xlab='inv Temperature (C)', ylab='ZP adult density (ind / L)') 
+axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=0, lwd=2, cex.lab=1.5)
+axis(2, at=c(0,2,4,6,8), pos=38.5, lwd=2, cex.lab=1.5)
+points((data[(data$trophic.level=='PZ'),]$zp.adults)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
+points((data[(data$trophic.level=='PZN'),]$zp.adults)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+
+## analysis
+modzp0<-lm((data$zp.adults)~1)
+modzp1<-lm((data$zp.adults)~1+data$invT)
+modzp2<-lm((data$zp.adults)~1+data$invT+data$trophic.level)
+modzp3<-lm((data$zp.adults)~1+data$invT*data$trophic.level)
+anova(modzp0, modzp1)
+anova(modzp1, modzp2)
+anova(modzp1, modzp3)
+
+
+## add lines to plot
+abline(coef(modzp3)[1], coef(modzp3)[2], lty = 2, lwd = 3, col = 'brown')
+abline((coef(modzp3)[1]+coef(modzp3)[3]), (coef(modzp3)[2]+coef(modzp3)[4]), lty = 3, lwd = 3, col = 'blue')
+legend(38.5, 8, c('2 TL','3 TL'), pch = c(15, 17), col = c('brown', 'blue'), bty = 'n')
+
+
 
 ## Does total biomass vary with temperature and trophic structure?  
 ## figures 
