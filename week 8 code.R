@@ -3,8 +3,7 @@
 ### for WSN talk
 
 ### set working directory and load data
-setwd("/Users/maryo/Documents/temporary files/Jessicas experment")
-data <- read.csv("week8.csv")
+data <- read.csv("./week8.csv")
 dim(data)
 head(data)
 tail(data)
