@@ -268,20 +268,20 @@ plot((data$NO3.NO2)~data$Tank, col = data$trophic.level)
 
 ## Does zooplankton carbon vary with temperature?  
 ## figures 
-hist(data$zoo.carbon.liter)
-plot(log(week8$zoo.carbon.liter)~week8$Tank, pch = 19, col = week8$trophic.level)
-plot(log(week8$zoo.carbon.liter)~week8$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-1,3), xlim=c(38.5,41),  xlab='inv Temperature (C)', ylab='ZP biomass ln(g C / L)') 
+hist(data$zoo.ug.carbon.liter)
+plot(log(week8$zoo.ug.carbon.liter)~week8$Tank, pch = 19, col = week8$trophic.level)
+plot(log(week8$zoo.ug.carbon.liter)~week8$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-1,3), xlim=c(38.5,41),  xlab='inv Temperature (C)', ylab='ZP biomass ln(ug C / L)') 
 axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-1, lwd=2, cex.lab=1.5)
 axis(2, at=c(-1,0,1,2,3), pos=38.5, lwd=2, cex.lab=1.5)
-points(log(week8[(week8$trophic.level=='PZ'),]$zoo.carbon.liter)~week8[(week8$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
-points(log(week8[(week8$trophic.level=='PZN'),]$zoo.carbon.liter)~week8[(week8$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+points(log(week8[(week8$trophic.level=='PZ'),]$zoo.ug.carbon.liter)~week8[(week8$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
+points(log(week8[(week8$trophic.level=='PZN'),]$zoo.ug.carbon.liter)~week8[(week8$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
 
 ## analysis
-week8 <- week8[-which(week8$Tank=='2'),]
-modzpc0<-lm(log(week8$zoo.carbon.liter)~1)
-modzpc1<-lm(log(week8$zoo.carbon.liter)~1+week8$invT)
-modzpc2<-lm(log(week8$zoo.carbon.liter)~1+week8$invT+week8$trophic.level)
-modzpc3<-lm(log(week8$zoo.carbon.liter)~1+week8$invT*week8$trophic.level)
+#week8 <- week8[-which(week8$Tank=='2'),]
+modzpc0<-lm(log(week8$zoo.ug.carbon.liter)~1)
+modzpc1<-lm(log(week8$zoo.ug.carbon.liter)~1+week8$invT)
+modzpc2<-lm(log(week8$zoo.ug.carbon.liter)~1+week8$invT+week8$trophic.level)
+modzpc3<-lm(log(week8$zoo.ug.carbon.liter)~1+week8$invT*week8$trophic.level)
 anova(modzpc0, modzpc1)
 anova(modzpc1, modzpc2)
 anova(modzpc2, modzpc3)
