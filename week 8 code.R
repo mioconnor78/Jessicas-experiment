@@ -25,7 +25,7 @@ data$NPP.mass <- data$calc.NPP / (data$PP.biomass)
 data$ER.mass <- data$calc.ER/(data$total.carbon.liter)
 
 ## just week 8
-week8 <- data[which(data$week == '8'),]
+week8 <- data[which(data$week == '6'),]
 
 ## Does NPP vary with temperature?  
 ## figures on invT
@@ -323,9 +323,9 @@ legend(38.5, 4, c('2 TL','3 TL'), pch = c(15, 17), col = c('brown', 'blue'), bty
 
 ## Does daphnia:copepod  vary with temperature?  
 ## figures 
-plot((week8$Daphnia.Copepod.Ratio)~week8$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(0,2.5), xlim=c(38.5,41),  xlab='inv Temperature (C)', ylab='Daphnia: Copepod') 
+plot((week8$Daphnia.Copepod.Ratio)~week8$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(0,3), xlim=c(38.5,41),  xlab='inv Temperature (C)', ylab='Daphnia: Copepod') 
 axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=0, lwd=2, cex.lab=1.5)
-axis(2, at=c(0,0.5, 1.0, 1.5, 2.0, 2.5), pos=38.5, lwd=2, cex.lab=1.5)
+axis(2, at=c(0,0.5, 1.0, 1.5, 2.0, 2.5,3), pos=38.5, lwd=2, cex.lab=1.5)
 points((week8[(week8$trophic.level=='PZ'),]$Daphnia.Copepod.Ratio)~week8[(week8$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
 points((week8[(week8$trophic.level=='PZN'),]$Daphnia.Copepod.Ratio)~week8[(week8$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
 
