@@ -19,25 +19,39 @@ data$invT <- as.numeric(as.character(data$invT))
 #data$kT <-  ((data$average.temp + 273)*k)
 #data$kT <- as.numeric(as.character(data$kT))*100
 
+## estimating NPP, ER and GPP
+# NPP = sum of changes in O2 over the day (but not night; so our dusk-dawn)
+data$NPPd <- data$dusk - data$dawn1
+# ER = Rday + sum of change in O2 over the night (our dawn2 - dusk); Rday is estimated by extrapolating the mean night time hourly R over the hours of daylight.
+data$ERd <- (-(data$dawn2 - data$dusk)/data$hours2)*24
+# GPP = NPP + Rday, where Rday is daytime respiration (estimated below)
+data$GPP <- data$NPPd + data$ERd
+# NEM = oxygen gained / oxygen lost, so NPP.daily / ER.daily
+data$NEM <- data$NPPd / data$ERd  # values > 1 = net oxygen producers = net autotrophic
+data$NEM2 <- data$dawn2 - data$dawn1
+
 data$PP.biomass <- (data$chla*55) #chla (ug/L)* 55 C in PP / 1 chla = ugPPC/L
 #data$total.carbon <- data$PP.biomass + data$zoo.carbon.liter #I'm pretty sure zp was in ugC/L
-data$NPP.mass <- data$calc.NPP / (data$PP.biomass)
-data$ER.mass <- data$calc.ER/(data$total.carbon.liter)
+data$NPP.mass <- data$NPPd / (data$PP.biomass)
+data$ER.mass <- data$ERd/(data$total.carbon.liter)
+
+
+
 
 ## just week 8
-week8 <- data[which(data$week == '6'),]
+week8 <- data[which(data$week == '8'),]
 
 ## Does NPP vary with temperature?  
 ## figures on invT
-hist(week8$calc.NPP)
-plot(log(week8$calc.NPP)~week8$Tank, pch = 19, col = week8$trophic.level)
-plot(log(week8$calc.NPP)~week8$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-3,2), xlim=c(38.5,41), xlab='inv(Temperature) 1/eV', ylab='NPP ln(mg O/L/hr)') 
+hist(week8$NPPd)
+plot(log(week8$NPPd)~week8$Tank, pch = 19, col = week8$trophic.level)
+plot(log(week8$NPPd)~week8$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-3,2), xlim=c(38.5,41), xlab='inv(Temperature) 1/eV', ylab='NPP ln(mg O/L/d)') 
 axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-3, lwd=2, cex.lab=1.5)
 axis(2, at=c(-3,-2,-1,0,1,2), pos=38.5, lwd=2, cex.lab=1.5)
 abline(12, -0.32, lwd = 3, col = 2)
-points(log(week8[(week8$trophic.level=='P'),]$calc.NPP)~week8[(week8$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
-points(log(week8[(week8$trophic.level=='PZ'),]$calc.NPP)~week8[(week8$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
-points(log(week8[(week8$trophic.level=='PZN'),]$calc.NPP)~week8[(week8$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+points(log(week8[(week8$trophic.level=='P'),]$NPPd)~week8[(week8$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
+points(log(week8[(week8$trophic.level=='PZ'),]$NPPd)~week8[(week8$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
+points(log(week8[(week8$trophic.level=='PZN'),]$NPPd)~week8[(week8$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
 
 
 ## analysis
@@ -63,38 +77,34 @@ legend(40.5, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen
 
 
 # net ecosystem metabolism
-data$NEM <- 18*data$NPP - 24*data$ER  #this is not a thing; because ER is already part of NPP. Could
-# look at the two over a 24 hour period... so ER*24 but NPP*18...
-plot(log(4+data$NEM)~data$invT, pch = 19, col = data$trophic.level)
-data$NEM
-
-plot(log(3+data$NEM)~data$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-1,4), xlim=c(38.5,41), xlab='inv(Temperature) 1/eV', ylab='NEM ln(mg O/L/hr)') 
-axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-1, lwd=2, cex.lab=1.5)
-axis(2, at=c(-1,0,1,2,3,4), pos=38.5, lwd=2, cex.lab=1.5)
-abline(3, 0, lwd = 3, col = 1, lty = 2)
-points(log(3+data[(data$trophic.level=='P'),]$NEM)~data[(data$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
-points(log(3+data[(data$trophic.level=='PZ'),]$NEM)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
-points(log(3+data[(data$trophic.level=='PZN'),]$NEM)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+hist(log(week8$NEM))
+plot(log(week8$NEM)~week8$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-3,2), xlim=c(38.5,41), xlab='inv(Temperature) 1/eV', ylab='NEM ln(mg O/L/d)') 
+axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-3, lwd=2, cex.lab=1.5)
+axis(2, at=c(-3,-2,-1,0,1,2), pos=38.5, lwd=2, cex.lab=1.5)
+abline(0, 0, lwd = 3, col = 1, lty = 2)
+points(log(week8[(week8$trophic.level=='P'),]$NEM)~week8[(week8$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
+points(log(week8[(week8$trophic.level=='PZ'),]$NEM)~week8[(week8$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
+points(log(week8[(week8$trophic.level=='PZN'),]$NEM)~week8[(week8$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
 
 
 ## analysis
-modNEM0<-lm(log(3+data$NEM)~1)
-modNEM1<-lm(log(3+data$NEM)~1+data$invT)
-modNEM2<-lm(log(3+data$NEM)~1+data$invT+data$trophic.level)
-modNEM3<-lm(log(3+data$NEM)~1+data$invT*data$trophic.level)
+modNEM0<-lm(log(week8[(week8$trophic.level!='PZN'),]$NEM)~1)
+modNEM1<-lm(log(week8[(week8$trophic.level!='PZN'),]$NEM)~1+week8[(week8$trophic.level!='PZN'),]$invT)
+modNEM2<-lm(log(week8[(week8$trophic.level!='PZN'),]$NEM)~1+week8[(week8$trophic.level!='PZN'),]$invT+week8[(week8$trophic.level!='PZN'),]$trophic.level)
+modNEM3<-lm(log(week8[(week8$trophic.level!='PZN'),]$NEM)~1+week8[(week8$trophic.level!='PZN'),]$invT*week8[(week8$trophic.level!='PZN'),]$trophic.level)
 anova(modNEM0, modNEM1)
 anova(modNEM0, modNEM2)
 anova(modNEM2, modNEM3)
 AIC(modNEM0, modNEM1, modNEM2, modNEM3)
 
-summary(modNEM2)
+summary(modNEM3)
 coef(modNEM3)
 confint(modNEM2)
 
 ## add lines to plot
 abline(coef(modNEM3)[1], coef(modNEM3)[2], lty = 1, lwd = 3, col = 'seagreen')
-abline((coef(modNEM3)[1]+coef(modNEM3)[3]), (coef(modNEM3)[2]+coef(modNEM3)[5]), lty = 2, lwd = 3, col = 'brown')
-abline((coef(modNEM3)[1]+coef(modNEM3)[4]), (coef(modNEM3)[2]+coef(modNEM3)[6]), lty = 3, lwd = 3, col = 'blue')
+abline((coef(modNEM3)[1]+coef(modNEM3)[3]), (coef(modNEM3)[2]+coef(modNEM3)[4]), lty = 2, lwd = 3, col = 'brown')
+#abline((coef(modNEM3)[1]+coef(modNEM3)[4]), (coef(modNEM3)[2]+coef(modNEM3)[6]), lty = 3, lwd = 3, col = 'blue')
 legend(40.5, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'))
 
 
@@ -105,9 +115,9 @@ plot(log(week8$NPP.mass)~week8$Tank, pch = 19, col = week8$trophic.level)
 plot(log(week8$chla)~week8$Tank, col = week8$trophic.level)
 #data1 <- data[-which(data$Tank=='30'),]
 
-plot(log(week8$NPP.mass)~week8$invT, cex=1.5, pch='', ylim=c(-8,-2),  axes=FALSE, xlim=c(38.5,41), xlab='inv Temperature (C)', ylab='NPP ln(mg O/gC/L/hr)') 
+plot(log(week8$NPP.mass)~week8$invT, cex=1.5, pch='', ylim=c(-8,2),  axes=FALSE, xlim=c(38.5,41), xlab='inv Temperature (C)', ylab='NPP ln(mg O/gC/L/hr)') 
 axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-8, lwd=2, cex.lab=1.5)
-axis(2, at=c(-8,-6,-4,-2), pos=38.5, lwd=2, cex.lab=1.5)
+axis(2, at=c(-8,-6,-4,-2,0,2), pos=38.5, lwd=2, cex.lab=1.5)
 abline(10, -0.32, lwd = 3, col = 2)
 points(log(week8[(week8$trophic.level=='P'),]$NPP.mass)~week8[(week8$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
 points(log(week8[(week8$trophic.level=='PZ'),]$NPP.mass)~week8[(week8$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
@@ -140,22 +150,22 @@ legend(40.5, -2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagree
 
 
 
-## Does ER vary with temperature?  
+## Does ERd vary with temperature?  
 ## figures 
-hist(week8$calc.ER)
-plot(log(week8$calc.ER)~week8$invT, cex=1.5, pch='',  axes=FALSE,ylim=c(-3,2), xlim=c(38.5,41),  xlab='inv Temperature (C)', ylab='ER ln(mg O/L/hr)') 
+hist(week8$ERd)  # have some negative values here, which means that some tanks produced oxygen over night.
+plot(log(week8$ERd)~week8$invT, cex=1.5, pch='',  axes=FALSE,ylim=c(-3,2), xlim=c(38.5,41),  xlab='inv Temperature (C)', ylab='ER ln(mg O/L/hr)') 
 axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-3, lwd=2, cex.lab=1.5)
 axis(2, at=c(-3,-2,-1,0,1,2), pos=38.5, lwd=2, cex.lab=1.5)
 abline(20, -0.65, lwd = 3, col = 2)
-points(log(week8[(week8$trophic.level=='P'),]$calc.ER)~week8[(week8$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
-points(log(week8[(week8$trophic.level=='PZ'),]$calc.ER)~week8[(week8$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
-points(log(week8[(week8$trophic.level=='PZN'),]$calc.ER)~week8[(week8$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+points(log(week8[(week8$trophic.level=='P'),]$ERd)~week8[(week8$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
+points(log(week8[(week8$trophic.level=='PZ'),]$ERd)~week8[(week8$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
+points(log(week8[(week8$trophic.level=='PZN'),]$ERd)~week8[(week8$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
 
 ## analysis
-modER0<-lm(log(week8$calc.ER)~1)
-modER1<-lm(log(week8$calc.ER)~1+week8$invT)
-modER2<-lm(log(week8$calc.ER)~1+week8$invT+week8$trophic.level)
-modER3<-lm(log(week8$calc.ER)~1+week8$invT*week8$trophic.level)
+modER0<-lm(log(week8$ERd)~1)
+modER1<-lm(log(week8$ERd)~1+week8$invT)
+modER2<-lm(log(week8$ERd)~1+week8$invT+week8$trophic.level)
+modER3<-lm(log(week8$ERd)~1+week8$invT*week8$trophic.level)
 anova(modER0, modER1)
 anova(modER1, modER2)
 anova(modER2, modER3)
@@ -173,10 +183,10 @@ legend(40.7, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen
 
 ## Does mass specific ER vary with temperature?  
 ## figures 
-hist(data$ER.mass)
-plot(log(data$ER.mass)~data$invT, cex=1.5, pch='',  axes=FALSE, xlim=c(38.5,41), ylim=c(-10,0), xlab='inv Temperature (C)', ylab='ER ln(mg O/g C/L/hr)') 
+hist(log(data$ER.mass))
+plot(log(data$ER.mass)~data$invT, cex=1.5, pch='',  axes=FALSE, xlim=c(38.5,41), ylim=c(-8,2), xlab='inv Temperature (C)', ylab='ER ln(mg O/g C/L/hr)') 
 axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-10, lwd=2, cex.lab=1.5)
-axis(2, at=c(-10,-8,-6,-4,-2,0), pos=38.5, lwd=2, cex.lab=1.5)
+axis(2, at=c(-8,-6,-4,-2,0,2), pos=38.5, lwd=2, cex.lab=1.5)
 abline(12, -0.65, lwd = 3, col = 2)
 points(log(data[(data$trophic.level=='P'),]$ER.mass)~data[(data$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
 points(log(data[(data$trophic.level=='PZ'),]$ER.mass)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
