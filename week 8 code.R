@@ -33,7 +33,8 @@ data$NEM2 <- data$dawn2 - data$dawn1
 data$PP.biomass <- (data$chla*55) #chla (ug/L)* 55 C in PP / 1 chla = ugPPC/L
 #data$total.carbon <- data$PP.biomass + data$zoo.carbon.liter #I'm pretty sure zp was in ugC/L
 data$NPP.mass <- data$NPPd / (data$PP.biomass)
-data$ER.mass <- data$ERd/(data$total.carbon.liter)
+data$totalC <- data$PP.biomass + data$zoo.ug.carbon.liter
+data$ER.mass <- data$ERd/(data$totalC)
 
 
 
