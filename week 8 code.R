@@ -184,20 +184,20 @@ legend(40.7, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen
 
 ## Does mass specific ER vary with temperature?  
 ## figures 
-hist(log(data$ER.mass))
-plot(log(data$ER.mass)~data$invT, cex=1.5, pch='',  axes=FALSE, xlim=c(38.5,41), ylim=c(-8,2), xlab='inv Temperature (C)', ylab='ER ln(mg O/g C/L/hr)') 
-axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-10, lwd=2, cex.lab=1.5)
+hist(log(week8$ER.mass))
+plot(log(week8$ER.mass)~week8$invT, cex=1.5, pch='',  axes=FALSE, xlim=c(38.5,41), ylim=c(-8,2), xlab='inv Temperature (C)', ylab='ER ln(mg O/g C/L/hr)') 
+axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-8, lwd=2, cex.lab=1.5)
 axis(2, at=c(-8,-6,-4,-2,0,2), pos=38.5, lwd=2, cex.lab=1.5)
 abline(12, -0.65, lwd = 3, col = 2)
-points(log(data[(data$trophic.level=='P'),]$ER.mass)~data[(data$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
-points(log(data[(data$trophic.level=='PZ'),]$ER.mass)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
-points(log(data[(data$trophic.level=='PZN'),]$ER.mass)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+points(log(week8[(week8$trophic.level=='P'),]$ER.mass)~week8[(week8$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
+points(log(week8[(week8$trophic.level=='PZ'),]$ER.mass)~week8[(week8$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
+points(log(week8[(week8$trophic.level=='PZN'),]$ER.mass)~week8[(week8$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
 
 ## analysis
-modERm0<-lm(log(data$ER.mass)~1)
-modERm1<-lm(log(data$ER.mass)~1+data$invT)
-modERm2<-lm(log(data$ER.mass)~1+data$invT+data$trophic.level)
-modERm3<-lm(log(data$ER.mass)~1+data$invT*data$trophic.level)
+modERm0<-lm(log(week8$ER.mass)~1)
+modERm1<-lm(log(week8$ER.mass)~1+week8$invT)
+modERm2<-lm(log(week8$ER.mass)~1+week8$invT+week8$trophic.level)
+modERm3<-lm(log(week8$ER.mass)~1+week8$invT*week8$trophic.level)
 anova(modERm0, modERm1)
 anova(modERm1, modERm2)
 anova(modERm2, modERm3)
@@ -281,9 +281,9 @@ plot((data$NO3.NO2)~data$Tank, col = data$trophic.level)
 ## figures 
 hist(data$zoo.ug.carbon.liter)
 plot(log(week8$zoo.ug.carbon.liter)~week8$Tank, pch = 19, col = week8$trophic.level)
-plot(log(week8$zoo.ug.carbon.liter)~week8$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-1,3), xlim=c(38.5,41),  xlab='inv Temperature (C)', ylab='ZP biomass ln(ug C / L)') 
+plot(log(week8$zoo.ug.carbon.liter)~week8$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-1,6), xlim=c(38.5,41),  xlab='inv Temperature (C)', ylab='ZP biomass ln(ug C / L)') 
 axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-1, lwd=2, cex.lab=1.5)
-axis(2, at=c(-1,0,1,2,3), pos=38.5, lwd=2, cex.lab=1.5)
+axis(2, at=c(-1,0,1,2,3,4,5,6), pos=38.5, lwd=2, cex.lab=1.5)
 points(log(week8[(week8$trophic.level=='PZ'),]$zoo.ug.carbon.liter)~week8[(week8$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
 points(log(week8[(week8$trophic.level=='PZN'),]$zoo.ug.carbon.liter)~week8[(week8$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
 
@@ -295,7 +295,7 @@ modzpc2<-lm(log(week8$zoo.ug.carbon.liter)~1+week8$invT+week8$trophic.level)
 modzpc3<-lm(log(week8$zoo.ug.carbon.liter)~1+week8$invT*week8$trophic.level)
 anova(modzpc0, modzpc1)
 anova(modzpc1, modzpc2)
-anova(modzpc2, modzpc3)
+anova(modzpc0, modzpc3)
 AIC(modzpc0, modzpc1, modzpc2, modzpc3)
 summary(modzpc3)
 confint(modzpc3)
@@ -334,11 +334,12 @@ legend(38.5, 4, c('2 TL','3 TL'), pch = c(15, 17), col = c('brown', 'blue'), bty
 
 ## Does daphnia:copepod  vary with temperature?  
 ## figures 
-plot((week8$Daphnia.Copepod.Ratio)~week8$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(0,3), xlim=c(38.5,41),  xlab='inv Temperature (C)', ylab='Daphnia: Copepod') 
-axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=0, lwd=2, cex.lab=1.5)
-axis(2, at=c(0,0.5, 1.0, 1.5, 2.0, 2.5,3), pos=38.5, lwd=2, cex.lab=1.5)
-points((week8[(week8$trophic.level=='PZ'),]$Daphnia.Copepod.Ratio)~week8[(week8$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
-points((week8[(week8$trophic.level=='PZN'),]$Daphnia.Copepod.Ratio)~week8[(week8$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+hist(log(week8$Daphnia.Copepod.Ratio))
+plot(log(week8$Daphnia.Copepod.Ratio)~week8$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-3,3), xlim=c(38.5,41),  xlab='inv Temperature (C)', ylab='Daphnia: Copepod') 
+axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=-3, lwd=2, cex.lab=1.5)
+axis(2, at=c(-3,-2,-1,0,1,2,3), pos=38.5, lwd=2, cex.lab=1.5)
+points(log(week8[(week8$trophic.level=='PZ'),]$Daphnia.Copepod.Ratio)~week8[(week8$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
+points(log(week8[(week8$trophic.level=='PZN'),]$Daphnia.Copepod.Ratio)~week8[(week8$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
 
 ## analysis
 modzp0<-lm(log(week8$total.zoo.abundance.liter)~1)
@@ -366,7 +367,7 @@ modzp1<-lm(log(week8$community.size)~1+week8$invT)
 modzp2<-lm(log(week8$community.size)~1+week8$invT+week8$trophic.level)
 modzp3<-lm(log(week8$community.size)~1+week8$invT*week8$trophic.level)
 anova(modzp0, modzp1)
-anova(modzp1, modzp2)
+anova(modzp0, modzp2)
 anova(modzp1, modzp3)
 
 ## Does adult zooplankton density vary with temperature?  
