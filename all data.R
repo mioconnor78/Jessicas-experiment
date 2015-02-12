@@ -7,6 +7,9 @@
 
 ## use data file and libraries loaded in week 8.
 
+## create datafile of weeks post bloom
+data.pb <- data[which(data$week >= 3),]
+
 ## Does NPP vary with temperature?  
 ## figures on invT
 hist(data$NPPd)
@@ -76,3 +79,43 @@ abline((coef(modNPP6)[1]+coef(modNPP6)[5]), (coef(modNPP6)[2]+coef(modNPP6)[8]),
 abline((coef(modNPP2)[1]+coef(modNPP2)[3]), coef(modNPP2)[2], lty = 2, lwd = 3, col = 'brown')
 abline((coef(modNPP2)[1]+coef(modNPP2)[4]), coef(modNPP2)[2], lty = 3, lwd = 3, col = 'blue')
 legend(40.5, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'))
+
+
+
+
+
+## Does total PP biomass vary with temperature and FCL?   
+## figures 
+dat <- data.pb
+hist(log(dat$PP.biomass))
+plot(log(dat$PP.biomass)~dat$invT, cex=1.5, pch='',  axes=FALSE, xlim=c(38,41), ylim=c(0,8), xlab='inv Temperature (C)', ylab='PP biomass ln(ug C / L)') 
+axis(1, at=c(38, 38.5,39, 39.5, 40,40.5, 41), pos=0, lwd=2, cex.lab=1.5)
+axis(2, at=c(0,2,4,6,8), pos=38, lwd=2, cex.lab=1.5)
+points(log(dat[(dat$trophic.level=='P'),]$PP.biomass)~dat[(dat$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
+points(log(dat[(dat$trophic.level=='PZ'),]$PP.biomass)~dat[(dat$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
+points(log(dat[(dat$trophic.level=='PZN'),]$PP.biomass)~dat[(dat$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+
+## analysis
+modPb0<-lme(log(PP.biomass)~1, random = ~ 1|Tank, data = dat, method = "ML")
+modPb1<-lme(log(PP.biomass)~1+invT, random = ~ 1|Tank, data = dat, method = "ML")
+modPb2<-lme(log(PP.biomass)~1+invT+week, random = ~ 1|Tank, data = dat, method = "ML")
+modPb3<-lme(log(PP.biomass)~1+invT+week+ trophic.level, random = ~ 1|Tank, data = dat, method = "ML")
+modPb4<-lme(log(PP.biomass)~1+invT*week, random = ~ 1|Tank, data = dat, method = "ML")
+modPb5<-lme(log(PP.biomass)~1+invT+trophic.level, random = ~ 1|Tank, data = dat, method = "ML")
+modPb5<-lme(log(PP.biomass)~1+invT*week , random = ~ 1|Tank, data = dat, method = "ML")
+anova(modPb0, modPb1)
+anova(modPb1, modPb2)
+anova(modPb2, modPb3)
+anova(modPb2, modPb4)
+summary(modPb3)
+confint(modPb1)
+
+## add lines to plot
+abline(coef(modPb1)[1], coef(modPb1)[2], lty = 1, lwd = 3, col = 'black')
+legend(40.5, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'), bty = 'n')
+
+plot((data$PO4)~data$invT, col = data$trophic.level)
+plot((data$PO4)~data$Tank, col = data$trophic.level)
+plot((data$NO3.NO2)~data$invT, col = data$trophic.level)
+plot((data$NO3.NO2)~data$Tank, col = data$trophic.level)
+
