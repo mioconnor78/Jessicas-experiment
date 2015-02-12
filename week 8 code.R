@@ -27,7 +27,7 @@ data$ERd <- (-(data$dawn2 - data$dusk)/data$hours2)*24
 # GPP = NPP + Rday, where Rday is daytime respiration (estimated below)
 data$GPP <- data$NPPd + data$ERd
 # NEM = oxygen gained / oxygen lost, so NPP.daily / ER.daily
-data$NEM <- data$NPPd / data$ERd  # values > 1 = net oxygen producers = net autotrophic
+data$NEM <- data$NPPd / data$ERd  # values > 1 = net oxygen producers = net autotrophic 
 data$NEM2 <- data$dawn2 - data$dawn1
 
 data$PP.biomass <- (data$chla*55) #chla (ug/L)* 55 C in PP / 1 chla = ugPPC/L
@@ -316,10 +316,10 @@ points(log(week8[(week8$trophic.level=='PZ'),]$total.zoo.abundance.liter)~week8[
 points(log(week8[(week8$trophic.level=='PZN'),]$total.zoo.abundance.liter)~week8[(week8$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
 
 ## analysis
-modzp0<-lm(log(week8$total.zoo.abundance.liter)~1)
-modzp1<-lm(log(week8$total.zoo.abundance.liter)~1+week8$invT)
-modzp2<-lm(log(week8$total.zoo.abundance.liter)~1+week8$invT+week8$trophic.level)
-modzp3<-lm(log(week8$total.zoo.abundance.liter)~1+week8$invT*week8$trophic.level)
+modzp0<-lm(log(week8[(week8$trophic.level!='P'),]$total.zoo.abundance.liter)~1)
+modzp1<-lm(log(week8[(week8$trophic.level!='P'),]$total.zoo.abundance.liter)~1+week8[(week8$trophic.level!='P'),]$invT)
+modzp2<-lm(log(week8[(week8$trophic.level!='P'),]$total.zoo.abundance.liter)~1+week8[(week8$trophic.level!='P'),]$invT+week8[(week8$trophic.level!='P'),]$trophic.level)
+modzp3<-lm(log(week8[(week8[(week8$trophic.level!='P'),]$trophic.level!='P'),]$total.zoo.abundance.liter)~1+week8[(week8$trophic.level!='P'),]$invT*week8[(week8$trophic.level!='P'),]$trophic.level)
 anova(modzp0, modzp1)
 anova(modzp1, modzp2)
 anova(modzp1, modzp3)
@@ -398,19 +398,19 @@ legend(38.5, 8, c('2 TL','3 TL'), pch = c(15, 17), col = c('brown', 'blue'), bty
 
 ## Does total biomass vary with temperature and trophic structure?  
 ## figures 
-hist(data$total.carbon)
-plot(log(data$total.carbon)~data$invT, cex=1.5, pch='',  axes=FALSE, xlim=c(38.5,41), ylim=c(0,6), xlab='inv Temperature (C)', ylab='Biomass ln(ug C/L)') 
-axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=0, lwd=2, cex.lab=1.5)
-axis(2, at=c(0,2,4,6), pos=38.5, lwd=2, cex.lab=1.5)
-points(log(data[(data$trophic.level=='P'),]$total.carbon)~data[(data$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
-points(log(data[(data$trophic.level=='PZ'),]$total.carbon)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
-points(log(data[(data$trophic.level=='PZN'),]$total.carbon)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+hist(log(week8$totalC))
+plot(log(week8$totalC)~week8$invT, cex=1.5, pch='',  axes=FALSE, xlim=c(38,41), ylim=c(0,8), xlab='inv Temperature (C)', ylab='Biomass ln(ug C/L)') 
+axis(1, at=c(38,38.5,39, 39.5, 40,40.5, 41), pos=0, lwd=2, cex.lab=1.5)
+axis(2, at=c(0,2,4,6,8), pos=38, lwd=2, cex.lab=1.5)
+points(log(week8[(week8$trophic.level=='P'),]$totalC)~week8[(week8$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
+points(log(week8[(week8$trophic.level=='PZ'),]$totalC)~week8[(week8$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
+points(log(week8[(week8$trophic.level=='PZN'),]$totalC)~week8[(week8$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
 
 ## analysis
-modTCm0<-lm(log(data$total.carbon)~1)
-modTCm1<-lm(log(data$total.carbon)~1+data$invT)
-modTCm2<-lm(log(data$total.carbon)~1+data$invT+data$trophic.level)
-modTCm3<-lm(log(data$total.carbon)~1+data$invT*data$trophic.level)
+modTCm0<-lm(log(data$totalC)~1)
+modTCm1<-lm(log(data$totalC)~1+data$invT)
+modTCm2<-lm(log(data$totalC)~1+data$invT+data$trophic.level)
+modTCm3<-lm(log(data$totalC~1+data$invT*data$trophic.level)
 anova(modTCm0, modTCm1)
 anova(modTCm1, modTCm2)
 anova(modTCm1, modTCm3)
@@ -421,6 +421,27 @@ confint(modTCm1)
 abline(coef(modTCm1)[1], coef(modTCm1)[2], lty = 1, lwd = 3, col = 'black')
 legend(40.5, 3, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'))
 
+
+
+## Does H:A vary with temperature and trophic structure?  
+## figures 
+week8$HA <- week8$zoo.ug.carbon.liter / week8$Pcarbon
+hist(log(week8$HA))
+plot(log(week8$HA)~week8$invT, cex=1.5, pch='',  axes=FALSE, xlim=c(38,41), ylim=c(-4, 0), xlab='inv Temperature (C)', ylab='Biomass ln(ug C/L)') 
+axis(1, at=c(38,38.5,39, 39.5, 40,40.5, 41), pos=-4, lwd=2, cex.lab=1.5)
+axis(2, at=c(-4,-2,0), pos=38, lwd=2, cex.lab=1.5)
+points(log(week8[(week8$trophic.level=='PZ'),]$HA)~week8[(week8$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
+points(log(week8[(week8$trophic.level=='PZN'),]$HA)~week8[(week8$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+
+modHA0<-lm(log(week8[(week8$trophic.level!='P'),]$HA)~1)
+modHA1<-lm(log(week8[(week8$trophic.level!='P'),]$HA)~1+week8[(week8$trophic.level!='P'),]$invT)
+modHA2<-lm(log(week8[(week8$trophic.level!='P'),]$HA)~1+week8[(week8$trophic.level!='P'),]$invT+week8[(week8$trophic.level!='P'),]$trophic.level)
+modHA3<-lm(log(week8[(week8$trophic.level!='P'),]$HA)~1+week8[(week8$trophic.level!='P'),]$invT*week8[(week8$trophic.level!='P'),]$trophic.level)
+            anova(modHA0, modHA1)
+            anova(modHA1, modHA2)
+            anova(modHA1, modHA3)
+            summary(modTCm1)
+            confint(modTCm1)
 
 ## plotting ZP biomass x PP biomass
 plot(data$PP.biomass ~ data$total.carbon)

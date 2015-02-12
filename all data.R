@@ -8,7 +8,7 @@
 ## use data file and libraries loaded in week 8.
 
 ## create datafile of weeks post bloom
-data.pb <- data[which(data$week >= 3),]
+data.pb <- data[which(data$week >= 7),]
 
 ## Does NPP vary with temperature?  
 ## figures on invT
@@ -81,7 +81,108 @@ abline((coef(modNPP2)[1]+coef(modNPP2)[4]), coef(modNPP2)[2], lty = 3, lwd = 3, 
 legend(40.5, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'))
 
 
+### ERd #####
+#############
+dat <- data
+hist(log(dat$ERd))
+plot(log(dat$ERd)~dat$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-3,3), xlim=c(38,41), xlab='inv(Temperature) 1/eV', ylab='ERd ln(mg O/L/d)') 
+axis(1, at=c(38,38.5,39, 39.5, 40,40.5, 41), pos=-3, lwd=2, cex.lab=1.5)
+axis(2, at=c(-3,-2,-1,0,1,2,3), pos=38, lwd=2, cex.lab=1.5)
+abline(0, 0, lwd = 3, col = 1, lty = 2)
+points(log(dat[(dat$trophic.level=='P'),]$ERd)~dat[(dat$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
+points(log(dat[(dat$trophic.level=='PZ'),]$ERd)~dat[(dat$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
+points(log(dat[(dat$trophic.level=='PZN'),]$ERd)~dat[(dat$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
 
+## analysis
+modERd0<-lme(log(ERd)~1, random = ~ 1|Tank, data = dat, method = "ML")
+modERd1<-lme(log(ERd)~1+invT, random = ~ 1|Tank, data = dat, method = "ML")
+modERd2<-lme(log(ERd)~1+invT+week, random = ~ 1|Tank, data = dat, method = "ML")
+modERd3<-lme(log(ERd)~1+invT+week+ trophic.level, random = ~ 1|Tank, data = dat, method = "ML")
+modERd4<-lme(log(ERd)~1+invT*week+ trophic.level, random = ~ 1|Tank, data = dat, method = "ML")
+modERd5<-lme(log(ERd)~1+invT*trophic.level+week, random = ~ 1|Tank, data = dat, method = "ML")
+modERd6<-lme(log(ERd)~1+invT*trophic.level*week , random = ~ 1|Tank, data = dat, method = "ML")
+anova(modERd0, modERd1)
+anova(modERd1, modERd2)
+anova(modERd2, modERd3)
+anova(modERd3, modERd4)
+anova(modERd3, modERd5)
+anova(modERd3, modERd6)
+summary(modNEM3)
+fixef(modNEM3)
+
+abline(fixef(modNEM3)[1], fixef(modNEM3)[2], lty = 1, lwd = 3, col = 'seagreen')
+abline((fixef(modNEM3)[1]+fixef(modNEM3)[3]), fixef(modNEM3)[2], lty = 1, lwd = 3, col = 'brown')
+abline((fixef(modNEM3)[1]+fixef(modNEM3)[4]), fixef(modNEM3)[2], lty = 1, lwd = 3, col = 'blue')
+legend(40.5, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'), bty = 'n')
+
+
+
+### NEM #####
+#############
+dat <- data
+hist(log(dat$NEM))
+plot(log(dat$NEM)~dat$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-5,3), xlim=c(38,41), xlab='inv(Temperature) 1/eV', ylab='NEM ln(mg O/L/d)') 
+axis(1, at=c(38,38.5,39, 39.5, 40,40.5, 41), pos=-5, lwd=2, cex.lab=1.5)
+axis(2, at=c(-5,-4,-3,-2,-1,0,1,2,3), pos=38, lwd=2, cex.lab=1.5)
+abline(0, 0, lwd = 3, col = 1, lty = 2)
+points(log(dat[(dat$trophic.level=='P'),]$NEM)~dat[(dat$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
+points(log(dat[(dat$trophic.level=='PZ'),]$NEM)~dat[(dat$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
+points(log(dat[(dat$trophic.level=='PZN'),]$NEM)~dat[(dat$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+
+## analysis
+modNEM0<-lme(log(NEM)~1, random = ~ 1|Tank, data = dat, method = "ML")
+modNEM1<-lme(log(NEM)~1+invT, random = ~ 1|Tank, data = dat, method = "ML")
+modNEM2<-lme(log(NEM)~1+invT+week, random = ~ 1|Tank, data = dat, method = "ML")
+modNEM3<-lme(log(NEM)~1+invT+ trophic.level, random = ~ 1|Tank, data = dat, method = "ML")
+#modNEM4<-lme(log(NEM)~1+invT*week, random = ~ 1|Tank, data = dat, method = "ML")
+modNEM5<-lme(log(NEM)~1+invT*trophic.level, random = ~ 1|Tank, data = dat, method = "ML")
+modNEM6<-lme(log(NEM)~1+invT*trophic.level*week , random = ~ 1|Tank, data = dat, method = "ML")
+anova(modNEM0, modNEM1)
+anova(modNEM1, modNEM2)
+anova(modNEM1, modNEM3)
+anova(modNEM3, modNEM5)
+anova(modNEM3, modNEM6)
+summary(modNEM3)
+fixef(modNEM3)
+
+abline(fixef(modNEM3)[1], fixef(modNEM3)[2], lty = 1, lwd = 3, col = 'seagreen')
+abline((fixef(modNEM3)[1]+fixef(modNEM3)[3]), fixef(modNEM3)[2], lty = 1, lwd = 3, col = 'brown')
+abline((fixef(modNEM3)[1]+fixef(modNEM3)[4]), fixef(modNEM3)[2], lty = 1, lwd = 3, col = 'blue')
+legend(40.5, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'), bty = 'n')
+
+
+### GPP #####
+#############
+dat <- data
+hist(log(dat$GPP))
+plot(log(dat$GPP)~dat$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-1,3), xlim=c(38,41), xlab='inv(Temperature) 1/eV', ylab='GPP ln(mg O/L/d)') 
+axis(1, at=c(38,38.5,39, 39.5, 40,40.5, 41), pos=-5, lwd=2, cex.lab=1.5)
+axis(2, at=c(-1,0,1,2,3), pos=38, lwd=2, cex.lab=1.5)
+abline(0, 0, lwd = 3, col = 1, lty = 2)
+points(log(dat[(dat$trophic.level=='P'),]$GPP)~dat[(dat$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
+points(log(dat[(dat$trophic.level=='PZ'),]$GPP)~dat[(dat$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
+points(log(dat[(dat$trophic.level=='PZN'),]$GPP)~dat[(dat$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+
+## analysis
+modGPP0<-lme(log(GPP)~1, random = ~ 1|Tank, data = dat, method = "ML")
+modGPP1<-lme(log(GPP)~1+invT, random = ~ 1|Tank, data = dat, method = "ML")
+modGPP2<-lme(log(GPP)~1+invT+week, random = ~ 1|Tank, data = dat, method = "ML")
+modGPP3<-lme(log(GPP)~1+invT+ trophic.level, random = ~ 1|Tank, data = dat, method = "ML")
+#modNEM4<-lme(log(NEM)~1+invT*week, random = ~ 1|Tank, data = dat, method = "ML")
+modGPP5<-lme(log(GPP)~1+invT*trophic.level, random = ~ 1|Tank, data = dat, method = "ML")
+modNEM6<-lme(log(NEM)~1+invT*trophic.level*week , random = ~ 1|Tank, data = dat, method = "ML")
+anova(modGPP0, modGPP1)
+anova(modGPP1, modGPP2)
+anova(modGPP2, modGPP3)
+anova(modGPP2, modGPP5)
+anova(modNEM3, modNEM6)
+summary(modNEM2)
+fixef(modNEM3)
+
+abline(fixef(modNEM3)[1], fixef(modNEM3)[2], lty = 1, lwd = 3, col = 'seagreen')
+abline((fixef(modNEM3)[1]+fixef(modNEM3)[3]), fixef(modNEM3)[2], lty = 1, lwd = 3, col = 'brown')
+abline((fixef(modNEM3)[1]+fixef(modNEM3)[4]), fixef(modNEM3)[2], lty = 1, lwd = 3, col = 'blue')
+legend(40.5, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'), bty = 'n')
 
 
 ## Does total PP biomass vary with temperature and FCL?   
@@ -119,3 +220,33 @@ plot((data$PO4)~data$Tank, col = data$trophic.level)
 plot((data$NO3.NO2)~data$invT, col = data$trophic.level)
 plot((data$NO3.NO2)~data$Tank, col = data$trophic.level)
 
+
+## Does PP Diversity?  
+## figures on invT
+data$PPdiv <- data$Phyto.Shannon.Wiener.Diversity
+hist(data$PPdiv)
+plot((data$PPdiv)~data$Tank, pch = 19, col = data$trophic.level)
+plot((data$PPdiv)~data$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(0,1.5), xlim=c(37.5,41), xlab='inv(Temperature) 1/eV', ylab='PP Shannon Div') 
+axis(1, at=c(37.5, 38.0, 38.5,39, 39.5, 40,40.5, 41), pos=0, lwd=2, cex.lab=1.5)
+axis(2, at=c(0,.5, 1, 1.5), pos=37.5, lwd=2, cex.lab=1.5)
+abline(12, -0.32, lwd = 3, col = 2)
+points(data[(data$trophic.level=='P'),]$PPdiv~data[(data$trophic.level=='P'),]$invT, pch=19, col = 'green', cex = 1)
+points(data[(data$trophic.level=='PZ'),]$PPdiv~data[(data$trophic.level=='PZ'),]$invT, pch=19, col = 'brown', cex = 1)
+points(data[(data$trophic.level=='PZN'),]$PPdiv~data[(data$trophic.level=='PZN'),]$invT, pch=19, col = 'blue', cex = 1)
+
+
+## analysis
+dat <- data
+modPD0<-lme(PPdiv~1, random = ~ 1|Tank, data = dat, method = "ML", na.action = na.omit)
+modPD1<-lme(PPdiv~1+invT, random = ~ 1|Tank, data = dat, method = "ML", na.action = na.omit)
+modPD2<-lme(PPdiv~1+invT+week, random = ~ 1|Tank, data = dat, method = "ML", na.action = na.omit)
+modPD3<-lme(PPdiv~1+invT+week+ trophic.level, random = ~ 1|Tank, data = dat, method = "ML", na.action = na.omit)
+modPD4<-lme(PPdiv~1+trophic.level, random = ~ 1|Tank, data = dat, method = "ML", na.action = na.omit)
+modPD5<-lme(PPdiv~1+week, random = ~ 1|Tank, data = dat, method = "ML", na.action = na.omit)
+modPD6<-lme(PPdiv~1+trophic.level*week, random = ~ 1|Tank, data = dat, method = "ML", na.action = na.omit)
+modPD7<-lme(PPdiv~1+trophic.level*invT, random = ~ 1|Tank, data = dat, method = "ML", na.action = na.omit)
+modPD5<-lme(PPdiv~1+invT*week , random = ~ 1|Tank, data = dat, method = "ML", na.action = na.omit)
+anova(modPD0, modPD1)
+anova(modPD0, modPD2)
+anova(modPD0, modPD4)
+anova(modPD0, modPD7)
