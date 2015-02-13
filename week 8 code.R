@@ -33,11 +33,8 @@ data$NEM2 <- data$dawn2 - data$dawn1
 data$PP.biomass <- (data$chla*55) #chla (ug/L)* 55 C in PP / 1 chla = ugPPC/L
 #data$total.carbon <- data$PP.biomass + data$zoo.carbon.liter #I'm pretty sure zp was in ugC/L
 data$NPP.mass <- data$NPPd / (data$PP.biomass)
-data$totalC <- data$PP.biomass + data$zoo.ug.carbon.liter
+data$totalC <- ifelse(data$trophic.level == 'P', data$PP.biomass, (data$PP.biomass + data$zoo.ug.carbon.liter))
 data$ER.mass <- data$ERd/(data$totalC)
-
-
-
 
 ## just week 8
 week8 <- data[which(data$week == '8'),]
@@ -295,14 +292,14 @@ modzpc2<-lm(log(week8$zoo.ug.carbon.liter)~1+week8$invT+week8$trophic.level)
 modzpc3<-lm(log(week8$zoo.ug.carbon.liter)~1+week8$invT*week8$trophic.level)
 anova(modzpc0, modzpc1)
 anova(modzpc1, modzpc2)
-anova(modzpc0, modzpc3)
+anova(modzpc2, modzpc3)
 AIC(modzpc0, modzpc1, modzpc2, modzpc3)
-summary(modzpc3)
-confint(modzpc3)
+summary(modzpc2)
+confint(modzpc2)
 
 ## add lines to plot
-abline(coef(modzpc3)[1], coef(modzpc3)[2], lty = 2, lwd = 3, col = 'brown')
-abline((coef(modzpc3)[1]+coef(modzpc3)[3]), (coef(modzpc3)[2]+coef(modzpc3)[4]), lty = 3, lwd = 3, col = 'blue')
+abline(coef(modzpc2)[1], coef(modzpc2)[2], lty = 2, lwd = 3, col = 'brown')
+abline((coef(modzpc2)[1]+coef(modzpc2)[3]), (coef(modzpc2)[2]), lty = 3, lwd = 3, col = 'blue')
 legend(38.5, 3, c('2 TL','3 TL'), pch = c(15, 17), col = c('brown', 'blue'), bty = 'n')
 
 
@@ -326,8 +323,8 @@ anova(modzp1, modzp3)
 
 
 ## add lines to plot
-abline(coef(modzp3)[1], coef(modzp3)[2], lty = 2, lwd = 3, col = 'brown')
-abline((coef(modzp3)[1]+coef(modzp3)[3]), (coef(modzp3)[2]+coef(modzp3)[4]), lty = 3, lwd = 3, col = 'blue')
+abline(coef(modzp1)[1], coef(modzp1)[2], lty = 2, lwd = 3, col = 1)
+#abline((coef(modzp3)[1]+coef(modzp3)[3]), (coef(modzp3)[2]+coef(modzp3)[4]), lty = 3, lwd = 3, col = 'blue')
 legend(38.5, 4, c('2 TL','3 TL'), pch = c(15, 17), col = c('brown', 'blue'), bty = 'n')
 
 
@@ -367,23 +364,27 @@ modzp1<-lm(log(week8$community.size)~1+week8$invT)
 modzp2<-lm(log(week8$community.size)~1+week8$invT+week8$trophic.level)
 modzp3<-lm(log(week8$community.size)~1+week8$invT*week8$trophic.level)
 anova(modzp0, modzp1)
-anova(modzp0, modzp2)
-anova(modzp1, modzp3)
+anova(modzp1, modzp2)
+anova(modzp2, modzp3)
+
+abline(coef(modzp2)[1], coef(modzp2)[2], lty = 2, lwd = 3, col = 'brown')
+abline((coef(modzp2)[1]+coef(modzp2)[3]), (coef(modzp2)[2]), lty = 3, lwd = 3, col = 'blue')
+legend(38.5, 8, c('2 TL','3 TL'), pch = c(15, 17), col = c('brown', 'blue'), bty = 'n')
 
 ## Does adult zooplankton density vary with temperature?  
 ## figures 
-hist(data$zp.adults)
-plot((data$zp.adults)~data$invT, cex=1.5, pch='',  axes=FALSE,  ylim=c(0,8), xlim=c(38.5,41),  xlab='inv Temperature (C)', ylab='ZP adult density (ind / L)') 
+hist(week8$total.adults)
+plot((week8$total.adults)~week8$invT, cex=1.5, pch='',  axes=FALSE,  ylim=c(0,8), xlim=c(38.5,41),  xlab='inv Temperature (C)', ylab='ZP adult density (ind / L)') 
 axis(1, at=c(38.5,39, 39.5, 40,40.5, 41), pos=0, lwd=2, cex.lab=1.5)
 axis(2, at=c(0,2,4,6,8), pos=38.5, lwd=2, cex.lab=1.5)
-points((data[(data$trophic.level=='PZ'),]$zp.adults)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
-points((data[(data$trophic.level=='PZN'),]$zp.adults)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+points((week8[(week8$trophic.level=='PZ'),]$total.adults)~week8[(week8$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
+points((week8[(week8$trophic.level=='PZN'),]$total.adults)~week8[(week8$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
 
 ## analysis
-modzp0<-lm((data$zp.adults)~1)
-modzp1<-lm((data$zp.adults)~1+data$invT)
-modzp2<-lm((data$zp.adults)~1+data$invT+data$trophic.level)
-modzp3<-lm((data$zp.adults)~1+data$invT*data$trophic.level)
+modzp0<-lm((week8$total.adults)~1)
+modzp1<-lm((week8$total.adults)~1+week8$invT)
+modzp2<-lm((week8$total.adults)~1+week8$invT+week8$trophic.level)
+modzp3<-lm((week8$total.adults)~1+week8$invT*week8$trophic.level)
 anova(modzp0, modzp1)
 anova(modzp1, modzp2)
 anova(modzp1, modzp3)
@@ -391,7 +392,7 @@ anova(modzp1, modzp3)
 
 ## add lines to plot
 abline(coef(modzp3)[1], coef(modzp3)[2], lty = 2, lwd = 3, col = 'brown')
-abline((coef(modzp3)[1]+coef(modzp3)[3]), (coef(modzp3)[2]+coef(modzp3)[4]), lty = 3, lwd = 3, col = 'blue')
+#abline((coef(modzp3)[1]+coef(modzp3)[3]), (coef(modzp3)[2]+coef(modzp3)[4]), lty = 3, lwd = 3, col = 'blue')
 legend(38.5, 8, c('2 TL','3 TL'), pch = c(15, 17), col = c('brown', 'blue'), bty = 'n')
 
 
