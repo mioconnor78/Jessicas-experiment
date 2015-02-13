@@ -29,6 +29,7 @@ data$GPP <- data$NPPd + data$ERd
 # NEM = oxygen gained / oxygen lost, so NPP.daily / ER.daily
 data$NEM <- data$NPPd / data$ERd  # values > 1 = net oxygen producers = net autotrophic 
 data$NEM2 <- data$dawn2 - data$dawn1
+data$MB <- data$GPP / data$ERd
 
 data$PP.biomass <- (data$chla*55) #chla (ug/L)* 55 C in PP / 1 chla = ugPPC/L
 #data$total.carbon <- data$PP.biomass + data$zoo.carbon.liter #I'm pretty sure zp was in ugC/L
