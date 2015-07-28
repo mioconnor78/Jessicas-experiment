@@ -1,7 +1,8 @@
 
 ### load libraries
-library(qpcR)
+#library(qpcR)
 library(nlme)
+library(MuMIn)
 
 ### set working directory and load data
 data <- read.csv("./temporal_dataFEB12.csv")
@@ -375,9 +376,13 @@ anova(modchl4,modchl1)
 anova(modchl4, modchl0)
 anova(modchl4, modchl2)
 
+model.sel(modchl0, modchl1, modchl2, modchl3, modchl4)
+
 AIC(modchl0, modchl1, modchl2, modchl3, modchl4)
 AICs <- as.data.frame(cbind(AICc(modchl0),AICc(modchl1), AICc(modchl2), AICc(modchl3), AICc(modchl4)))
 akaike.weights(AICs)
+
+
 
 logLik(modchl0)
 logLik(modchl1)
