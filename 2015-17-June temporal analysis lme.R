@@ -419,7 +419,7 @@ abline(-41.55714, 1.11951, lty = 3, lwd = 3, col = 'blue')
 legend(40.0, 1.5, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'), bty = 'n')
 
 
-
+## MO skipped this for now b/c it's repeating chla and we probably shouldn't analyze both.
 ## Does total PP biomass vary with temperature and FCL?   
 ## figures 
 hist(data$PP.biomass)
@@ -477,26 +477,36 @@ abline(-19.364001, 0.629293, lty = 2, lwd = 3, col = 'brown')
 abline(-20.586785, 0.681782, lty = 3, lwd = 3, col = 'blue')
 legend(40.0, 4.5, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'), bty = 'n')
 
+
 ## Does zooplankton carbon vary with temperature?  
 ## figures 
+dataz <- data[(which(data$trophic.level != 'P')),] # because we don't have observations for the P treatments (we're just assuming they are 0) I don't htink we should analyze those tanks here.
 hist(data$zoo.ug.carbon.liter)
 hist(log(data$zoo.ug.carbon.liter))
 hist(log(data$zoo.ug.carbon.liter+1))
 plot(log(data$zoo.ug.carbon.liter)~data$Tank, pch = 19, col = data$trophic.level)
 
-plot(log(data$zoo.ug.carbon.liter+1)~data$invT)
-plot(log(data$zoo.ug.carbon.liter+1)~data$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-1,6), xlim=c(38.0,41),  xlab='inv Temperature (C)', ylab='ZP biomass ln(g C / L)') 
-axis(1, at=c(38.0, 38.5,39, 39.5, 40,40.5, 41), pos=-1, lwd=2, cex.lab=1.5)
-axis(2, at=c(-1,0,1,2,3,4,5,6), pos=38.0, lwd=2, cex.lab=1.5)
-points(log(data[(data$trophic.level=='PZ'),]$zoo.ug.carbon.liter+1)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
-points(log(data[(data$trophic.level=='PZN'),]$zoo.ug.carbon.liter+1)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+plot(log(dataz$zoo.ug.carbon.liter+1)~dataz$Tank, pch = 19, col = dataz$trophic.level)
+plot(log(dataz$zoo.ug.carbon.liter+1)~dataz$week, pch = 19, col = dataz$trophic.level)
+plot(log(dataz$zoo.ug.carbon.liter+1)~dataz$invT, pch = 19, col = dataz$trophic.level)
+
 
 ## analysis
-modzpc0<-lme(log(zoo.ug.carbon.liter+1)~1, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modzpc1<-lme(log(zoo.ug.carbon.liter+1)~1+invT, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modzpc2<-lme(log(zoo.ug.carbon.liter+1)~1+invT+week, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modzpc3<-lme(log(zoo.ug.carbon.liter+1)~1+invT+week+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modzpc4<-lme(log(zoo.ug.carbon.liter+1)~1+invT*week+invT*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modchl0<-lme(log(chla+1)~1, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
+modchl1<-lme(log(chla+1)~1+invT, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
+modchl2<-lme(log(chla+1)~1+invT+trophic.level, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
+modchl3<-lme(log(chla+1)~1+invT+week+trophic.level, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
+modchl4<-lme(log(chla+1)~1+week+invT*trophic.level, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
+modchl5<-lme(log(chla+1)~1+invT*week+invT*trophic.level, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
+modchl6<-lme(log(chla+1)~1+invT*week*trophic.level, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
+
+
+## analysis
+modzpc0<-lme(log(zoo.ug.carbon.liter+1)~1, random=~1|Tank, data=dataz, method="ML", na.action=na.omit)
+modzpc1<-lme(log(zoo.ug.carbon.liter+1)~1+invT, random=~1|Tank, data=dataz, method="ML", na.action=na.omit)
+modzpc2<-lme(log(zoo.ug.carbon.liter+1)~1+invT+trophic.level, random=~1|Tank, data=dataz, method="ML", na.action=na.omit)
+modzpc3<-lme(log(zoo.ug.carbon.liter+1)~1+invT+week+trophic.level, random=~1|Tank, data=dataz, method="ML", na.action=na.omit)
+modzpc4<-lme(log(zoo.ug.carbon.liter+1)~1+week+invT*trophic.level, random=~1|Tank, data=dataz, method="ML", na.action=na.omit)
 
 anova(modzpc0, modzpc1)
 anova(modzpc1, modzpc2)
