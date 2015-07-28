@@ -345,14 +345,19 @@ abline(133.83687,-3.54009, lty = 2, lwd = 3, col = 'brown')
 abline(89.73642,-2.4221, lty = 3, lwd = 3, col = 'blue')
 legend(40.0, 1, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'), bty = 'n')
 
+##### BIOMASS RESULTS #####
+
 ## Does chla vary with temperature?  
+### MO: went through this and made minor changes on July 28, 2015
 ## figures 
+# data1 <- data[(which(data$week!='2')),] #could redo without week2, to see if that's driving the need for week effects.
 hist(data$chla)
 hist(log(data$chla))
 hist(log(data$chla+1))
 plot(log(data$chla+1)~data$Tank, pch = 19, col = data$trophic.level)
+plot(log(data$chla+1)~data$week, pch = 19, col = data$trophic.level)
+plot(log(data$chla+1)~data$invT, pch = 19, col = data$trophic.level)
 
-plot(log(data$chla+1)~data$invT)
 plot(log(data$chla+1)~data$invT, cex=1.5, pch='',  axes=FALSE, xlim=c(37.5, 41), ylim=c(0,3.5), xlab='inv Temperature (C)', ylab='Chl a ln(ug Chla / L)') 
 axis(1, at=c(37.5, 38.0, 38.5,39, 39.5, 40, 40.5, 41), pos=0, lwd=2, cex.lab=1.5)
 axis(2, at=c(0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5), pos=37.5, lwd=2, cex.lab=1.5)
@@ -362,26 +367,26 @@ points(log(data[(data$trophic.level=='PZ'),]$chla+1)~data[(data$trophic.level=='
 points(log(data[(data$trophic.level=='PZN'),]$chla+1)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
 
 ## analysis
-modchl0<-lme(log(chla+1)~1, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modchl1<-lme(log(chla+1)~1+invT, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modchl2<-lme(log(chla+1)~1+invT+week, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modchl3<-lme(log(chla+1)~1+invT+week+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modchl4<-lme(log(chla+1)~1+invT*week+invT*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modchl0<-lme(log(chla+1)~1, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
+modchl1<-lme(log(chla+1)~1+invT, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
+modchl2<-lme(log(chla+1)~1+invT+trophic.level, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
+modchl3<-lme(log(chla+1)~1+invT+week+trophic.level, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
+modchl4<-lme(log(chla+1)~1+week+invT*trophic.level, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
+modchl5<-lme(log(chla+1)~1+invT*week+invT*trophic.level, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
+modchl6<-lme(log(chla+1)~1+invT*week*trophic.level, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
 
-anova(modchl0, modchl1)
-anova(modchl1, modchl2)
-anova(modchl2, modchl3)
-anova(modchl3,modchl4)
-anova(modchl4,modchl1)
-anova(modchl4, modchl0)
-anova(modchl4, modchl2)
+model.sel(modchl0, modchl1, modchl2, modchl3, modchl4, modchl5, modchl6)
 
-model.sel(modchl0, modchl1, modchl2, modchl3, modchl4)
+anova(modchl6, modchl5)
+anova(modchl5, modchl4)
+anova(modchl4, modchl3)
+anova(modchl3, modchl2)
+anova(modchl2, modchl1)
+anova(modchl1,modchl0)
 
-AIC(modchl0, modchl1, modchl2, modchl3, modchl4)
-AICs <- as.data.frame(cbind(AICc(modchl0),AICc(modchl1), AICc(modchl2), AICc(modchl3), AICc(modchl4)))
-akaike.weights(AICs)
-
+## refit best model with reml
+modchl6b<-lme(log(chla+1)~1+invT*week*trophic.level, random=~1|Tank, data=data1, method="REML", na.action=na.omit)
+summary(modchl6b)
 
 
 logLik(modchl0)
@@ -407,6 +412,7 @@ confint(modchl3)
 coef(modchl3)
 
 ## add lines to plot
+### but, best model now needs different slopes for each week and each tank... so probably not worth adding slopes.
 abline(-41.74267,1.12806, lty = 1, lwd = 3, col = 'seagreen')
 abline(-51.26174, 1.35398, lty = 2, lwd = 3, col = 'brown')
 abline(-41.55714, 1.11951, lty = 3, lwd = 3, col = 'blue')
