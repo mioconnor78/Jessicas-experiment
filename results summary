@@ -64,3 +64,70 @@ Standardized Within-Group Residuals:
 
 Number of Observations: 210
 Number of Groups: 30 
+
+
+
+
+## zooplankton biomass results
+> model.sel(modzpc0, modzpc1, modzpc3, modzpc4, modzpc5, modzpc6)
+Model selection table 
+        (Int)   inT     trp.lvl wek      inT:trp.lvl inT:wek trp.lvl:wek inT:trp.lvl:wek df logLik   AICc  delta weight
+modzpc4  -3.769  0.1335 +        0.01147 +                                                7 -198.073 411.1  0.00 0.628 
+modzpc5  13.320 -0.3054 +       -2.27100 +           0.05858                              8 -197.982 413.3  2.12 0.218 
+modzpc1 -36.700  0.9710                                                                   4 -203.366 415.1  3.93 0.088 
+modzpc6  44.020 -1.0850 +       -7.16100 +           0.18250 +           +               10 -197.256 416.5  5.38 0.043 
+modzpc3 -35.500  0.9446 +        0.01077                                                  6 -202.524 417.8  6.65 0.023 
+modzpc0   1.301                                                                           3 -209.050 424.3 13.16 0.001 
+Models ranked by AICc(x) 
+Random terms (all models): 
+‘1 | Tank’
+
+
+### zooplankton biomass declines wtih warming, and the decline is stronger for the NPZ treatments compared to the PZ treatments.
+> summary(modzpc4)
+Linear mixed-effects model fit by maximum likelihood
+ Data: dataz 
+       AIC      BIC    logLik
+  410.1452 429.6577 -198.0726
+
+Random effects:
+ Formula: ~1 | Tank
+        (Intercept) Residual
+StdDev:   0.6171124 1.160693
+
+Fixed effects: log(zoo.ug.carbon.liter + 1) ~ 1 + week + invT * trophic.level 
+                          Value Std.Error DF    t-value p-value
+(Intercept)            -3.76907 16.577286 97 -0.2273634  0.8206
+week                    0.01147  0.077193 97  0.1486394  0.8821
+invT                    0.13355  0.429148 97  0.3111918  0.7563
+trophic.levelPZN      -63.85966 21.290902 18 -2.9993875  0.0077
+invT:trophic.levelPZN   1.61989  0.543994 97  2.9777749  0.0037
+ Correlation: 
+                      (Intr) week   invT   tr.PZN
+week                   0.419                     
+invT                  -1.000 -0.443              
+trophic.levelPZN      -0.644 -0.004  0.635       
+invT:trophic.levelPZN  0.644  0.004 -0.636 -1.000
+
+Standardized Within-Group Residuals:
+       Min         Q1        Med         Q3        Max 
+-2.9588410 -0.6275242 -0.1418064  0.6487205  2.7161209 
+
+Number of Observations: 120
+Number of Groups: 20
+
+
+#### NPP results. Total NPP
+> model.sel(modNPP0, modNPP1, modNPP2, modNPP3, modNPP4, modNPP5, modNPP6)
+Model selection table 
+        (Int)   inT     trp.lvl wek      inT:trp.lvl inT:wek trp.lvl:wek inT:trp.lvl:wek df logLik  AICc  delta weight
+modNPP6 34.5200 -0.8768 +       -2.01900 +           0.05407 +           +               14 -39.210 108.3  0.00 0.980 
+modNPP5 29.9400 -0.7526 +       -1.95900 +           0.05127                             10 -47.658 116.3  7.99 0.018 
+modNPP3 19.1400 -0.4739 +        0.03551                                                  7 -53.687 121.9 13.57 0.001 
+modNPP4 17.3600 -0.4284 +        0.03561 +                                                9 -52.700 124.2 15.90 0.000 
+modNPP1  9.9670 -0.2319                                                                   4 -59.475 127.1 18.83 0.000 
+modNPP2 10.9500 -0.2590 +                                                                 6 -58.025 128.4 20.12 0.000 
+modNPP0  0.9213                                                                           3 -67.219 140.5 32.25 0.000 
+Models ranked by AICc(x) 
+Random terms (all models): 
+‘1 | Tank’
