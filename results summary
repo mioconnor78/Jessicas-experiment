@@ -131,3 +131,63 @@ modNPP0  0.9213                                                                 
 Models ranked by AICc(x) 
 Random terms (all models): 
 ‘1 | Tank’
+
+### these correlations were high, so I recentered the model results; it didn't affect the model comparisons. From this, i conclude that NPP increases with increasing temperature, NPP increased through time, the effect of time weakened with warming, and depended a lot on trophic level. 
+
+> summary(modNPP6)
+Linear mixed-effects model fit by REML
+ Data: data 
+       AIC      BIC    logLik
+  168.2066 216.2175 -70.10331
+
+Random effects:
+ Formula: ~1 | Tank
+         (Intercept) Residual
+StdDev: 1.478593e-05 0.292317
+
+Fixed effects: log(calc.NPP + 1) ~ 1 + I(invT - mean(invT)) * week * trophic.level 
+                                                Value  Std.Error  DF   t-value p-value
+(Intercept)                                 0.3157840 0.10416411 201  3.031601  0.0028
+I(invT - mean(invT))                       -0.8767638 0.18005733 201 -4.869359  0.0000
+week                                        0.0895878 0.01723266 201  5.198720  0.0000
+trophic.levelPZ                             0.6507539 0.14785917  27  4.401174  0.0002
+trophic.levelPZN                            0.3856164 0.14824417  27  2.601224  0.0149
+I(invT - mean(invT)):week                   0.0540668 0.02643792 201  2.045049  0.0422
+I(invT - mean(invT)):trophic.levelPZ        0.1946911 0.25922212 201  0.751059  0.4535
+I(invT - mean(invT)):trophic.levelPZN       0.0495291 0.26389566 201  0.187684  0.8513
+week:trophic.levelPZ                       -0.0987975 0.02434593 201 -4.058072  0.0001
+week:trophic.levelPZN                      -0.0471593 0.02440472 201 -1.932385  0.0547
+I(invT - mean(invT)):week:trophic.levelPZ  -0.0139406 0.03831914 201 -0.363803  0.7164
+I(invT - mean(invT)):week:trophic.levelPZN  0.0043203 0.03861118 201  0.111894  0.9110
+ Correlation: 
+                                           (Intr) I(nT-m(T)) week   trp.PZ tr.PZN I(nT-m(T)): I(nT-m(T)):.PZ I(T-m(T)):.PZN wk:.PZ w:.PZN
+I(invT - mean(invT))                        0.471                                                                                        
+week                                       -0.932 -0.336                                                                                 
+trophic.levelPZ                            -0.704 -0.332      0.657                                                                      
+trophic.levelPZN                           -0.703 -0.331      0.655  0.495                                                               
+I(invT - mean(invT)):week                  -0.309 -0.925      0.141  0.218  0.217                                                        
+I(invT - mean(invT)):trophic.levelPZ       -0.327 -0.695      0.233  0.480  0.230  0.643                                                 
+I(invT - mean(invT)):trophic.levelPZN      -0.322 -0.682      0.229  0.226  0.485  0.631       0.474                                     
+week:trophic.levelPZ                        0.660  0.238     -0.708 -0.933 -0.464 -0.100      -0.345         -0.162                      
+week:trophic.levelPZN                       0.658  0.237     -0.706 -0.464 -0.933 -0.099      -0.165         -0.351          0.500       
+I(invT - mean(invT)):week:trophic.levelPZ   0.213  0.638     -0.097 -0.318 -0.150 -0.690      -0.925         -0.436          0.152  0.069
+I(invT - mean(invT)):week:trophic.levelPZN  0.212  0.634     -0.096 -0.149 -0.327 -0.685      -0.440         -0.927          0.068  0.161
+                                           I(nT-m(T))::.PZ
+I(invT - mean(invT))                                      
+week                                                      
+trophic.levelPZ                                           
+trophic.levelPZN                                          
+I(invT - mean(invT)):week                                 
+I(invT - mean(invT)):trophic.levelPZ                      
+I(invT - mean(invT)):trophic.levelPZN                     
+week:trophic.levelPZ                                      
+week:trophic.levelPZN                                     
+I(invT - mean(invT)):week:trophic.levelPZ                 
+I(invT - mean(invT)):week:trophic.levelPZN  0.472         
+
+Standardized Within-Group Residuals:
+       Min         Q1        Med         Q3        Max 
+-2.6909868 -0.4984889  0.1352462  0.6797252  2.5248204 
+
+Number of Observations: 240
+Number of Groups: 30 

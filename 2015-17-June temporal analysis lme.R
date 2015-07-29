@@ -36,31 +36,17 @@ plot(log(data$calc.NPP+1)~data$invT, pch = 19, col = data$trophic.level)
 
 ## analysis
 modNPP0<-lme(log(calc.NPP+1) ~ 1, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNPP1<-lme(log(calc.NPP+1)~1+invT, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNPP2<-lme(log(calc.NPP+1)~1+invT+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNPP3<-lme(log(calc.NPP+1)~1+invT+week+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNPP4<-lme(log(calc.NPP+1)~1+week+invT*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNPP5<-lme(log(calc.NPP+1)~1+invT*week+invT*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNPP6<-lme(log(calc.NPP+1)~1+invT*week*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNPP1<-lme(log(calc.NPP+1)~1+I(invT-mean(invT)), random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNPP2<-lme(log(calc.NPP+1)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNPP3<-lme(log(calc.NPP+1)~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNPP4<-lme(log(calc.NPP+1)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNPP5<-lme(log(calc.NPP+1)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNPP6<-lme(log(calc.NPP+1)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
 
 model.sel(modNPP0, modNPP1, modNPP2, modNPP3, modNPP4, modNPP5, modNPP6)
 
-anova(modNPP6, modNPP5)
-anova(modNPP5, modNPP3)
-anova(modNPP3, modNPP4)
-anova(modNPP3, modNPP1)
-anova(modNPP1, modNPP2)
-anova(modNPP1, modNPP0)
-
-AIC(modNPP0, modNPP1, modNPP2, modNPP3, modNPP4)
-AICs <- as.data.frame(cbind(AICc(modNPP0),AICc(modNPP1), AICc(modNPP2), AICc(modNPP3), AICc(modNPP4)))
-akaike.weights(AICs)
-
-logLik(modNPP0)
-logLik(modNPP1)
-logLik(modNPP2)
-logLik(modNPP3)
-logLik(modNPP4)
+# for model fitting: 
+modNPP6<-lme(log(calc.NPP+1)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
 
 model2modNPP0 <- update(modNPP0, correlation = corAR1())
 model2modNPP1 <- update(modNPP1, correlation = corAR1())
