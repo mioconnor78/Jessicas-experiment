@@ -2,6 +2,13 @@
 
 Table 1: 
 
+### a consistent result here is that PZ tanks are different: 
+Chla: the temporal trend seems to be different for PZ vs the other ones.
+ZPc: declines with warming, more strongly with predators
+NPP: increases with temp (E = 0.88) temperature effect independent of trophic level, but temporal effect varies with trophic level (i.e., how the intercept changes through time)
+ER: increases with temperature (E =  0.50), less so for PZN
+
+
 ## chlorophyll biomass
 > model.sel(modchl0, modchl1, modchl2, modchl3, modchl4, modchl5, modchl6)
 Model selection table 
@@ -83,7 +90,7 @@ Random terms (all models):
 ‘1 | Tank’
 
 
-### zooplankton biomass declines wtih warming, and the decline is stronger for the NPZ treatments compared to the PZ treatments.
+### zooplankton biomass declines wtih warming, and the decline is stronger for the PZN treatments compared to the PZ treatments.
 > summary(modzpc4)
 Linear mixed-effects model fit by maximum likelihood
  Data: dataz 
@@ -132,7 +139,7 @@ Models ranked by AICc(x)
 Random terms (all models): 
 ‘1 | Tank’
 
-### these correlations were high, so I recentered the model results; it didn't affect the model comparisons. From this, i conclude that NPP increases with increasing temperature, NPP increased through time, the effect of time weakened with warming, and depended a lot on trophic level. 
+### these correlations were high, so I recentered the model results; it didn't affect the model comparisons. From this, i conclude that NPP increases with increasing temperature, NPP increased through time, the effect of time weakened with warming, and depended a lot on trophic level. the temperature effect does not appear to vary with trophic level, in contrast to the ER pattern (varies with TL, but not through time)
 
 > summary(modNPP6)
 Linear mixed-effects model fit by REML
@@ -191,3 +198,77 @@ Standardized Within-Group Residuals:
 
 Number of Observations: 240
 Number of Groups: 30 
+
+
+> model.sel(modER0, modER1, modER2, modER3, modER4, modER5, modER6)
+Model selection table 
+       (Int)  inT-men(inT) trp.lvl wek     I(inT-men(inT)):trp.lvl I(inT-men(inT)):wek trp.lvl:wek I(inT-men(inT)):trp.lvl:wek df logLik  
+modER5 0.6394 -0.7057      +       0.05456 +                       0.03421                                                     10 -113.183
+modER4 0.6825 -0.4897      +       0.05115 +                                                                                    9 -114.504
+modER3 0.6862 -0.3410      +       0.05024                                                                                      7 -118.747
+modER6 0.6015 -0.8602      +       0.05835 +                       0.05813             +           +                           14 -111.551
+modER2 0.9612 -0.1885      +                                                                                                    6 -125.148
+modER1 1.0820 -0.1518                                                                                                           4 -130.289
+modER0 1.0820                                                                                                                   3 -133.051
+       AICc  delta weight
+modER5 247.3  0.00 0.513 
+modER4 247.8  0.46 0.406 
+modER3 252.0  4.65 0.050 
+modER6 253.0  5.64 0.031 
+modER2 262.7 15.33 0.000 
+modER1 268.7 21.42 0.000 
+modER0 272.2 24.88 0.000 
+Models ranked by AICc(x) 
+Random terms (all models): 
+‘1 | Tank’
+
+
+#### interpretation: ER increases with warming, and that effect differs (is weaker) for PZN relative to PZ and P. Evidence of a trophic cascade (ER in PZ tanks is higher than P and PZN)
+
+> summary(m.avg)
+
+Call:
+model.avg.default(object = modER5, modER4)
+
+Component model call: 
+lme.formula(fixed = <2 unique values>, data = data, random = ~1 | Tank, method = REML, na.action = na.omit)
+
+Component models: 
+      df  logLik   AICc delta weight
+1234   9 -129.19 277.17  0.00   0.94
+12345 10 -130.81 282.57  5.41   0.06
+
+Term codes: 
+              I(invT - mean(invT))                      trophic.level                               week I(invT - mean(invT)):trophic.level 
+                                 1                                  2                                  3                                  4 
+         I(invT - mean(invT)):week 
+                                 5 
+
+Model-averaged coefficients: 
+                                      Estimate Std. Error Adjusted SE z value Pr(>|z|)    
+(Intercept)                            0.68405    0.08906     0.08958   7.636  < 2e-16 ***
+week                                   0.05058    0.01352     0.01360   3.720 0.000199 ***
+I(invT - mean(invT))                  -0.49765    0.10764     0.10812   4.603  4.2e-06 ***
+trophic.levelPZ                        0.27580    0.06803     0.07121   3.873 0.000108 ***
+trophic.levelPZN                       0.08123    0.06802     0.07121   1.141 0.253963    
+I(invT - mean(invT)):trophic.levelPZ   0.10611    0.11685     0.11754   0.903 0.366672    
+I(invT - mean(invT)):trophic.levelPZN  0.32871    0.11697     0.11766   2.794 0.005210 ** 
+I(invT - mean(invT)):week              0.03446    0.02116     0.02129   1.618 0.105561    
+
+Full model-averaged coefficients (with shrinkage): 
+                                       Estimate Std. Error Adjusted SE z value Pr(>|z|)    
+(Intercept)                            0.684049   0.089061    0.089579   7.636  < 2e-16 ***
+week                                   0.050579   0.013516    0.013595   3.720 0.000199 ***
+I(invT - mean(invT))                  -0.497650   0.107640    0.108120   4.603  4.2e-06 ***
+trophic.levelPZ                        0.275801   0.068025    0.071214   3.873 0.000108 ***
+trophic.levelPZN                       0.081234   0.068021    0.071209   1.141 0.253963    
+I(invT - mean(invT)):trophic.levelPZ   0.106106   0.116849    0.117540   0.903 0.366672    
+I(invT - mean(invT)):trophic.levelPZN  0.328705   0.116967    0.117658   2.794 0.005210 ** 
+I(invT - mean(invT)):week              0.002161   0.009894    0.009911   0.218 0.827373    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Relative variable importance: 
+                     I(invT - mean(invT)) trophic.level week I(invT - mean(invT)):trophic.level I(invT - mean(invT)):week
+Importance:          1.00                 1.00          1.00 1.00                               0.06                     
+N containing models:    2                    2             2    2                                  1    
