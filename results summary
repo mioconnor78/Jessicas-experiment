@@ -127,20 +127,29 @@ Number of Groups: 20
 #### NPP results. Total NPP
 > model.sel(modNPP0, modNPP1, modNPP2, modNPP3, modNPP4, modNPP5, modNPP6)
 Model selection table 
-        (Int)   inT     trp.lvl wek      inT:trp.lvl inT:wek trp.lvl:wek inT:trp.lvl:wek df logLik  AICc  delta weight
-modNPP6 34.5200 -0.8768 +       -2.01900 +           0.05407 +           +               14 -39.210 108.3  0.00 0.980 
-modNPP5 29.9400 -0.7526 +       -1.95900 +           0.05127                             10 -47.658 116.3  7.99 0.018 
-modNPP3 19.1400 -0.4739 +        0.03551                                                  7 -53.687 121.9 13.57 0.001 
-modNPP4 17.3600 -0.4284 +        0.03561 +                                                9 -52.700 124.2 15.90 0.000 
-modNPP1  9.9670 -0.2319                                                                   4 -59.475 127.1 18.83 0.000 
-modNPP2 10.9500 -0.2590 +                                                                 6 -58.025 128.4 20.12 0.000 
-modNPP0  0.9213                                                                           3 -67.219 140.5 32.25 0.000 
+          (Int) inT-men(inT) trp.lvl     wek I(inT-men(inT)):trp.lvl I(inT-men(inT)):wek trp.lvl:wek
+modNPP6 -1.0300      -2.1250       + 0.19240                       +             0.15800           +
+modNPP5 -0.3487      -1.4830       + 0.07647                       +             0.09446            
+modNPP3 -0.2280      -0.9378       + 0.06685                                                        
+modNPP4 -0.2289      -0.8858       + 0.06693                       +                                
+modNPP2  0.1384      -0.7874       +                                                                
+modNPP1  0.2840      -0.7305                                                                        
+modNPP0  0.2840                                                                                     
+        I(inT-men(inT)):trp.lvl:wek df   logLik  AICc delta weight
+modNPP6                           + 14 -230.197 490.3  0.00  0.995
+modNPP5                             10 -240.245 501.5 11.19  0.004
+modNPP3                              7 -244.967 504.4 14.16  0.001
+modNPP4                              9 -243.707 506.2 15.94  0.000
+modNPP2                              6 -249.279 510.9 20.66  0.000
+modNPP1                              4 -252.273 512.7 22.45  0.000
+modNPP0                              3 -263.615 533.3 43.07  0.000
 Models ranked by AICc(x) 
 Random terms (all models): 
 ‘1 | Tank’
 
 ### these correlations were high, so I recentered the model results; it didn't affect the model comparisons. From this, i conclude that NPP increases with increasing temperature, NPP increased through time, the effect of time weakened with warming, and depended a lot on trophic level. the temperature effect does not appear to vary with trophic level, in contrast to the ER pattern (varies with TL, but not through time)
 
+> modNPP6<-lme(log(calc.NPP+1)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
 > summary(modNPP6)
 Linear mixed-effects model fit by REML
  Data: data 
@@ -150,7 +159,7 @@ Linear mixed-effects model fit by REML
 Random effects:
  Formula: ~1 | Tank
          (Intercept) Residual
-StdDev: 1.478593e-05 0.292317
+StdDev: 1.482825e-05 0.292317
 
 Fixed effects: log(calc.NPP + 1) ~ 1 + I(invT - mean(invT)) * week * trophic.level 
                                                 Value  Std.Error  DF   t-value p-value
@@ -167,30 +176,30 @@ week:trophic.levelPZN                      -0.0471593 0.02440472 201 -1.932385  
 I(invT - mean(invT)):week:trophic.levelPZ  -0.0139406 0.03831914 201 -0.363803  0.7164
 I(invT - mean(invT)):week:trophic.levelPZN  0.0043203 0.03861118 201  0.111894  0.9110
  Correlation: 
-                                           (Intr) I(nT-m(T)) week   trp.PZ tr.PZN I(nT-m(T)): I(nT-m(T)):.PZ I(T-m(T)):.PZN wk:.PZ w:.PZN
-I(invT - mean(invT))                        0.471                                                                                        
-week                                       -0.932 -0.336                                                                                 
-trophic.levelPZ                            -0.704 -0.332      0.657                                                                      
-trophic.levelPZN                           -0.703 -0.331      0.655  0.495                                                               
-I(invT - mean(invT)):week                  -0.309 -0.925      0.141  0.218  0.217                                                        
-I(invT - mean(invT)):trophic.levelPZ       -0.327 -0.695      0.233  0.480  0.230  0.643                                                 
-I(invT - mean(invT)):trophic.levelPZN      -0.322 -0.682      0.229  0.226  0.485  0.631       0.474                                     
-week:trophic.levelPZ                        0.660  0.238     -0.708 -0.933 -0.464 -0.100      -0.345         -0.162                      
-week:trophic.levelPZN                       0.658  0.237     -0.706 -0.464 -0.933 -0.099      -0.165         -0.351          0.500       
-I(invT - mean(invT)):week:trophic.levelPZ   0.213  0.638     -0.097 -0.318 -0.150 -0.690      -0.925         -0.436          0.152  0.069
-I(invT - mean(invT)):week:trophic.levelPZN  0.212  0.634     -0.096 -0.149 -0.327 -0.685      -0.440         -0.927          0.068  0.161
-                                           I(nT-m(T))::.PZ
-I(invT - mean(invT))                                      
-week                                                      
-trophic.levelPZ                                           
-trophic.levelPZN                                          
-I(invT - mean(invT)):week                                 
-I(invT - mean(invT)):trophic.levelPZ                      
-I(invT - mean(invT)):trophic.levelPZN                     
-week:trophic.levelPZ                                      
-week:trophic.levelPZN                                     
-I(invT - mean(invT)):week:trophic.levelPZ                 
-I(invT - mean(invT)):week:trophic.levelPZN  0.472         
+                                           (Intr) I(nT-m(T)) week   trp.PZ tr.PZN I(nT-m(T)): I(nT-m(T)):.PZ
+I(invT - mean(invT))                        0.471                                                           
+week                                       -0.932 -0.336                                                    
+trophic.levelPZ                            -0.704 -0.332      0.657                                         
+trophic.levelPZN                           -0.703 -0.331      0.655  0.495                                  
+I(invT - mean(invT)):week                  -0.309 -0.925      0.141  0.218  0.217                           
+I(invT - mean(invT)):trophic.levelPZ       -0.327 -0.695      0.233  0.480  0.230  0.643                    
+I(invT - mean(invT)):trophic.levelPZN      -0.322 -0.682      0.229  0.226  0.485  0.631       0.474        
+week:trophic.levelPZ                        0.660  0.238     -0.708 -0.933 -0.464 -0.100      -0.345        
+week:trophic.levelPZN                       0.658  0.237     -0.706 -0.464 -0.933 -0.099      -0.165        
+I(invT - mean(invT)):week:trophic.levelPZ   0.213  0.638     -0.097 -0.318 -0.150 -0.690      -0.925        
+I(invT - mean(invT)):week:trophic.levelPZN  0.212  0.634     -0.096 -0.149 -0.327 -0.685      -0.440        
+                                           I(T-m(T)):.PZN wk:.PZ w:.PZN I(nT-m(T))::.PZ
+I(invT - mean(invT))                                                                   
+week                                                                                   
+trophic.levelPZ                                                                        
+trophic.levelPZN                                                                       
+I(invT - mean(invT)):week                                                              
+I(invT - mean(invT)):trophic.levelPZ                                                   
+I(invT - mean(invT)):trophic.levelPZN                                                  
+week:trophic.levelPZ                       -0.162                                      
+week:trophic.levelPZN                      -0.351          0.500                       
+I(invT - mean(invT)):week:trophic.levelPZ  -0.436          0.152  0.069                
+I(invT - mean(invT)):week:trophic.levelPZN -0.927          0.068  0.161  0.472         
 
 Standardized Within-Group Residuals:
        Min         Q1        Med         Q3        Max 
@@ -202,22 +211,22 @@ Number of Groups: 30
 
 > model.sel(modER0, modER1, modER2, modER3, modER4, modER5, modER6)
 Model selection table 
-       (Int)  inT-men(inT) trp.lvl wek     I(inT-men(inT)):trp.lvl I(inT-men(inT)):wek trp.lvl:wek I(inT-men(inT)):trp.lvl:wek df logLik  
-modER5 0.6394 -0.7057      +       0.05456 +                       0.03421                                                     10 -113.183
-modER4 0.6825 -0.4897      +       0.05115 +                                                                                    9 -114.504
-modER3 0.6862 -0.3410      +       0.05024                                                                                      7 -118.747
-modER6 0.6015 -0.8602      +       0.05835 +                       0.05813             +           +                           14 -111.551
-modER2 0.9612 -0.1885      +                                                                                                    6 -125.148
-modER1 1.0820 -0.1518                                                                                                           4 -130.289
-modER0 1.0820                                                                                                                   3 -133.051
-       AICc  delta weight
-modER5 247.3  0.00 0.513 
-modER4 247.8  0.46 0.406 
-modER3 252.0  4.65 0.050 
-modER6 253.0  5.64 0.031 
-modER2 262.7 15.33 0.000 
-modER1 268.7 21.42 0.000 
-modER0 272.2 24.88 0.000 
+         (Int) inT-men(inT) trp.lvl    wek I(inT-men(inT)):trp.lvl I(inT-men(inT)):wek trp.lvl:wek
+modER5 -0.2513      -1.3490       + 0.1094                       +             0.07409            
+modER4 -0.1573      -0.8807       + 0.1019                       +                                
+modER3 -0.1620      -0.6127       + 0.1024                                                        
+modER6 -0.3352      -1.5000       + 0.1221                       +             0.09432           +
+modER2  0.3987      -0.3361       +                                                               
+modER1  0.5533      -0.2390                                                                       
+modER0  0.5533                                                                                    
+       I(inT-men(inT)):trp.lvl:wek df   logLik  AICc delta weight
+modER5                             10 -259.752 540.5  0.00  0.633
+modER4                              9 -261.575 541.9  1.47  0.304
+modER3                              7 -265.457 545.4  4.93  0.054
+modER6                           + 14 -259.500 548.9  8.40  0.009
+modER2                              6 -273.550 559.5 18.99  0.000
+modER1                              4 -279.831 567.8 27.37  0.000
+modER0                              3 -281.768 569.6 29.17  0.000
 Models ranked by AICc(x) 
 Random terms (all models): 
 ‘1 | Tank’
@@ -225,13 +234,15 @@ Random terms (all models):
 
 #### interpretation: ER increases with warming, and that effect differs (is weaker) for PZN relative to PZ and P. Evidence of a trophic cascade (ER in PZ tanks is higher than P and PZN)
 
+> m.avg <- model.avg(modER5, modER4)
 > summary(m.avg)
 
 Call:
 model.avg.default(object = modER5, modER4)
 
 Component model call: 
-lme.formula(fixed = <2 unique values>, data = data, random = ~1 | Tank, method = REML, na.action = na.omit)
+lme.formula(fixed = <2 unique values>, data = data, random = ~1 | Tank, method = REML, na.action = 
+     na.omit)
 
 Component models: 
       df  logLik   AICc delta weight
@@ -239,23 +250,13 @@ Component models:
 12345 10 -130.81 282.57  5.41   0.06
 
 Term codes: 
-              I(invT - mean(invT))                      trophic.level                               week I(invT - mean(invT)):trophic.level 
-                                 1                                  2                                  3                                  4 
-         I(invT - mean(invT)):week 
-                                 5 
+              I(invT - mean(invT))                      trophic.level                               week 
+                                 1                                  2                                  3 
+I(invT - mean(invT)):trophic.level          I(invT - mean(invT)):week 
+                                 4                                  5 
 
-Model-averaged coefficients: 
-                                      Estimate Std. Error Adjusted SE z value Pr(>|z|)    
-(Intercept)                            0.68405    0.08906     0.08958   7.636  < 2e-16 ***
-week                                   0.05058    0.01352     0.01360   3.720 0.000199 ***
-I(invT - mean(invT))                  -0.49765    0.10764     0.10812   4.603  4.2e-06 ***
-trophic.levelPZ                        0.27580    0.06803     0.07121   3.873 0.000108 ***
-trophic.levelPZN                       0.08123    0.06802     0.07121   1.141 0.253963    
-I(invT - mean(invT)):trophic.levelPZ   0.10611    0.11685     0.11754   0.903 0.366672    
-I(invT - mean(invT)):trophic.levelPZN  0.32871    0.11697     0.11766   2.794 0.005210 ** 
-I(invT - mean(invT)):week              0.03446    0.02116     0.02129   1.618 0.105561    
-
-Full model-averaged coefficients (with shrinkage): 
+Model-averaged coefficients:  
+(full average) 
                                        Estimate Std. Error Adjusted SE z value Pr(>|z|)    
 (Intercept)                            0.684049   0.089061    0.089579   7.636  < 2e-16 ***
 week                                   0.050579   0.013516    0.013595   3.720 0.000199 ***
@@ -265,10 +266,194 @@ trophic.levelPZN                       0.081234   0.068021    0.071209   1.141 0
 I(invT - mean(invT)):trophic.levelPZ   0.106106   0.116849    0.117540   0.903 0.366672    
 I(invT - mean(invT)):trophic.levelPZN  0.328705   0.116967    0.117658   2.794 0.005210 ** 
 I(invT - mean(invT)):week              0.002161   0.009894    0.009911   0.218 0.827373    
+ 
+(conditional average) 
+                                      Estimate Std. Error Adjusted SE z value Pr(>|z|)    
+(Intercept)                            0.68405    0.08906     0.08958   7.636  < 2e-16 ***
+week                                   0.05058    0.01352     0.01360   3.720 0.000199 ***
+I(invT - mean(invT))                  -0.49765    0.10764     0.10812   4.603  4.2e-06 ***
+trophic.levelPZ                        0.27580    0.06803     0.07121   3.873 0.000108 ***
+trophic.levelPZN                       0.08123    0.06802     0.07121   1.141 0.253963    
+I(invT - mean(invT)):trophic.levelPZ   0.10611    0.11685     0.11754   0.903 0.366672    
+I(invT - mean(invT)):trophic.levelPZN  0.32871    0.11697     0.11766   2.794 0.005210 ** 
+I(invT - mean(invT)):week              0.03446    0.02116     0.02129   1.618 0.105561    
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 Relative variable importance: 
-                     I(invT - mean(invT)) trophic.level week I(invT - mean(invT)):trophic.level I(invT - mean(invT)):week
-Importance:          1.00                 1.00          1.00 1.00                               0.06                     
-N containing models:    2                    2             2    2                                  1    
+                     I(invT - mean(invT)) trophic.level week I(invT - mean(invT)):trophic.level
+Importance:          1.00                 1.00          1.00 1.00                              
+N containing models:    2                    2             2    2                              
+                     I(invT - mean(invT)):week
+Importance:          0.06                     
+N containing models:    1 
+
+
+
+
+> model.sel(modNPPm0, modNPPm1, modNPPm2, modNPPm3, modNPPm4, modNPPm5, modNPPm6)
+Model selection table 
+          (Int) inT-men(inT) trp.lvl    wek I(inT-men(inT)):trp.lvl I(inT-men(inT)):wek trp.lvl:wek
+modNPPm5 -7.945      -2.7100       + 0.3748                       +              0.1669            
+modNPPm6 -7.222      -1.8720       + 0.2367                       +              0.2061           +
+modNPPm3 -6.667      -0.3983       + 0.1622                                                        
+modNPPm4 -6.716      -0.3071       + 0.1710                       +                                
+modNPPm1 -5.216       0.6107                                                                       
+modNPPm2 -5.783       0.5840       +                                                               
+modNPPm0 -5.216                                                                                    
+         I(inT-men(inT)):trp.lvl:wek df   logLik  AICc delta weight
+modNPPm5                             10 -326.354 673.7  0.00  0.496
+modNPPm6                           + 14 -322.081 674.0  0.36  0.414
+modNPPm3                              7 -331.525 677.5  3.86  0.072
+modNPPm4                              9 -330.997 680.8  7.11  0.014
+modNPPm1                              4 -338.288 684.7 11.08  0.002
+modNPPm2                              6 -336.237 684.8 11.17  0.002
+modNPPm0                              3 -345.715 697.5 23.86  0.000
+Models ranked by AICc(x) 
+Random terms (all models): 
+‘1 | Tank’
+
+# refit with REML then averaged
+> m.avg <- model.avg(modNPPm5, modNPPm6)
+> summary(m.avg)
+
+Call:
+model.avg.default(object = modNPPm5, modNPPm6)
+
+Component model call: 
+lme.formula(fixed = <2 unique values>, data = data, random = ~1 | Tank, method = REML, na.action = 
+     na.omit)
+
+Component models: 
+        df  logLik   AICc delta weight
+12345   10 -336.47 693.90  0.00   0.92
+1234567 14 -334.50 698.86  4.96   0.08
+
+Term codes: 
+                   I(invT - mean(invT))                           trophic.level 
+                                      1                                       2 
+                                   week      I(invT - mean(invT)):trophic.level 
+                                      3                                       4 
+              I(invT - mean(invT)):week                      trophic.level:week 
+                                      5                                       6 
+I(invT - mean(invT)):trophic.level:week 
+                                      7 
+
+Model-averaged coefficients:  
+(full average) 
+                                             Estimate Std. Error Adjusted SE z value Pr(>|z|)    
+(Intercept)                                -6.9675497  0.3747842   0.3769930  18.482  < 2e-16 ***
+I(invT - mean(invT))                       -1.0910274  0.5228518   0.5256496   2.076   0.0379 *  
+week                                        0.2044331  0.0439839   0.0442447   4.621  3.8e-06 ***
+trophic.levelPZ                             1.3153764  0.5708091   0.5854081   2.247   0.0246 *  
+trophic.levelPZN                            0.4705268  0.4210792   0.4408038   1.067   0.2858    
+I(invT - mean(invT)):week                   0.0964832  0.0587253   0.0589899   1.636   0.1019    
+I(invT - mean(invT)):trophic.levelPZ       -0.0771241  1.0404144   1.0415317   0.074   0.9410    
+I(invT - mean(invT)):trophic.levelPZN      -0.1229938  0.4495842   0.4522762   0.272   0.7857    
+trophic.levelPZ:week                       -0.0164777  0.0634363   0.0635113   0.259   0.7953    
+trophic.levelPZN:week                       0.0008115  0.0287417   0.0289141   0.028   0.9776    
+I(invT - mean(invT)):trophic.levelPZ:week  -0.0299170  0.1078470   0.1079004   0.277   0.7816    
+I(invT - mean(invT)):trophic.levelPZN:week -0.0016045  0.0319454   0.0321331   0.050   0.9602    
+ 
+(conditional average) 
+                                           Estimate Std. Error Adjusted SE z value Pr(>|z|)    
+(Intercept)                                -6.96755    0.37478     0.37699  18.482  < 2e-16 ***
+I(invT - mean(invT))                       -1.09103    0.52285     0.52565   2.076 0.037933 *  
+week                                        0.20443    0.04398     0.04424   4.621  3.8e-06 ***
+trophic.levelPZ                             1.31538    0.57081     0.58541   2.247 0.024644 *  
+trophic.levelPZN                            0.47053    0.42108     0.44080   1.067 0.285778    
+I(invT - mean(invT)):week                   0.09648    0.05873     0.05899   1.636 0.101926    
+I(invT - mean(invT)):trophic.levelPZ       -0.07712    1.04041     1.04153   0.074 0.940972    
+I(invT - mean(invT)):trophic.levelPZN      -0.12299    0.44958     0.45228   0.272 0.785665    
+trophic.levelPZ:week                       -0.21316    0.10066     0.10127   2.105 0.035301 *  
+trophic.levelPZN:week                       0.01050    0.10288     0.10351   0.101 0.919218    
+I(invT - mean(invT)):trophic.levelPZ:week  -0.38702    0.11071     0.11138   3.475 0.000512 ***
+I(invT - mean(invT)):trophic.levelPZN:week -0.02076    0.11316     0.11384   0.182 0.855329    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Relative variable importance: 
+                     I(invT - mean(invT)) trophic.level week I(invT - mean(invT)):trophic.level
+Importance:          1.00                 1.00          1.00 1.00                              
+N containing models:    2                    2             2    2                              
+                     I(invT - mean(invT)):week trophic.level:week I(invT - mean(invT)):trophic.level:week
+Importance:          1.00                      0.08               0.08                                   
+N containing models:    2                         1                  1                                   
+
+
+#### total carbon
+> model.sel(modTC0, modTC1, modTC2, modTC3, modTC4, modTC5, modTC6)
+Model selection table 
+       (Int) inT-men(inT) trp.lvl     wek I(inT-men(inT)):trp.lvl I(inT-men(inT)):wek trp.lvl:wek
+modTC4 8.048       0.4923       + -0.3338                       +                                
+modTC5 8.267       1.0690       + -0.3633                       +            -0.06839            
+modTC3 7.802       0.3953       + -0.2958                                                        
+modTC6 7.972       1.0910       + -0.3170                       +            -0.08060           +
+modTC2 5.894      -0.8916       +                                                                
+modTC1 5.456      -0.9328                                                                        
+modTC0 5.456                                                                                     
+       I(inT-men(inT)):trp.lvl:wek df   logLik  AICc  delta weight
+modTC4                              9 -141.593 302.2   0.00  0.410
+modTC5                             10 -140.736 302.8   0.53  0.314
+modTC3                              7 -144.254 303.2   0.92  0.259
+modTC6                           + 14 -139.033 308.6   6.37  0.017
+modTC2                              6 -183.183 378.9  76.61  0.000
+modTC1                              4 -186.494 381.2  78.97  0.000
+modTC0                              3 -206.398 418.9 116.69  0.000
+Models ranked by AICc(x) 
+Random terms (all models): 
+‘1 | Tank’
+
+> summary(m.avg)
+
+Call:
+model.avg.default(object = modTC4, modTC5)
+
+Component model call: 
+lme.formula(fixed = <2 unique values>, data = data, random = ~1 | Tank, method = REML, na.action = 
+     na.omit)
+
+Component models: 
+      df  logLik   AICc delta weight
+1234   9 -150.41 319.87   0.0   0.95
+12345 10 -152.34 325.97   6.1   0.05
+
+Term codes: 
+              I(invT - mean(invT))                      trophic.level                               week 
+                                 1                                  2                                  3 
+I(invT - mean(invT)):trophic.level          I(invT - mean(invT)):week 
+                                 4                                  5 
+
+Model-averaged coefficients:  
+(full average) 
+                                       Estimate Std. Error Adjusted SE z value Pr(>|z|)    
+(Intercept)                            7.844240   0.229427    0.231315  33.911   <2e-16 ***
+week                                  -0.302110   0.027525    0.027750  10.887   <2e-16 ***
+I(invT - mean(invT))                   0.365744   0.212182    0.213765   1.711   0.0871 .  
+trophic.levelPZ                       -1.073803   0.203350    0.212882   5.044    5e-07 ***
+trophic.levelPZN                      -0.194411   0.203336    0.212867   0.913   0.3611    
+I(invT - mean(invT)):trophic.levelPZ   0.376386   0.238141    0.240126   1.567   0.1170    
+I(invT - mean(invT)):trophic.levelPZN -0.112614   0.238627    0.240621   0.468   0.6398    
+I(invT - mean(invT)):week             -0.001635   0.012461    0.012528   0.131   0.8962    
+ 
+(conditional average) 
+                                      Estimate Std. Error Adjusted SE z value Pr(>|z|)    
+(Intercept)                            7.84424    0.22943     0.23132  33.911   <2e-16 ***
+week                                  -0.30211    0.02752     0.02775  10.887   <2e-16 ***
+I(invT - mean(invT))                   0.36574    0.21218     0.21376   1.711   0.0871 .  
+trophic.levelPZ                       -1.07380    0.20335     0.21288   5.044    5e-07 ***
+trophic.levelPZN                      -0.19441    0.20334     0.21287   0.913   0.3611    
+I(invT - mean(invT)):trophic.levelPZ   0.37639    0.23814     0.24013   1.567   0.1170    
+I(invT - mean(invT)):trophic.levelPZN -0.11261    0.23863     0.24062   0.468   0.6398    
+I(invT - mean(invT)):week             -0.03622    0.04677     0.04717   0.768   0.4425    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Relative variable importance: 
+                     I(invT - mean(invT)) trophic.level week I(invT - mean(invT)):trophic.level
+Importance:          1.00                 1.00          1.00 1.00                              
+N containing models:    2                    2             2    2                              
+                     I(invT - mean(invT)):week
+Importance:          0.05                     
+N containing models:    1 
+
