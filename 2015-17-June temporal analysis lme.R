@@ -47,7 +47,7 @@ modNPP6<-lme(log(calc.NPP)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Ta
 model.sel(modNPP0, modNPP1, modNPP2, modNPP3, modNPP4, modNPP5, modNPP6)
 
 # for model fitting: 
-modNPP6<-lme(log(calc.NPP+1)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
+modNPP6<-lme(log(calc.NPP)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
 
 model2modNPP0 <- update(modNPP0, correlation = corAR1())
 model2modNPP1 <- update(modNPP1, correlation = corAR1())
@@ -319,24 +319,25 @@ legend(40.0, 1, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen
 ##### BIOMASS RESULTS #####
 
 ## Does chla vary with temperature?  
+## MO skipped this for now b/c it's redundant with PP biomass (below) and we probably shouldn't analyze both.
 ### MO: went through this and made minor changes on July 28, 2015
 ## figures 
 # data1 <- data[(which(data$week!='2')),] #could redo without week2, to see if that's driving the need for week effects.
 hist(data$chla)
 hist(log(data$chla))
-hist(log(data$chla+1))
-plot(log(data$chla+1)~data$Tank, pch = 19, col = data$trophic.level)
-plot(log(data$chla+1)~data$week, pch = 19, col = data$trophic.level)
-plot(log(data$chla+1)~data$invT, pch = 19, col = data$trophic.level)
+#hist(log(data$chla+1))
+plot(log(data$chla)~data$Tank, pch = 19, col = data$trophic.level)
+plot(log(data$chla)~data$week, pch = 19, col = data$trophic.level)
+plot(log(data$chla)~data$invT, pch = 19, col = data$trophic.level)
 
 ## analysis
-modchl0<-lme(log(chla+1)~1, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modchl1<-lme(log(chla+1)~1+invT, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modchl2<-lme(log(chla+1)~1+invT+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modchl3<-lme(log(chla+1)~1+invT+week+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modchl4<-lme(log(chla+1)~1+week+invT*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modchl5<-lme(log(chla+1)~1+invT*week+invT*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modchl6<-lme(log(chla+1)~1+invT*week*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modchl0<-lme(log(chla)~1, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modchl1<-lme(log(chla)~1+I(invT-mean(invT)), random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modchl2<-lme(log(chla)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modchl3<-lme(log(chla)~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modchl4<-lme(log(chla)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modchl5<-lme(log(chla)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modchl6<-lme(log(chla)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
 
 model.sel(modchl0, modchl1, modchl2, modchl3, modchl4, modchl5, modchl6)
 
@@ -348,7 +349,7 @@ anova(modchl2, modchl1)
 anova(modchl1,modchl0)
 
 ## refit best model with reml
-modchl6b<-lme(log(chla+1)~1+invT*week*trophic.level, random=~1|Tank, data=data1, method="REML", na.action=na.omit)
+modchl6b <- lme(log(chla)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
 summary(modchl6b)
 
 
@@ -382,33 +383,34 @@ abline(-41.55714, 1.11951, lty = 3, lwd = 3, col = 'blue')
 legend(40.0, 1.5, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'), bty = 'n')
 
 
-## MO skipped this for now b/c it's repeating chla and we probably shouldn't analyze both.
+
+#### PP BIOMASS ###
 ## Does total PP biomass vary with temperature and FCL?   
 ## figures 
 hist(data$PP.biomass)
 hist(log(data$PP.biomass))
-hist(log(data$PP.biomass+10))
-plot(log(data$PP.biomass+10)~data$invT)
 
-plot(log(data$PP.biomass+10)~data$invT, cex=1.5, pch='',  axes=FALSE, xlim=c(37.5,41), ylim=c(2.0, 7.5), xlab='inv Temperature (C)', ylab='PP biomass ln(ug C / L)') 
-axis(1, at=c(37.5, 38.0, 38.5,39, 39.5, 40, 40.5, 41), pos=2.0, lwd=2, cex.lab=1.5)
-axis(2, at=c(2.0, 3.0, 4.0, 5.0, 6.0, 7.0), pos=37.5, lwd=2, cex.lab=1.5)
-points(log(data[(data$trophic.level=='P'),]$PP.biomass+10)~data[(data$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
-points(log(data[(data$trophic.level=='PZ'),]$PP.biomass+10)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
-points(log(data[(data$trophic.level=='PZN'),]$PP.biomass+10)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
+plot(log(data$PP.biomass)~data$Tank, pch = 19, col = data$trophic.level)
+plot(log(data$PP.biomass)~data$week, pch = 19, col = data$trophic.level)
+plot(log(data$PP.biomass)~data$invT, pch = 19, col = data$trophic.level)
 
 ## analysis
-modPb0<-lme(log(PP.biomass)~1, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modPb1<-lme(log(PP.biomass)~1 + invT, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modPb2<-lme(log(PP.biomass)~1 + invT + week, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modPb3<-lme(log(PP.biomass)~1 + invT + week + trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modPb4<-lme(log(PP.biomass)~1 + invT*week+invT*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-anova(modPb0, modPb1)
-anova(modPb1, modPb2)
-anova(modPb3, modPb4)
-anova(modPb4, modPb1)
-anova(modPb4, modPb0)
-anova(modPb4, modPb2)
+modBp0<-lme(log(PP.biomass)~1, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modBp1<-lme(log(PP.biomass)~1+I(invT-mean(invT)), random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modBp2<-lme(log(PP.biomass)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modBp3<-lme(log(PP.biomass)~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modBp4<-lme(log(PP.biomass)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modBp5<-lme(log(PP.biomass)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modBp6<-lme(log(PP.biomass)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+
+model.sel(modBp0, modBp1, modBp2, modBp3, modBp4, modBp5, modBp6)
+
+anova(modBp6, modBp3)
+anova(modBp3, modBp5)
+anova(modBp3, modBp4)
+anova(modBp3, modBp2)
+anova(modBp2, modBp1)
+anova(modBp1, modBp0)
 
 AIC(modPb0, modPb1, modPb2, modPb3, modPb4)
 AICs <- as.data.frame(cbind(AICc(modPb0),AICc(modPb1), AICc(modPb2), AICc(modPb3), AICc(modPb4)))
