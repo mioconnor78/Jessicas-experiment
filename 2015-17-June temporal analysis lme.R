@@ -19,9 +19,12 @@ data$invT <- as.numeric(as.character(data$invT))
 #data$kT <- as.numeric(as.character(data$kT))*100
 
 data$PP.biomass <- (data$chla*55) #chla (ug/L)* 55 C in PP / 1 chla = ugPPC/L
-data$total.carbon <- data$PP.biomass + data$zoo.ug.carbon.liter #I'm pretty sure zp was in ugC/L
-data$NPP.mass <- data$calc.NPP / (data$PP.biomass)
+data$ZP.carbon1 <- ifelse(data$trophic.level=='P',  0, data$zoo.ug.carbon.liter) # for adding
+data$total.carbon <- data$PP.biomass + data$ZP.carbon1 #I'm assuming 0 for ZP in P treatments here.
+data$NPP.mass <- data$calc.NPP / (data$PP.biomass)  # I want to check calc.NPP again, I thought this was done in the R file, but it's not here.
 data$ER.mass <- data$calc.ER/(data$total.carbon)
+data$NEM <- data$NPP/data$ER 
+
 
 ## temporal
 
@@ -75,9 +78,6 @@ legend(40.0, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen
 
 
 # net ecosystem metabolism
-data$NEM <- 18*data$NPP - 24*data$ER  #this is not a thing; because ER is already part of NPP. Could
-# look at the two over a 24 hour period... so ER*24 but NPP*18...
-
 hist(data$NEM)
 hist(sqrt(data$NEM))
 hist(log(data$NEM))
@@ -793,18 +793,16 @@ modTC6<-lme(log(total.carbon)~1+I(invT-mean(invT))*week*trophic.level, random=~1
 
 model.sel(modTC0, modTC1, modTC2, modTC3, modTC4, modTC5, modTC6)
 
-anova(modTC4, modTC5)
+anova(modTC6, modTC5)
+anova(modTC5, modTC4)
 anova(modTC4, modTC3)
-anova(modTC4, modTC6)
-anova(modTC4, modTC2)
+anova(modTC3, modTC2)
 anova(modTC2, modTC1)
 anova(modTC1, modTC0)
 
 ### refit with REML and average
-modTC4<-lme(log(total.carbon)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
-modTC5<-lme(log(total.carbon)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
-m.avg <- model.avg(modTC4, modTC5)
-summary(m.avg)
+modTC6<-lme(log(total.carbon)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
+summary(modTC6)
 
 
 ## add lines to plot
