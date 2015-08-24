@@ -23,8 +23,9 @@ data$ZP.carbon1 <- ifelse(data$trophic.level=='P',  0, data$zoo.ug.carbon.liter)
 data$total.carbon <- data$PP.biomass + data$ZP.carbon1 #I'm assuming 0 for ZP in P treatments here.
 data$NPP.mass <- data$calc.NPP / (data$PP.biomass)  # I want to check calc.NPP again, I thought this was done in the R file, but it's not here.
 data$ER.mass <- data$calc.ER/(data$total.carbon)
-data$NEM <- data$NPP/data$ER 
+data$NEM <- 18*data$NPP/(24*data$ER) 
 
+data <- data[data$week >= '4',]
 
 ## temporal
 
@@ -52,28 +53,6 @@ model.sel(modNPP0, modNPP1, modNPP2, modNPP3, modNPP4, modNPP5, modNPP6)
 # for model fitting: 
 modNPP6<-lme(log(calc.NPP)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
 
-model2modNPP0 <- update(modNPP0, correlation = corAR1())
-model2modNPP1 <- update(modNPP1, correlation = corAR1())
-model2modNPP2 <- update(modNPP2, correlation = corAR1())
-model2modNPP3 <- update(modNPP3, correlation = corAR1())
-model2modNPP4 <- update(modNPP4, correlation = corAR1())
-
-model2modNPP0
-model2modNPP1
-model2modNPP2
-model2modNPP3
-model2modNPP4
-
-
-summary(modNPP4)
-coef(modNPP4)
-confint(modNPP4)
-
-## add lines to plot
-abline(29.941985, -0.752594, lty = 1, lwd = 3, col = 'seagreen')
-abline(34.32669, -0.862494, lty = 2, lwd = 3, col = 'brown')
-abline(31.138628, -0.779939, lty = 3, lwd = 3, col = 'blue')
-legend(40.0, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'), bty='n')
 
 
 
@@ -81,63 +60,29 @@ legend(40.0, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen
 hist(data$NEM)
 hist(sqrt(data$NEM))
 hist(log(data$NEM))
-hist(log(data$NEM+1))
-plot(log(data$NEM)~data$invT, pch = 19, col = data$trophic.level)
+#hist(log(data$NEM+1))
 
 plot(log(data$NEM)~data$invT, pch = 19, col = data$trophic.level)
-
-plot(log(data$NEM)~data$invT, cex=1.5, pch='',  axes=FALSE, ylim=c(-0.5,2.0), xlim=c(37.5,41), xlab='inv(Temperature) 1/eV', ylab='NEM ln(mg O/L/hr)') 
-axis(1, at=c(37.5, 38.0, 38.5,39, 39.5, 40,40.5, 41), pos=-0.5, lwd=2, cex.lab=1.5)
-axis(2, at=c(-0.5,0,0.5,1,1.5,2.0), pos=37.5, lwd=2, cex.lab=1.5)
-abline(1, 0, lwd = 3, col = 1, lty = 2)
-points(log(3+data[(data$trophic.level=='P'),]$NEM)~data[(data$trophic.level=='P'),]$invT, pch=19, col = 'seagreen', cex = 1.5)
-points(log(3+data[(data$trophic.level=='PZ'),]$NEM)~data[(data$trophic.level=='PZ'),]$invT, pch=15, col = 'brown', cex = 1.5)
-points(log(3+data[(data$trophic.level=='PZN'),]$NEM)~data[(data$trophic.level=='PZN'),]$invT, pch=17, col = 'blue')
-
+plot(log(data$NEM)~data$week, pch = 19, col = data$trophic.level)
+plot(log(data$NEM)~data$Tank, pch = 19, col = data$trophic.level)
 
 ## analysis
-modNEM0<-lme(log(NEM)~1, random=~1|Tank, data=data, method="ML", na.action=na.exclude)
-modNEM1<-lme(log(3+NEM)~1+invT, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNEM2<-lme(log(3+NEM)~1+invT+week, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNEM3<-lme(log(3+NEM)~1+invT+week+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNEM4<-lme(log(3+NEM)~1+invT*week+invT*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNEM0<-lme(log(NEM) ~ 1, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNEM1<-lme(log(NEM)~1+I(invT-mean(invT)), random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNEM2<-lme(log(NEM)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNEM3<-lme(log(NEM)~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNEM4<-lme(log(NEM)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNEM5<-lme(log(NEM)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNEM6<-lme(log(NEM)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
 
-anova(modNEM0, modNEM1)
-anova(modNEM0, modNEM2)
-anova(modNEM2, modNEM3)
-anova(modNEM3, modNEM4)
+model.sel(modNEM0, modNEM1, modNEM2, modNEM3, modNEM4, modNEM5, modNEM6)
 
-AIC(modNEM0, modNEM1, modNEM2, modNEM3, modNEM4)
-AICs <- as.data.frame(cbind(AICc(modNEM0),AICc(modNEM1), AICc(modNEM2), AICc(modNEM3), AICc(modNEM4)))
-akaike.weights(AICs)
-
-logLik(modNEM0)
-logLik(modNEM1)
-logLik(modNEM2)
-logLik(modNEM3)
-logLik(modNEM4)
-
-model2modNEM0 <- update(modNEM0, correlation = corAR1())
-model2modNEM1 <- update(modNEM1, correlation = corAR1())
-model2modNEM2 <- update(modNEM2, correlation = corAR1())
-model2modNEM3 <- update(modNEM3, correlation = corAR1())
-model2modNEM4 <- update(modNEM4, correlation = corAR1())
-
-model2modNEM0
-model2modNEM1
-model2modNEM2
-model2modNEM3
-model2modNEM4
-
-summary(modNEM0)
-coef(modNEM3)
-confint(modNEM2)
-
-## add lines to plot
-abline(-2.74, 0.10, lty = 1, lwd = 3, col = 'seagreen')
-abline(-2.83, 0.10, lty = 2, lwd = 3, col = 'brown')
-abline(-2.76, 0.10, lty = 3, lwd = 3, col = 'blue')
-legend(40.0, 2, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'), bty='n')
+anova(modNEM6, modNEM4)
+anova(modNEM4, modNEM3)
+anova(modNEM3, modNEM2)
+anova(modNEM2, modNEM5)
+anova(modNEM5, modNEM1)
+anova(modNEM1, modNEM0)
 
 
 ## Does mass-specific NPP vary with temperature?  
@@ -162,39 +107,8 @@ modNPPm6<-lme(log(NPP.mass)~1+I(invT-mean(invT))*week*trophic.level, random=~1|T
 model.sel(modNPPm0, modNPPm1, modNPPm2, modNPPm3, modNPPm4, modNPPm5, modNPPm6)
 
 # for model fitting:
-modNPPm5<-lme(log(NPP.mass)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
 modNPPm6<-lme(log(NPP.mass)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
-m.avg <- model.avg(modNPPm5, modNPPm6)
-summary(m.avg)
-
-model2modNPPm0 <- update(modNPPm0, correlation = corAR1())
-model2modNPPm1 <- update(modNPPm1, correlation = corAR1())
-model2modNPPm2 <- update(modNPPm2, correlation = corAR1())
-model2modNPPm3 <- update(modNPPm3, correlation = corAR1())
-model2modNPPm4 <- update(modNPPm4, correlation = corAR1())
-
-model2modNPPm0
-model2modNPPm1
-model2modNPPm2
-model2modNPPm3
-model2modNPPm4
-
-summary(modNPPm4)
-coef(modNPPm2)
-confint(modNPPm2)
-
-## add lines to plot for modNPPm3
-abline(97.78111, -2.71040, lty = 1, lwd = 3, col = 'seagreen')
-abline(127.4316, -3.44018, lty = 2, lwd = 3, col = 'brown')
-abline(96.45909, -2.66458, lty = 3, lwd = 3, col = 'blue')
-legend(40.0, 1.0, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'), bty='n')
-
-## add lines to plot for modNPPm2
-abline(coef(modNPPm2)[1], coef(modNPPm2)[2], lty = 1, lwd = 3, col = 'seagreen')
-abline((coef(modNPPm2)[1]+coef(modNPPm2)[3]), coef(modNPPm2)[2], lty = 2, lwd = 3, col = 'brown')
-abline((coef(modNPPm2)[1]+coef(modNPPm2)[4]), coef(modNPPm2)[2], lty = 3, lwd = 3, col = 'blue')
-legend(40.0, 0, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'), b='n')
-
+summary(modNPPm6)
 
 
 ## Does ER vary with temperature?  
@@ -218,43 +132,22 @@ modER6<-lme(log(calc.ER)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank
 
 model.sel(modER0, modER1, modER2, modER3, modER4, modER5, modER6)
 
-## for fitting
-modER4<-lme(log(calc.ER+1)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
-modER5<-lme(log(calc.ER+1)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
-
-m.avg <- model.avg(modER5, modER4)
-summary(m.avg)
-
-
 anova(modER5, modER4)
-anova(modER5, modER3)
+anova(modER4, modER2)
+anova(modER2, modER3)
 anova(modER3, modER6)
-anova(modER6, modER2)
-anova(modER2, modER1)
+anova(modER6, modER1)
 anova(modER1, modER0)
 
-model2modER0 <- update(modER0, correlation = corAR1())
-model2modER1 <- update(modER1, correlation = corAR1())
-model2modER2 <- update(modER2, correlation = corAR1())
-model2modER3 <- update(modER3, correlation = corAR1())
-model2modER4 <- update(modER4, correlation = corAR1())
+## for fitting
+modER4<-lme(log(calc.ER)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
+modER5<-lme(log(calc.ER)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
+modER2<-lme(log(calc.ER)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
+modER3<-lme(log(calc.ER)~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
 
-model2modER0
-model2modER1
-model2modER2
-model2modER3
-model2modER4
+m.avg <- model.avg(modER5, modER4, modER3, modER2)
+summary(m.avg)
 
-
-summary(modER4)
-coef(modER2)
-confint(modER2)
-
-## add lines to plot
-abline(52.37740,-1.34920  , lty = 1, lwd = 3, col = 'seagreen')
-abline(42.48359,-1.0836, lty = 2, lwd = 3, col = 'brown')
-abline(30.04742,-0.77776, lty = 3, lwd = 3, col = 'blue')
-legend(40.0, 3.5, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'), bty = 'n')
 
 
 ## Does mass specific ER vary with temperature?  
@@ -266,34 +159,32 @@ plot(log(data$ER.mass)~data$Tank, pch = 19, col = data$trophic.level)
 plot(log(data$ER.mass)~data$week, pch = 19, col = data$trophic.level)
 plot(log(data$ER.mass)~data$invT, pch = 19, col = data$trophic.level)
 
-library(plyr)
-tab <- ddply(data, .(trophic.level), summarise, length(ER.mass))
-
 ## analysis
-modER0<-lme(log(calc.ER) ~ 1, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modER1<-lme(log(calc.ER)~1+I(invT-mean(invT)), random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modER2<-lme(log(calc.ER)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modER3<-lme(log(calc.ER)~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modER4<-lme(log(calc.ER)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modER5<-lme(log(calc.ER)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modER6<-lme(log(calc.ER)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modERm0<-lme(log(ER.mass) ~ 1, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modERm1<-lme(log(ER.mass)~1+I(invT-mean(invT)), random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modERm2<-lme(log(ER.mass)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modERm3<-lme(log(ER.mass)~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modERm4<-lme(log(ER.mass)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modERm5<-lme(log(ER.mass)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modERm6<-lme(log(ER.mass)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
 
-model.sel(modER0, modER1, modER2, modER3, modER4, modER5, modER6)
+model.sel(modERm0, modERm1, modERm2, modERm3, modERm4, modERm5, modERm6)
+
+anova(modERm5, modERm4)
+anova(modERm5, modERm6)
+anova(modERm6, modERm3)
+anova(modERm3, modERm2)
+anova(modERm2, modERm1)
+anova(modERm1, modERm0)
 
 ## for fitting
-modER4<-lme(log(calc.ER+1)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
-modER5<-lme(log(calc.ER+1)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
+modERm4<-lme(log(ER.mass)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
+modERm5<-lme(log(ER.mass)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
 
-m.avg <- model.avg(modER5, modER4)
+m.avg <- model.avg(modERm5, modERm4)
 summary(m.avg)
 
 
-anova(modER5, modER4)
-anova(modER5, modER3)
-anova(modER3, modER6)
-anova(modER6, modER2)
-anova(modER2, modER1)
-anova(modER1, modER0)
 
 
 
