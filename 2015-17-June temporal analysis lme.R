@@ -228,35 +228,6 @@ modchl6b <- lme(log(chla)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tan
 summary(modchl6b)
 
 
-logLik(modchl0)
-logLik(modchl1)
-logLik(modchl2)
-logLik(modchl3)
-logLik(modchl4)
-
-model2chl0 <- update(modchl0, correlation = corAR1())
-model2chl1 <- update(modchl1, correlation = corAR1())
-model2chl2 <- update(modchl2, correlation = corAR1())
-model2chl3 <- update(modchl3, correlation = corAR1())
-model2chl4 <- update(modchl4, correlation = corAR1())
-
-model2chl0
-model2chl1
-model2chl2
-model2chl3
-model2chl4
-
-summary(modchl4)
-confint(modchl3)
-coef(modchl3)
-
-## add lines to plot
-### but, best model now needs different slopes for each week and each tank... so probably not worth adding slopes.
-abline(-41.74267,1.12806, lty = 1, lwd = 3, col = 'seagreen')
-abline(-51.26174, 1.35398, lty = 2, lwd = 3, col = 'brown')
-abline(-41.55714, 1.11951, lty = 3, lwd = 3, col = 'blue')
-legend(40.0, 1.5, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'), bty = 'n')
-
 
 
 #### PP BIOMASS ###
@@ -306,12 +277,12 @@ plot(log(dataz[dataz$week >= '4',]$zoo.ug.carbon.liter+1)~dataz[dataz$week >= '4
 
 ## analysis
 modzpc0<-lme(log(zoo.ug.carbon.liter+1)~1, random=~1|Tank, data=dataz[dataz$week >= '4',], method="ML", na.action=na.omit)
-modzpc1<-lme(log(zoo.ug.carbon.liter+1)~1+invT, random=~1|Tank, data=dataz[dataz$week >= '4',], method="ML", na.action=na.omit)
-modzpc2<-lme(log(zoo.ug.carbon.liter+1)~1+invT+trophic.level, random=~1|Tank, data=dataz[dataz$week >= '4',], method="ML", na.action=na.omit)
-modzpc3<-lme(log(zoo.ug.carbon.liter+1)~1+invT+week+trophic.level, random=~1|Tank, data=dataz[dataz$week >= '4',], method="ML", na.action=na.omit)
-modzpc4<-lme(log(zoo.ug.carbon.liter+1)~1+week+invT*trophic.level, random=~1|Tank, data=dataz[dataz$week >= '4',], method="ML", na.action=na.omit)
-modzpc5<-lme(log(zoo.ug.carbon.liter+1)~1+invT*week+invT*trophic.level, random=~1|Tank, data=dataz[dataz$week >= '4',], method="ML", na.action=na.omit)
-modzpc6<-lme(log(zoo.ug.carbon.liter+1)~1+invT*week*trophic.level, random=~1|Tank, data=dataz[dataz$week >= '4',], method="ML", na.action=na.omit)
+modzpc1<-lme(log(zoo.ug.carbon.liter+1)~1+I(invT-mean(invT)), random=~1|Tank, data=dataz[dataz$week >= '4',], method="ML", na.action=na.omit)
+modzpc2<-lme(log(zoo.ug.carbon.liter+1)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=dataz[dataz$week >= '4',], method="ML", na.action=na.omit)
+modzpc3<-lme(log(zoo.ug.carbon.liter+1)~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=dataz[dataz$week >= '4',], method="ML", na.action=na.omit)
+modzpc4<-lme(log(zoo.ug.carbon.liter+1)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=dataz[dataz$week >= '4',], method="ML", na.action=na.omit)
+modzpc5<-lme(log(zoo.ug.carbon.liter+1)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=dataz[dataz$week >= '4',], method="ML", na.action=na.omit)
+modzpc6<-lme(log(zoo.ug.carbon.liter+1)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=dataz[dataz$week >= '4',], method="ML", na.action=na.omit)
 
 model.sel(modzpc0, modzpc1, modzpc2, modzpc3, modzpc4, modzpc5, modzpc6)
 
@@ -323,26 +294,6 @@ anova(modzpc1, modzpc3)
 anova(modzpc1, modzpc0)
 
 summary(modzpc4)
-
-model2zpc0 <- update(modzpc0, correlation = corAR1())
-model2zpc1 <- update(modzpc1, correlation = corAR1())
-model2zpc2 <- update(modzpc2, correlation = corAR1())
-model2zpc3 <- update(modzpc3, correlation = corAR1())
-model2zpc4 <- update(modzpc4, correlation = corAR1())
-
-model2zpc0
-model2zpc1
-model2zpc2
-model2zpc3
-model2zpc4
-
-summary(modzpc4)
-confint(modzpc3)
-
-## add lines to plot
-abline(7.04955,-0.14377, lty = 2, lwd = 3, col = 'brown')
-abline(-56.5769, 1.47017, lty = 3, lwd = 3, col = 'blue')
-legend(40.1, 6.5, c('2 TL','3 TL'), pch = c(15, 17), col = c('brown', 'blue'), bty = 'n')
 
 
 ## Does zooplankton density vary with temperature?  
@@ -659,17 +610,22 @@ m.avg <- model.avg(modTC3r, modTC4r, modTC5r)
 summary(m.avg)
 
 
-## add lines to plot
-abline(coef(modTCm1)[1], coef(modTCm1)[2], lty = 1, lwd = 3, col = 'black')
-legend(40.5, 3, c('1 TL', '2 TL','3 TL'), pch = c(19, 15, 17), col = c('seagreen', 'brown', 'blue'))
+#### figures ####
+## Biomass figure: 
 
+par(mfrow=c(3,1))
+plot(log(datap$PP.biomass)~datap$invT, pch = as.numeric(datap$trophic.level)+14, col = (as.numeric(datap$trophic.level)), ylab = 'Bpp', ylim = c(0, 7))
+plot(log(dataz[dataz$week >= '4',]$zoo.ug.carbon.liter+1)~dataz[dataz$week >= '4',]$invT, pch = as.numeric(dataz$trophic.level)+14, col = (as.numeric(dataz$trophic.level)), ylab = 'Bzp', ylim = c(0, 7))
+plot(log(data[data$week >= '4',]$total.carbon)~data[data$week >= '4',]$invT, pch = as.numeric(data$trophic.level)+14, col = (as.numeric(data$trophic.level)), ylab = 'Bt', ylim = c(0, 7))
 
-## plotting ZP biomass x PP biomass
-plot(data$PP.biomass ~ data$total.carbon)
-abline(0, 1)
+par(mfrow=c(1,1)) 
+plot(log(datap[datap$week==8,]$PP.biomass)~datap[datap$week==8,]$trophic.level, pch = 19, col = datap$trophic.level, ylab = 'Bpp', ylim = c(0, 7))
+summary(aov(log(datap[datap$week==8,]$PP.biomass)~datap[datap$week==8,]$trophic.level))
 
-plot(data$PP.biomass ~ data$zoo.ug.carbon.liter, pch = 19, col = c(data$average.temp))
-abline(0, 1)
+par(mfrow=c(3,2))
+plot(log(data$calc.NPP)~data$invT, pch = as.numeric(data$trophic.level)+14, col = data$trophic.level)
+plot(log(data$NPP.mass)~data$invT, pch = as.numeric(data$trophic.level)+14, col = data$trophic.level)
+plot(log(data$calc.ER)~data$invT, pch = as.numeric(data$trophic.level)+14, col = data$trophic.level)
+plot(log(data$ER.mass)~data$invT, pch = as.numeric(data$trophic.level)+14, col = data$trophic.level)
+plot(log(data$NEM)~data$invT, pch = as.numeric(data$trophic.level)+14, col = data$trophic.level)
 
-plot(data$zoo.ug.carbon.liter ~ data$PP.biomass, pch = 19, col = c(data$average.temp))
-abline(0, 1)
