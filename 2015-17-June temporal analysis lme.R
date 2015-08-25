@@ -51,9 +51,9 @@ modNPP6<-lme(log(calc.NPP)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Ta
 model.sel(modNPP0, modNPP1, modNPP2, modNPP3, modNPP4, modNPP5, modNPP6)
 
 # for model fitting: 
-modNPP6<-lme(log(calc.NPP)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
+modNPP6r<-lme(log(calc.NPP)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
 
-
+summary(modNPP6r)
 
 
 # net ecosystem metabolism
@@ -84,6 +84,11 @@ anova(modNEM2, modNEM5)
 anova(modNEM5, modNEM1)
 anova(modNEM1, modNEM0)
 
+# for model fitting: 
+modNEM6r<-lme(log(NEM)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
+
+summary(modNEM6r)
+
 
 ## Does mass-specific NPP vary with temperature?  
 ## figures  
@@ -107,8 +112,8 @@ modNPPm6<-lme(log(NPP.mass)~1+I(invT-mean(invT))*week*trophic.level, random=~1|T
 model.sel(modNPPm0, modNPPm1, modNPPm2, modNPPm3, modNPPm4, modNPPm5, modNPPm6)
 
 # for model fitting:
-modNPPm6<-lme(log(NPP.mass)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
-summary(modNPPm6)
+modNPPm5r<-lme(log(NPP.mass)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
+summary(modNPPm5r)
 
 
 ## Does ER vary with temperature?  
@@ -629,3 +634,5 @@ plot(log(data$calc.ER)~data$invT, pch = as.numeric(data$trophic.level)+14, col =
 plot(log(data$ER.mass)~data$invT, pch = as.numeric(data$trophic.level)+14, col = data$trophic.level)
 plot(log(data$NEM)~data$invT, pch = as.numeric(data$trophic.level)+14, col = data$trophic.level)
 
+
+plot(log(data[data$trophic.level=='PZ',]$NPP.mass)~data[data$trophic.level=='PZ',]$invT, pch = 19, col = data[data$trophic.level=='PZ',]$trophic.level)
