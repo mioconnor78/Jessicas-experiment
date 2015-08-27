@@ -736,8 +736,12 @@ Standardized Within-Group Residuals:
 Number of Observations: 180
 Number of Groups: 30 
 
+
+
+
 #############################
 ## NPP / mass weeks 4-10
+#############################
 
 > model.sel(modNPPm0, modNPPm1, modNPPm2, modNPPm3, modNPPm4, modNPPm5, modNPPm6)
 Model selection table 

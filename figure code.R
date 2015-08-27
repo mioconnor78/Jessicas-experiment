@@ -14,6 +14,7 @@ scatter3d(data$week, log(data$calc.NPP), data$invT, point.col = as.numeric(data$
 
 scatter3d(data$week, log(data$ER), data$invT, point.col = as.numeric(data$trophic.level), surface = FALSE, ylab = 'ln(ER)', xlab='Week', zlab = 'T (1/kT)')
 
+scatter3d(data$week, log(data$NEM), data$invT, point.col = as.numeric(data$trophic.level), surface = FALSE, ylab = 'ln(NEM)', xlab='Week', zlab = 'T (1/kT)')
 
 scatter3d(data$week, log(data$PP.biomass), data$invT, point.col = as.numeric(data$trophic.level), surface = TRUE)
 scatter3d(data$invT, log(data$PP.biomass), data$week, point.col = as.numeric(data$trophic.level), surface = FALSE)
