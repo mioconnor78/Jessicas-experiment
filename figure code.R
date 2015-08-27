@@ -10,16 +10,12 @@ plot(log(data$calc.NPP)~data$invT, pch = as.numeric(data$trophic.level)+14, col 
 scatter3d(data$invT, log(data$calc.NPP), data$week, point.col = as.numeric(data$trophic.level), surface = FALSE)
 
 
-scatter3d(data$week, log(data$calc.NPP), data$invT, point.col = as.numeric(data$trophic.level), surface = TRUE)
+scatter3d(data$week, log(data$NPP2), data$invT, point.col = as.numeric(data$trophic.level), surface = FALSE, ylab = 'ln(NPP.daily)', xlab='Week', zlab = 'T (1/kT)')
 
-scatter3d(data$week, log(data$ER), data$invT, point.col = as.numeric(data$trophic.level), surface = FALSE, ylab = 'ln(ER)', xlab='Week', zlab = 'T (1/kT)')
+scatter3d(data$week, log(data$ER2), data$invT, point.col = as.numeric(data$trophic.level), surface = FALSE, ylab = 'ln(ER.daily)', xlab='Week', zlab = 'T (1/kT)')
 
-scatter3d(data$week, log(data$NEM), data$invT, point.col = as.numeric(data$trophic.level), surface = FALSE, ylab = 'ln(NEM)', xlab='Week', zlab = 'T (1/kT)')
-<<<<<<< HEAD
-=======
-
-scatter3d(data$invT, log(data$NEM), data$week, point.col = as.numeric(data$trophic.level), surface = FALSE, ylab = 'ln(NEM)', xlab='T (1/kT)', zlab = 'week')
->>>>>>> origin/master
+scatter3d(data$week, data$NEM, data$invT, point.col = as.numeric(data$trophic.level), surface = FALSE, ylab = 'NEM', xlab='Week', zlab = 'T (1/kT)')
+scatter3d(data$invT, data$NEM, data$week, point.col = as.numeric(data$trophic.level), surface = FALSE, ylab = 'NEM', zlab='Week', xlab = 'T (1/kT)')
 
 scatter3d(data$week, log(data$PP.biomass), data$invT, point.col = as.numeric(data$trophic.level), surface = TRUE)
 scatter3d(data$invT, log(data$PP.biomass), data$week, point.col = as.numeric(data$trophic.level), surface = FALSE)

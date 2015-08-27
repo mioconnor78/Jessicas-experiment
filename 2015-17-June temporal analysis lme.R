@@ -21,9 +21,16 @@ data$invT <- as.numeric(as.character(data$invT))
 data$PP.biomass <- (data$chla*55) #chla (ug/L)* 55 C in PP / 1 chla = ugPPC/L
 data$ZP.carbon1 <- ifelse(data$trophic.level=='P',  0, data$zoo.ug.carbon.liter) # for adding
 data$total.carbon <- data$PP.biomass + data$ZP.carbon1 #I'm assuming 0 for ZP in P treatments here.
-data$NPP.mass <- data$calc.NPP / (data$PP.biomass)  # I want to check calc.NPP again, I thought this was done in the R file, but it's not here.
-data$ER.mass <- data$calc.ER/(data$total.carbon)
-data$NEM <- 18*data$NPP/(24*data$ER) 
+
+### estimating NPP and ER from the raw data: 
+#calculate NPP and ER (hourly), in terms of umol O2 / l / hr, following yvon durochers 2010.
+# O2 has molar mass of 32g/mol. so 1 umol = 32 ug. so take ug/32
+data$NPP2 <- ((data$dusk - data$dawn1)*1000)/(32)  # oxygen produced umol / L /day, net all respiration. raw data is mg/L. 
+data$ER2 <- -(24/data$hours2)*((data$dawn2 - data$dusk)*1000)/(32)  # amount of oxygen consumed per day via respiaration. negative to get the change in oxygen umol / L /day; oxygen used in the dark and daylight. MeanER can be greater than meanNPP, because NPP reflects ER already.
+data$GPP <- data$NPP2+(data$ER2/24)*data$hours1 # daily oxygen production (NPP2) + estimated daytime community respiration (daily R / 24 * hours daylight)
+data$NEM <- data$ER2/data$GPP  # following Yvon Durochers 2010. NEM > 1 means the system is respiring more than it's fixing per day. This does not need to be logged.
+data$NPP.mass <- data$NPP2 / (data$PP.biomass)  # NPP on ummol 02/L/day/ugCPP
+data$ER.mass <- data$ER2/(data$total.carbon) # ER on ummol 02/L/day/ugTPP
 
 data <- data[data$week >= '4',]
 
@@ -31,49 +38,50 @@ data <- data[data$week >= '4',]
 
 ## Does NPP vary with temperature?  
 ## figures on invT
-hist(data$calc.NPP)
-hist(log(data$calc.NPP))
-#hist(log(data$calc.NPP+.01))
+hist(data$NPP2)
+hist(log(data$NPP2))
 
-plot(log(data$calc.NPP)~data$Tank, pch = 19, col = data$trophic.level)
-plot(log(data$calc.NPP)~data$week, pch = 19, col = data$trophic.level)
-plot(log(data$calc.NPP)~data$invT, pch = 19, col = data$trophic.level)
+plot(log(data$NPP2)~data$Tank, pch = 19, col = data$trophic.level)
+plot(log(data$NPP2)~data$week, pch = 19, col = data$trophic.level)
+plot(log(data$NPP2)~data$invT, pch = 19, col = data$trophic.level)
 
 ## analysis
-modNPP0<-lme(log(calc.NPP) ~ 1, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNPP1<-lme(log(calc.NPP)~1+I(invT-mean(invT)), random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNPP2<-lme(log(calc.NPP)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNPP3<-lme(log(calc.NPP)~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNPP4<-lme(log(calc.NPP)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNPP5<-lme(log(calc.NPP)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNPP6<-lme(log(calc.NPP)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNPP0<-lme(log(NPP2) ~ 1, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNPP1<-lme(log(NPP2)~1+I(invT-mean(invT)), random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNPP2<-lme(log(NPP2)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNPP3<-lme(log(NPP2)~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNPP4<-lme(log(NPP2)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNPP5<-lme(log(NPP2)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNPP6<-lme(log(NPP2)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
 
 model.sel(modNPP0, modNPP1, modNPP2, modNPP3, modNPP4, modNPP5, modNPP6)
 
 # for model fitting: 
-modNPP6r<-lme(log(calc.NPP)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
+modNPP6r<-lme(log(NPP2)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
 
 summary(modNPP6r)
 
 
 # net ecosystem metabolism
 hist(data$NEM)
-hist(sqrt(data$NEM))
-hist(log(data$NEM))
+#hist(sqrt(data$NEM))
+#hist(log(data$NEM))
 #hist(log(data$NEM+1))
 
-plot(log(data$NEM)~data$invT, pch = 19, col = data$trophic.level)
-plot(log(data$NEM)~data$week, pch = 19, col = data$trophic.level)
-plot(log(data$NEM)~data$Tank, pch = 19, col = data$trophic.level)
+data1 <- data #[(data$NEM<=14.2),]
+plot((data$NEM)~data$invT, pch = 19, col = data$trophic.level)
+abline(h=(1))
+plot((data$NEM)~data$week, pch = 19, col = data$trophic.level)
+plot((data$NEM)~data$Tank, pch = 19, col = data$trophic.level)
 
 ## analysis
-modNEM0<-lme(log(NEM) ~ 1, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNEM1<-lme(log(NEM)~1+I(invT-mean(invT)), random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNEM2<-lme(log(NEM)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNEM3<-lme(log(NEM)~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNEM4<-lme(log(NEM)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNEM5<-lme(log(NEM)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNEM6<-lme(log(NEM)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNEM0<-lme(NEM ~ 1, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
+modNEM1<-lme(NEM~1+I(invT-mean(invT)), random=~1|Tank, data=data1, method="ML", na.action=na.omit)
+modNEM2<-lme(NEM~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
+modNEM3<-lme(NEM~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
+modNEM4<-lme(NEM~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
+modNEM5<-lme(NEM~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
+modNEM6<-lme(NEM~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
 
 model.sel(modNEM0, modNEM1, modNEM2, modNEM3, modNEM4, modNEM5, modNEM6)
 
@@ -85,13 +93,17 @@ anova(modNEM5, modNEM1)
 anova(modNEM1, modNEM0)
 
 # for model fitting: 
-modNEM6r<-lme(log(NEM)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
+modNEM2r<-lme(log(NEM)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data1, method="REML", na.action=na.omit)
+modNEM3r<-lme(log(NEM)~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=data1, method="REML", na.action=na.omit)
+modNEM6r<-lme(NEM~I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
 
+m.avg <- model.avg(modNEM2r, modNEM3r)
 summary(modNEM6r)
 
 
 ## Does mass-specific NPP vary with temperature?  
 ## figures  
+### NPP in umol/L/day per ugC
 hist(data$NPP.mass)
 hist(log(data$NPP.mass))
 # hist(log(data$NPP.mass+.001)) # no reason to add a number, there are no -inf values.
@@ -118,22 +130,22 @@ summary(modNPPm5r)
 
 ## Does ER vary with temperature?  
 ## figures 
-hist(data$calc.ER)
-hist(log(data$calc.ER))
+hist(data$ER2)
+hist(log(data$ER2))
 #hist(log(data$calc.ER+1))
 
-plot(log(data$calc.ER)~data$Tank, pch = 19, col = data$trophic.level)
-plot(log(data$calc.ER)~data$week, pch = 19, col = data$trophic.level)
-plot(log(data$calc.ER)~data$invT, pch = 19, col = data$trophic.level)
+plot(log(data$ER2)~data$Tank, pch = 19, col = data$trophic.level)
+plot(log(data$ER2)~data$week, pch = 19, col = data$trophic.level)
+plot(log(data$ER2)~data$invT, pch = 19, col = data$trophic.level)
 
 ## analysis
-modER0<-lme(log(calc.ER) ~ 1, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modER1<-lme(log(calc.ER)~1+I(invT-mean(invT)), random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modER2<-lme(log(calc.ER)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modER3<-lme(log(calc.ER)~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modER4<-lme(log(calc.ER)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modER5<-lme(log(calc.ER)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modER6<-lme(log(calc.ER)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modER0<-lme(log(ER2) ~ 1, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modER1<-lme(log(ER2)~1+I(invT-mean(invT)), random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modER2<-lme(log(ER2)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modER3<-lme(log(ER2)~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modER4<-lme(log(ER2)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modER5<-lme(log(ER2)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modER6<-lme(log(ER2)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
 
 model.sel(modER0, modER1, modER2, modER3, modER4, modER5, modER6)
 
@@ -145,12 +157,7 @@ anova(modER6, modER1)
 anova(modER1, modER0)
 
 ## for fitting
-modER4<-lme(log(calc.ER)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
-modER5r<-lme(log(calc.ER)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
-modER2<-lme(log(calc.ER)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
-modER3<-lme(log(calc.ER)~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
-
-m.avg <- model.avg(modER5, modER4, modER3, modER2)
+modER5r<-lme(log(ER2)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
 summary(modER5r)
 
 
