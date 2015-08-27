@@ -146,12 +146,12 @@ anova(modER1, modER0)
 
 ## for fitting
 modER4<-lme(log(calc.ER)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
-modER5<-lme(log(calc.ER)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
+modER5r<-lme(log(calc.ER)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
 modER2<-lme(log(calc.ER)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
 modER3<-lme(log(calc.ER)~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
 
 m.avg <- model.avg(modER5, modER4, modER3, modER2)
-summary(m.avg)
+summary(modER5r)
 
 
 
@@ -184,10 +184,9 @@ anova(modERm1, modERm0)
 
 ## for fitting
 modERm4<-lme(log(ER.mass)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
-modERm5<-lme(log(ER.mass)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
+modERm5r<-lme(log(ER.mass)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
 
-m.avg <- model.avg(modERm5, modERm4)
-summary(m.avg)
+summary(modERm5r)
 
 
 
@@ -298,7 +297,8 @@ anova(modzpc1, modzpc2)
 anova(modzpc1, modzpc3)
 anova(modzpc1, modzpc0)
 
-summary(modzpc4)
+modzpc4r<-lme(log(zoo.ug.carbon.liter+1)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=dataz[dataz$week >= '4',], method="ML", na.action=na.omit)
+summary(modzpc4r)
 
 
 ## Does zooplankton density vary with temperature?  
