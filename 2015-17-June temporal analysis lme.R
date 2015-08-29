@@ -308,11 +308,11 @@ modzpc4r<-lme(log(zoo.ug.carbon.liter+1)~1+week+I(invT-mean(invT))*trophic.level
 summary(modzpc4r)
 
 
-## Does zooplankton density vary with temperature?  
+## Does zooplankton density vary with temperature?  ## should probably be analyzed as count data.
 ## figures 
 hist(dataz$total.zoo.abundance.liter, breaks = 40)
-hist(log(dataz$total.zoo.abundance.liter), breaks = 40)
-hist(log(dataz$total.zoo.abundance.liter+1))
+hist(log(dataz$total.zoo.abundance.liter))
+hist(log(dataz$total.zoo.abundance.liter+1), breaks = 40)
 
 plot((dataz$total.zoo.abundance.liter)~dataz$Tank, pch = 19, col = dataz$trophic.level)
 plot((dataz$total.zoo.abundance.liter)~dataz$week, pch = 19, col = dataz$trophic.level)
