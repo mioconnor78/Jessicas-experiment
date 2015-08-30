@@ -97,7 +97,40 @@ Models ranked by AICc(x)
 Random terms (all models): 
 ‘1 | Tank’
 
+> summary(modTC2r)
+Linear mixed-effects model fit by REML
+ Data: data 
+       AIC      BIC    logLik
+  347.2629 369.4563 -166.6314
 
+Random effects:
+ Formula: ~1 | Tank
+        (Intercept)  Residual
+StdDev:   0.4791389 0.8704317
+
+Correlation Structure: AR(1)
+ Formula: ~week | Tank 
+ Parameter estimate(s):
+      Phi 
+0.7794353 
+Fixed effects: log(total.carbon) ~ 1 + I(invT - mean(invT)) + trophic.level 
+                         Value Std.Error  DF   t-value p-value
+(Intercept)           5.728203 0.2641064 149 21.688996  0.0000
+I(invT - mean(invT)) -0.593802 0.1304281 149 -4.552715  0.0000
+trophic.levelPZ      -0.914311 0.3734790  27 -2.448092  0.0211
+trophic.levelPZN     -0.224733 0.3734645  27 -0.601751  0.5524
+ Correlation: 
+                     (Intr) I(T-m( trp.PZ
+I(invT - mean(invT))  0.017              
+trophic.levelPZ      -0.707  0.012       
+trophic.levelPZN     -0.707  0.008  0.500
+
+Standardized Within-Group Residuals:
+       Min         Q1        Med         Q3        Max 
+-3.5650526 -0.2225263  0.2843421  0.6696556  1.6967429 
+
+Number of Observations: 180
+Number of Groups: 30 
 
 
 
