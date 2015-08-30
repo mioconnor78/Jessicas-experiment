@@ -10,7 +10,7 @@ plot(log(data$calc.NPP)~data$invT, pch = as.numeric(data$trophic.level)+14, col 
 scatter3d(data$invT, log(data$calc.NPP), data$week, point.col = as.numeric(data$trophic.level), surface = FALSE)
 
 
-scatter3d(data$week, log(data$NPP2), data$invT, point.col = as.numeric(data$trophic.level), surface = FALSE, ylab = 'ln(NPP.daily)', xlab='Week', zlab = 'T (1/kT)')
+scatter3d(data$week, log(data$NPP2), data$invT, groups = data$trophic.level, point.col = as.numeric(data$trophic.level), surface.col = c("green", "red","black"), axis.col = c("black","black","black"), surface = FALSE, parallel = FALSE, ylab = 'ln(NPP.daily)', xlab='Week', zlab = 'T (1/kT)')
 scatter3d(data$invT, log(data$NPP2), data$week, groups = data$trophic.level, surface.col = c("green", "red","black"), axis.col = c("black","black","black"), surface = TRUE, parallel = FALSE, ylab = 'ln(NPP)', zlab='Week', xlab = 'T (1/kT)') 
 
 scatter3d(data$week, log(data$ER2), data$invT, point.col = as.numeric(data$trophic.level), surface = FALSE, ylab = 'ln(ER.daily)', xlab='Week', zlab = 'T (1/kT)')

@@ -1,3 +1,4 @@
+### MO made a new file on Aug29 from June file when I decided to take week out as a fixed effect, and instead model autocorrelation. 
 
 ### load libraries
 #library(qpcR)
@@ -46,27 +47,31 @@ plot(log(data$NPP2)~data$week, pch = 19, col = data$trophic.level)
 plot(log(data$NPP2)~data$invT, pch = 19, col = data$trophic.level)
 
 ## analysis
-modNPP0<-lme(log(NPP2) ~ 1, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNPP1<-lme(log(NPP2)~1+I(invT-mean(invT)), random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNPP2<-lme(log(NPP2)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNPP3<-lme(log(NPP2)~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNPP4<-lme(log(NPP2)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNPP5<-lme(log(NPP2)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNPP6<-lme(log(NPP2)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+## determine need for random effects in the full model: 
+modNPP4a<-lme(log(NPP2)~1+I(invT-mean(invT))*trophic.level, random = ~I(invT-mean(invT))|Tank, data=data, method="ML", na.action=na.omit, correlation = corAR1(form = ~week|Tank))  
+modNPP4b<-lme(log(NPP2)~1+I(invT-mean(invT))*trophic.level, random = ~1|Tank, data=data, method="ML", na.action=na.omit, correlation = corAR1(form = ~week|Tank)) 
 
-model.sel(modNPP0, modNPP1, modNPP2, modNPP3, modNPP4, modNPP5, modNPP6)
+anova(modNPP4a, modNPP4b)
+
+modNPP4c<-lme(log(NPP2)~1+I(invT-mean(invT))*trophic.level, random = ~1|Tank, data=data, method="ML", na.action=na.omit)
+anova(modNPP4c, modNPP4b)
+
+modNPP0<-lme(log(NPP2) ~ 1, random=~1|Tank, data=data, method="ML", na.action=na.omit, correlation = corAR1(form = ~week|Tank))
+modNPP1<-lme(log(NPP2)~1+I(invT-mean(invT)), random=~1|Tank, data=data, method="ML", na.action=na.omit, correlation = corAR1(form = ~week|Tank))
+modNPP2<-lme(log(NPP2)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit, correlation = corAR1(form = ~week|Tank))
+modNPP4<-lme(log(NPP2)~1+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit, correlation = corAR1(form = ~week|Tank))
+
+model.sel(modNPP0, modNPP1, modNPP2, modNPP4)
 
 # for model fitting: 
-modNPP6r<-lme(log(NPP2)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
+modNPP2r<-lme(log(NPP2)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit, correlation = corAR1(form = ~week|Tank))
+modNPP1r<-lme(log(NPP2)~1+I(invT-mean(invT)), random=~1|Tank, data=data, method="REML", na.action=na.omit, correlation = corAR1(form = ~week|Tank))
 
-summary(modNPP6r)
-
+m.avg <- model.avg(modNPP2r, modNPP1r)
+summary(m.avg)
 
 # net ecosystem metabolism
 hist(data$NEM)
-#hist(sqrt(data$NEM))
-#hist(log(data$NEM))
-#hist(log(data$NEM+1))
 
 data1 <- data #[(data$NEM<=14.2),]
 plot((data$NEM)~data$invT, pch = 19, col = data$trophic.level)
@@ -75,30 +80,28 @@ plot((data$NEM)~data$week, pch = 19, col = data$trophic.level)
 plot((data$NEM)~data$Tank, pch = 19, col = data$trophic.level)
 
 ## analysis
-modNEM0<-lme(NEM ~ 1, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
-modNEM1<-lme(NEM~1+I(invT-mean(invT)), random=~1|Tank, data=data1, method="ML", na.action=na.omit)
-modNEM2<-lme(NEM~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
-modNEM3<-lme(NEM~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
-modNEM4<-lme(NEM~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
-modNEM5<-lme(NEM~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
-modNEM6<-lme(NEM~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
+## determine need for random effects in the full model: 
+modNEMa<-lme(log(NEM)~1+I(invT-mean(invT))*trophic.level, random = ~I(invT-mean(invT))|Tank, data=data, method="ML", na.action=na.omit, correlation = corAR1(form = ~week|Tank))  
+modNEMb<-lme(log(NEM)~1+I(invT-mean(invT))*trophic.level, random = ~1|Tank, data=data, method="ML", na.action=na.omit, correlation = corAR1(form = ~week|Tank)) 
 
-model.sel(modNEM0, modNEM1, modNEM2, modNEM3, modNEM4, modNEM5, modNEM6)
+anova(modNEMa, modNEMb)
 
-anova(modNEM6, modNEM4)
-anova(modNEM4, modNEM3)
-anova(modNEM3, modNEM2)
-anova(modNEM2, modNEM5)
-anova(modNEM5, modNEM1)
-anova(modNEM1, modNEM0)
+modNEMc<-lme(log(NEM)~1+I(invT-mean(invT))*trophic.level, random = ~1|Tank, data=data, method="ML", na.action=na.omit)
+anova(modNEMc, modNEMb)
+
+modNEM0<-lme(log(NEM) ~ 1, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNEM1<-lme(log(NEM)~1+I(invT-mean(invT)), random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNEM2<-lme(log(NEM)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNEM4<-lme(log(NEM)~1+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+
+model.sel(modNEM0, modNEM1, modNEM2, modNEM4)
 
 # for model fitting: 
-modNEM2r<-lme(log(NEM)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data1, method="REML", na.action=na.omit)
-modNEM3r<-lme(log(NEM)~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=data1, method="REML", na.action=na.omit)
-modNEM6r<-lme(NEM~I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data1, method="ML", na.action=na.omit)
+modNEM2r<-lme(log(NEM)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
+modNEM4r<-lme(log(NEM)~1+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
 
-m.avg <- model.avg(modNEM2r, modNEM3r)
-summary(modNEM6r)
+m.avg <- model.avg(modNEM2r, modNEM4r)
+summary(m.avg)
 
 
 ## Does mass-specific NPP vary with temperature?  
@@ -113,20 +116,26 @@ plot(log(data$NPP.mass)~data$week, pch = 19, col = data$trophic.level)
 plot(log(data$NPP.mass)~data$invT, pch = 19, col = data$trophic.level)
 
 ## analysis
+## determine need for random effects in the full model: 
+modNPPma<-lme(log(NPP.mass)~1+I(invT-mean(invT))*trophic.level, random = ~I(invT-mean(invT))|Tank, data=data, method="ML", na.action=na.omit, correlation = corAR1(form = ~week|Tank))  
+modNPPmb<-lme(log(NPP.mass)~1+I(invT-mean(invT))*trophic.level, random = ~1|Tank, data=data, method="ML", na.action=na.omit, correlation = corAR1(form = ~week|Tank)) 
+
+anova(modNPPma, modNPPmb)
+
+modNPPmc<-lme(log(NPP.mass)~1+I(invT-mean(invT))*trophic.level, random = ~1|Tank, data=data, method="ML", na.action=na.omit)
+anova(modNPPmc, modNPPmb)
+
 modNPPm0<-lme(log(NPP.mass) ~ 1, random=~1|Tank, data=data, method="ML", na.action=na.omit)
 modNPPm1<-lme(log(NPP.mass)~1+I(invT-mean(invT)), random=~1|Tank, data=data, method="ML", na.action=na.omit)
 modNPPm2<-lme(log(NPP.mass)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNPPm3<-lme(log(NPP.mass)~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNPPm4<-lme(log(NPP.mass)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNPPm5<-lme(log(NPP.mass)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modNPPm6<-lme(log(NPP.mass)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modNPPm4<-lme(log(NPP.mass)~1+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
 
-model.sel(modNPPm0, modNPPm1, modNPPm2, modNPPm3, modNPPm4, modNPPm5, modNPPm6)
+model.sel(modNPPm0, modNPPm1, modNPPm2, modNPPm4)
 
-# for model fitting:
-modNPPm5r<-lme(log(NPP.mass)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
-summary(modNPPm5r)
+# for model fitting: 
+modNPPm4r <- lme(log(NPP.mass)~1+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
 
+summary(modNPPm4r)
 
 ## Does ER vary with temperature?  
 ## figures 
@@ -138,28 +147,29 @@ plot(log(data$ER2)~data$Tank, pch = 19, col = data$trophic.level)
 plot(log(data$ER2)~data$week, pch = 19, col = data$trophic.level)
 plot(log(data$ER2)~data$invT, pch = 19, col = data$trophic.level)
 
-## analysis
+#analysis
+## determine need for random effects in the full model: 
+modERa<-lme(log(ER2)~1+I(invT-mean(invT))*trophic.level, random = ~I(invT-mean(invT))|Tank, data=data, method="ML", na.action=na.omit, correlation = corAR1(form = ~week|Tank))  
+modERb<-lme(log(ER2)~1+I(invT-mean(invT))*trophic.level, random = ~1|Tank, data=data, method="ML", na.action=na.omit, correlation = corAR1(form = ~week|Tank)) 
+
+anova(modERa, modERb)
+
+modERc<-lme(log(ER2)~1+I(invT-mean(invT))*trophic.level, random = ~1|Tank, data=data, method="ML", na.action=na.omit)
+anova(modERc, modERb)
+
 modER0<-lme(log(ER2) ~ 1, random=~1|Tank, data=data, method="ML", na.action=na.omit)
 modER1<-lme(log(ER2)~1+I(invT-mean(invT)), random=~1|Tank, data=data, method="ML", na.action=na.omit)
 modER2<-lme(log(ER2)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modER3<-lme(log(ER2)~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modER4<-lme(log(ER2)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modER5<-lme(log(ER2)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modER6<-lme(log(ER2)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+modER4<-lme(log(ER2)~1+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
 
-model.sel(modER0, modER1, modER2, modER3, modER4, modER5, modER6)
+model.sel(modER0, modER1, modER2, modER4)
 
-anova(modER5, modER4)
-anova(modER4, modER2)
-anova(modER2, modER3)
-anova(modER3, modER6)
-anova(modER6, modER1)
-anova(modER1, modER0)
+# for model fitting: 
+modER2r<-lme(log(ER2)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
+modER4r<-lme(log(ER2)~1+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
 
-## for fitting
-modER5r<-lme(log(ER2)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
-summary(modER5r)
-
+m.avg <- model.avg(modER2r, modER4r)
+summary(m.avg)
 
 
 ## Does mass specific ER vary with temperature?  
@@ -172,28 +182,26 @@ plot(log(data$ER.mass)~data$week, pch = 19, col = data$trophic.level)
 plot(log(data$ER.mass)~data$invT, pch = 19, col = data$trophic.level)
 
 ## analysis
-modERm0<-lme(log(ER.mass) ~ 1, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modERm1<-lme(log(ER.mass)~1+I(invT-mean(invT)), random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modERm2<-lme(log(ER.mass)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modERm3<-lme(log(ER.mass)~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modERm4<-lme(log(ER.mass)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modERm5<-lme(log(ER.mass)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modERm6<-lme(log(ER.mass)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
+## determine need for random effects in the full model: 
+modERma<-lme(log(ER.mass)~1+I(invT-mean(invT))*trophic.level, random = ~I(invT-mean(invT))|Tank, data=data, method="ML", na.action=na.omit, correlation = corAR1(form = ~week|Tank))  
+modERmb<-lme(log(ER.mass)~1+I(invT-mean(invT))*trophic.level, random = ~1|Tank, data=data, method="ML", na.action=na.omit, correlation = corAR1(form = ~week|Tank)) 
 
-model.sel(modERm0, modERm1, modERm2, modERm3, modERm4, modERm5, modERm6)
+anova(modERma, modERmb)
 
-anova(modERm5, modERm4)
-anova(modERm5, modERm6)
-anova(modERm6, modERm3)
-anova(modERm3, modERm2)
-anova(modERm2, modERm1)
-anova(modERm1, modERm0)
+modERmc<-lme(log(ER.mass)~1+I(invT-mean(invT))*trophic.level, random = ~1|Tank, data=data, method="ML", na.action=na.omit)
+anova(modERmc, modERmb)
 
-## for fitting
-modERm4<-lme(log(ER.mass)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
-modERm5r<-lme(log(ER.mass)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
+modERm0<-lme(log(ER.mass) ~ 1, random=~1|Tank, data=data, method="ML", na.action=na.omit, correlation = corAR1(form = ~week|Tank))
+modERm1<-lme(log(ER.mass)~1+I(invT-mean(invT)), random=~1|Tank, data=data, method="ML", na.action=na.omit, correlation = corAR1(form = ~week|Tank))
+modERm2<-lme(log(ER.mass)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit, correlation = corAR1(form = ~week|Tank))
+modERm4<-lme(log(ER.mass)~1+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit, correlation = corAR1(form = ~week|Tank))
 
-summary(modERm5r)
+model.sel(modERm0, modERm1, modERm2, modERm4)
+
+# for model fitting: 
+modERm2r <- lme(log(ER.mass)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit, correlation = corAR1(form = ~week|Tank))
+
+summary(modERm2r)
 
 
 
@@ -203,43 +211,6 @@ summary(modERm5r)
 
 
 ##### BIOMASS RESULTS #####
-
-## Does chla vary with temperature?  
-## MO skipped this for now b/c it's redundant with PP biomass (below) and we probably shouldn't analyze both.
-### MO: went through this and made minor changes on July 28, 2015
-## figures 
-# data1 <- data[(which(data$week!='2')),] #could redo without week2, to see if that's driving the need for week effects.
-hist(data$chla)
-hist(log(data$chla))
-#hist(log(data$chla+1))
-plot(log(data$chla)~data$Tank, pch = 19, col = data$trophic.level)
-plot(log(data$chla)~data$week, pch = 19, col = data$trophic.level)
-plot(log(data$chla)~data$invT, pch = 19, col = data$trophic.level)
-
-## analysis
-modchl0<-lme(log(chla)~1, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modchl1<-lme(log(chla)~1+I(invT-mean(invT)), random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modchl2<-lme(log(chla)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modchl3<-lme(log(chla)~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modchl4<-lme(log(chla)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modchl5<-lme(log(chla)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-modchl6<-lme(log(chla)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit)
-
-model.sel(modchl0, modchl1, modchl2, modchl3, modchl4, modchl5, modchl6)
-
-anova(modchl6, modchl5)
-anova(modchl5, modchl4)
-anova(modchl4, modchl3)
-anova(modchl3, modchl2)
-anova(modchl2, modchl1)
-anova(modchl1,modchl0)
-
-## refit best model with reml
-modchl6b <- lme(log(chla)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit)
-summary(modchl6b)
-
-
-
 
 #### PP BIOMASS ###
 ## Does total PP biomass vary with temperature and FCL?   
@@ -253,26 +224,25 @@ plot(log(datap$PP.biomass)~datap$week, pch = 19, col = datap$trophic.level)
 plot(log(datap$PP.biomass)~datap$invT, pch = 19, col = datap$trophic.level)
 
 ## analysis
-modBp0<-lme(log(PP.biomass)~1, random=~1|Tank, data=datap, method="ML", na.action=na.omit)
-modBp1<-lme(log(PP.biomass)~1+I(invT-mean(invT)), random=~1|Tank, data=datap, method="ML", na.action=na.omit)
-modBp2<-lme(log(PP.biomass)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=datap, method="ML", na.action=na.omit)
-modBp3<-lme(log(PP.biomass)~1+I(invT-mean(invT))+week+trophic.level, random=~1|Tank, data=datap, method="ML", na.action=na.omit)
-modBp4<-lme(log(PP.biomass)~1+week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=datap, method="ML", na.action=na.omit)
-modBp5<-lme(log(PP.biomass)~1+I(invT-mean(invT))*week+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=datap, method="ML", na.action=na.omit)
-modBp6<-lme(log(PP.biomass)~1+I(invT-mean(invT))*week*trophic.level, random=~1|Tank, data=datap, method="ML", na.action=na.omit)
+## determine need for random effects in the full model: 
+modPPa<-lme(log(PP.biomass)~1+I(invT-mean(invT))*trophic.level, random = ~I(invT-mean(invT))|Tank, data=data, method="ML", na.action=na.omit, correlation = corAR1(form = ~week|Tank))  
+modPPb<-lme(log(PP.biomass)~1+I(invT-mean(invT))*trophic.level, random = ~1|Tank, data=data, method="ML", na.action=na.omit, correlation = corAR1(form = ~week|Tank)) 
+anova(modERma, modERmb)
 
-model.sel(modBp0, modBp1, modBp2, modBp3, modBp4, modBp5, modBp6)
+modPPc<-lme(log(PP.biomass)~1+I(invT-mean(invT))*trophic.level, random = ~1|Tank, data=data, method="ML", na.action=na.omit)
+anova(modPPc, modPPb)
 
-anova(modBp4, modBp3)
-anova(modBp3, modBp5)
-anova(modBp5, modBp6)
-anova(modBp6, modBp2)
-anova(modBp2, modBp1)
-anova(modBp1, modBp0)
+modPP0<-lme(log(PP.biomass) ~ 1, random=~1|Tank, data=data, method="ML", na.action=na.omit, correlation = corAR1(form = ~week|Tank))
+modPP1<-lme(log(PP.biomass)~1+I(invT-mean(invT)), random=~1|Tank, data=data, method="ML", na.action=na.omit, correlation = corAR1(form = ~week|Tank))
+modPP2<-lme(log(PP.biomass)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit, correlation = corAR1(form = ~week|Tank))
+modPP4<-lme(log(PP.biomass)~1+I(invT-mean(invT))*trophic.level, random=~1|Tank, data=data, method="ML", na.action=na.omit, correlation = corAR1(form = ~week|Tank))
 
-m.avg <- model.avg(modBp4, modBp3, modBp5)
-summary(m.avg)
+model.sel(modPP0, modPP1, modPP2, modPP4)
 
+# for model fitting: 
+modPP2r <- lme(log(PP.biomass)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit, correlation = corAR1(form = ~week|Tank))
+
+summary(modPP2r)
 
 ## Does zooplankton carbon vary with temperature?  
 ## figures 
