@@ -20,8 +20,8 @@ scatter3d(data$invT, log(data$ER2), data$week, groups = data$trophic.level, surf
 scatter3d(data$week, data$NEM, data$invT, point.col = as.numeric(data$trophic.level), surface = FALSE, ylab = 'NEM', xlab='Week', zlab = 'T (1/kT)')
 scatter3d(data$invT, data$NEM, data$week, groups = data$trophic.level, surface.col = c("green", "red","black"), axis.col = c("black","black","black"), surface = TRUE, parallel = FALSE, ylab = 'NEM', zlab='Week', xlab = 'T (1/kT)') 
 
-scatter3d(data$week, log(data$PP.biomass), data$invT, point.col = as.numeric(data$trophic.level), surface = TRUE)
-scatter3d(data$invT, log(data$PP.biomass), data$week, groups = data$trophic.level, surface.col = c("green", "red","black"), axis.col = c("black","black","black"), surface = TRUE, parallel = FALSE, ylab = 'ln(Bp)', zlab='Week', xlab = 'T (1/kT)') 
+scatter3d(data$week, log(data$PP.biomass), I(data$invT-mean(data$invT)), point.col = as.numeric(data$trophic.level), surface = TRUE)
+scatter3d(I(data$invT-mean(data$invT)), log(data$PP.biomass), data$week, groups = data$trophic.level, surface.col = c("green", "red","black"), axis.col = c("black","black","black"), surface = TRUE, parallel = FALSE, ylab = 'ln(Bp)', zlab='Week', xlab = 'T (1/kT)') 
 
 scatter3d(data$invT, log(data$total.carbon), data$week, groups = data$trophic.level, surface.col = c("green", "red","black"), axis.col = c("black","black","black"), surface = TRUE, parallel = FALSE, ylab = 'ln(Bt)', zlab='Week', xlab = 'T (1/kT)') 
 
