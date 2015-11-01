@@ -1,7 +1,8 @@
-data4 <- read.csv("C:/Dropbox/Dropbox/OConnor Lab/manuscripts/Jessica Tank experiment 2012/DATA MARY SHOULD USE TODAY/Cyano.abundance.csv")
+data4 <- read.csv("./phytoplankton.species.csv")
 View(data4)
 attach(data4)
 
+library(vegan)
 library(nlme)
 library(MuMIn)
 library(lme4)
