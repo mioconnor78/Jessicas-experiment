@@ -1,8 +1,15 @@
+<<<<<<< Updated upstream
 data4 <- read.csv("./phytoplankton.species.csv")
 View(data4)
 attach(data4)
 
 library(vegan)
+=======
+data4 <- read.csv("./Cyano.abundance.csv")
+View(data4)
+attach(data4)
+
+>>>>>>> Stashed changes
 library(nlme)
 library(MuMIn)
 library(lme4)
@@ -19,6 +26,13 @@ data4$Cyano.Rest.ratio <- (data4$Cyano.abundance/data4$Rest)
 hist(data4$Cyano.Rest)
 hist(log(data4$Cyano.Rest))
 
+<<<<<<< Updated upstream
+=======
+hist(data4$Cyano.SumPhyto.ratio)
+#hist(log(data4$Cyano.SumPhyto.ratio))
+
+
+>>>>>>> Stashed changes
 # basic plot
 CyanoRest0 <- ggplot(data4, aes(x=invT, y=log(Cyano.Rest.ratio), colour= factor(trophic.level))) + 
   #geom_line()+
@@ -211,4 +225,86 @@ summary(modCyano1)
 #2.691480593 
 
 #Number of Observations: 120
+<<<<<<< Updated upstream
 #Number of Groups: 4 
+=======
+#Number of Groups: 4 
+
+
+#### MARY ADDED THIS BIT ON OCT 20
+
+#### analysis for cyanos as proportion of total - all weeks
+modCprop0<-lme((Cyano.SumPhyto.ratio) ~ 1, random=~1|week, method="ML", data=data4)
+modCprop1<-lme((Cyano.SumPhyto.ratio) ~ 1+I(invT-mean(invT)), random=~1|week, method="ML", data=data4)
+modCprop2<-lme((Cyano.SumPhyto.ratio) ~ 1+I(invT-mean(invT)) + trophic.level,  random=~1|week, method="ML", data=data4)
+modCprop4<-lme((Cyano.SumPhyto.ratio) ~ 1+I(invT-mean(invT)) * trophic.level, random=~1|week, method="ML", data=data4)
+
+model.sel(modCprop0, modCprop1, modCprop2, modCprop4)
+
+# basic plot
+CyanoProp0 <- ggplot(data4, aes(x=invT, y=Cyano.SumPhyto.ratio, colour= factor(trophic.level))) + 
+  geom_point(size = 3.5) +
+  xlab('Temperature 1/k(T)') +
+  ylab(expression('Cyanobacteria / Total Phytoplankton')) +
+  scale_y_continuous(limits= c(-4.5, 3.5), breaks=c(0.0, 0.5, 1.0)) +
+  scale_x_continuous(limits= c(38.0, 41.0), breaks=c(38.0, 39.0, 40.0, 41.0)) +
+  coord_cartesian(xlim=c(38.0, 41.0), ylim=c(0,1)) +
+  geom_abline(aes(intercept = (5.93299), slope = -0.142), color='#000000', lty=1, size= 1, data= data4) +
+  geom_text(aes(label = 'D', x= 40.8, y=-Inf), vjust= -0.5, size=10, colour='black')+
+  theme_bw()+
+  scale_colour_manual(values=c('#000000', '#666666', '#CCCCCC'), breaks=c('P', 'PZ', 'PZN'), labels=c('1-TL', '2-TL', '3-TL'))+
+  theme(axis.line = element_line(colour = "black"),
+        axis.text.y = element_text(face='bold', colour='black', size=16, angle=0, vjust=0),
+        axis.text.x = element_text(face='bold', colour='black', size=16, angle=0, vjust=-1),
+        axis.title.x = element_text(colour='black', size=18),
+        axis.title.y = element_text(colour='black', size=18),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_rect(colour='black'),
+        panel.background = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(color='black', size=16, face='bold'),
+        legend.key = element_rect(colour = 'white', fill = 'white')
+  )
+CyanoProp0
+
+############################################################
+#### analysis for cyanos as proportion of total - weeks 7-9
+data5 <- data4[(which(data4$week >=7)),]
+modCprop0<-lme((Cyano.SumPhyto.ratio) ~ 1, random=~1|week, method="ML", data=data5)
+modCprop1<-lme((Cyano.SumPhyto.ratio) ~ 1+I(invT-mean(invT)), random=~1|week, method="ML", data=data5)
+modCprop2<-lme((Cyano.SumPhyto.ratio) ~ 1+I(invT-mean(invT)) + trophic.level,  random=~1|week, method="ML", data=data5)
+modCprop4<-lme((Cyano.SumPhyto.ratio) ~ 1+I(invT-mean(invT)) * trophic.level, random=~1|week, method="ML", data=data5)
+
+model.sel(modCprop0, modCprop1, modCprop2, modCprop4)
+
+# basic plot
+CyanoProp1 <- ggplot(data5, aes(x=invT, y=Cyano.SumPhyto.ratio, colour= factor(trophic.level))) + 
+  geom_point(size = 3.5) +
+  xlab('Temperature 1/k(T)') +
+  ylab(expression('Cyanobacteria / Total Phytoplankton')) +
+  scale_y_continuous(limits= c(-4.5, 3.5), breaks=c(0.0, 0.5, 1.0)) +
+  scale_x_continuous(limits= c(38.0, 41.0), breaks=c(38.0, 39.0, 40.0, 41.0)) +
+  coord_cartesian(xlim=c(38.0, 41.0), ylim=c(0,1)) +
+  geom_abline(aes(intercept = (0.284-(-0.135*38.99289)), slope = -0.135), color='#000000', lty=1, size= 1, data= data4) +
+  geom_text(aes(label = 'D', x= 40.8, y=-Inf), vjust= -0.5, size=10, colour='black')+
+  theme_bw()+
+  scale_colour_manual(values=c('#000000', '#666666', '#CCCCCC'), breaks=c('P', 'PZ', 'PZN'), labels=c('1-TL', '2-TL', '3-TL'))+
+  theme(axis.line = element_line(colour = "black"),
+        axis.text.y = element_text(face='bold', colour='black', size=16, angle=0, vjust=0),
+        axis.text.x = element_text(face='bold', colour='black', size=16, angle=0, vjust=-1),
+        axis.title.x = element_text(colour='black', size=18),
+        axis.title.y = element_text(colour='black', size=18),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_rect(colour='black'),
+        panel.background = element_blank(),
+        legend.position = 'bottom',
+        legend.title = element_blank(),
+        legend.text = element_text(color='black', size=16, face='bold'),
+        legend.key = element_rect(colour = 'white', fill = 'white')
+  )
+CyanoProp1
+
+>>>>>>> Stashed changes
