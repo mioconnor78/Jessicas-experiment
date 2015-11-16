@@ -27,8 +27,6 @@ data <- data2
 k <- 8.617342*10^-5  # eV/K
 data$invT <-  1/((data$average.temp + 273)*k)
 data$invT <- as.numeric(as.character(data$invT))
-#data$kT <-  ((data$average.temp + 273)*k)
-#data$kT <- as.numeric(as.character(data$kT))*100
 
 data$PP.biomass <- (data$chla*55) #chla (ug/L)* 55 C in PP / 1 chla = ugPPC/L
 data$ZP.carbon1 <- ifelse(data$trophic.level=='P',  0, data$zoo.ug.carbon.liter) # for adding
@@ -44,7 +42,7 @@ C.star(T) # yields the oxygen concentration expected at a given temperature (T i
 
 #calculate NPP and ER (hourly), in terms of umol O2 / l / hr, following yvon durochers 2010.
 # O2 has molar mass of 32g/mol. so 1 umol = 32 ug. so take ug/32
-data$NPP2 <- (((data$dusk - data$dawn1) - (C.star(data$temp.dusk) - C.star(data$temp.dawn1)))*1000)/(32)  # oxygen produced umol / L /day, net all respiration. raw data is mg/L. 
+data$NPP2 <- (((data$dusk - data$dawn1) - (C.star(data$temp.dusk) - C.star(data$temp.dawn1)))*1000)/(32)  # oxygen produced umol / L /day, net all respiration. raw data is mg/L. Subtract o2 water/atm flux due to change in temperature 
 data$ER2 <- -(24/data$hours2)*(((data$dawn2 - data$dusk) - (C.star(data$temp.dawn2) - C.star(data$temp.dusk)))*1000)/(32)  # amount of oxygen consumed per day via respiaration. negative to get the change in oxygen umol / L /day; oxygen used in the dark and daylight. MeanER can be greater than meanNPP, because NPP reflects ER already.
 data$GPP <- data$NPP2+(data$ER2/24)*data$hours1 # daily oxygen production (NPP2) + estimated daytime community respiration (daily R / 24 * hours daylight)
 data$NEM <- data$ER2/data$GPP  # following Yvon Durochers 2010. NEM > 1 means the system is respiring more than it's fixing per day. This does not need to be logged.
@@ -53,7 +51,10 @@ data$ER.mass <- data$ER2/(data$total.carbon) # ER on ummol 02/L/day/ugTPP
 
 data <- data[data$week >= '4',]
 
-## temporal
+
+### data prep complete
+
+### ANALYSIS
 
 ## Does NPP vary with temperature?  
 ## figures on invT
@@ -76,29 +77,32 @@ modNPP4b<-lme(log(NPP2)~1+I(invT-mean(invT))*trophic.level, random = ~1|week, da
 
 anova(modNPP4a, modNPP4b)
 
-modNPP0<-lme(log(NPP2) ~ 1, random = ~I(invT-mean(invT))|week, data=data1, method="ML", na.action=na.omit)  
-modNPP1<-lme(log(NPP2)~1+I(invT-mean(invT)), random = ~I(invT-mean(invT))|week, data=data1, method="ML", na.action=na.omit)  
-modNPP2<-lme(log(NPP2)~1+I(invT-mean(invT))+trophic.level, random = ~I(invT-mean(invT))|week, data=data1, method="ML", na.action=na.omit)  
-modNPP4<-lme(log(NPP2)~1+I(invT-mean(invT))*trophic.level, random = ~I(invT-mean(invT))|week, data=data1, method="ML", na.action=na.omit)  
+modNPP0<-lme(log(NPP2) ~ 1, random = ~1|week, data=data1, method="ML", na.action=na.omit)  
+modNPP1<-lme(log(NPP2)~1+I(invT-mean(invT)), random = ~1|week, data=data1, method="ML", na.action=na.omit)  
+modNPP2<-lme(log(NPP2)~1+I(invT-mean(invT))+trophic.level, random = ~1|week, data=data1, method="ML", na.action=na.omit)  
+modNPP4<-lme(log(NPP2)~1+I(invT-mean(invT))*trophic.level, random = ~1|week, data=data1, method="ML", na.action=na.omit)  
 
 model.sel(modNPP0, modNPP1, modNPP2, modNPP4)
-anova(modNPP2, modNPP4)
-anova(modNPP4, modNPP1)
+anova(modNPP1, modNPP4)
+anova(modNPP1, modNPP2)
 anova(modNPP1, modNPP0)
 
 # for model fitting: 
-modNPP2r <- lme(log(NPP2)~1+I(invT-mean(invT))+trophic.level, random=~I(invT-mean(invT))|week, data=data1, method="REML", na.action=na.omit)
-modNPP4r <- lme(log(NPP2)~1+I(invT-mean(invT))*trophic.level, random=~I(invT-mean(invT))|week, data=data1, method="REML", na.action=na.omit)
-modNPP1r <- lme(log(NPP2)~1+I(invT-mean(invT)), random = ~I(invT-mean(invT))|week, data=data1, method="REML", na.action=na.omit) # now temp coeff = -0.60. much more like what we expect. ;)
+modNPP2r <- lme(log(NPP2)~1+I(invT-mean(invT))+trophic.level, random=~1|week, data=data1, method="REML", na.action=na.omit)
+modNPP4r <- lme(log(NPP2)~1+I(invT-mean(invT))*trophic.level, random=~1|week, data=data1, method="REML", na.action=na.omit)
+modNPP1r <- lme(log(NPP2)~1+I(invT-mean(invT)), random = ~1|week, data=data1, method="REML", na.action=na.omit) # now temp coeff = -0.60. much more like what we expect. ;)
 
-m.avg <- model.avg(modNPP2r, modNPP4r)
+m.avg <- model.avg(modNPP2r, modNPP4r, modNPP1r)
 summary(m.avg)
+
+confint(m.avg)
+
 
 # net ecosystem metabolism
 hist(data$NEM)
 
-data1 <- data #[(data$NEM<=14.2),]
-plot(log(data$NEM)~I(data$invT-mean(data$invT)), pch = 19, col = data$trophic.level)
+data1 <- data[(data$NEM >= 0),]
+plot(log(data1$NEM)~I(data1$invT-mean(data1$invT)), pch = 19, col = data1$trophic.level)
 abline(-0.13, 0.04, lwd = 2, col = 1)
 abline((-0.13+0.13), (0.04+0.19), lwd = 2, col = 2)
 abline((-0.13-0.15), (0.04+0.29), lwd = 2, col = 3)
@@ -107,27 +111,27 @@ plot((data$NEM)~data$Tank, pch = 19, col = data$trophic.level)
 
 ## analysis
 ## determine need for random effects in the full model: 
-modNEMa<-lme(log(NEM)~1+I(invT-mean(invT))*trophic.level, random = ~I(invT-mean(invT))|week, data=data, method="ML", na.action=na.omit)  
-modNEMb<-lme(log(NEM)~1+I(invT-mean(invT))*trophic.level, random = ~1|week, data=data, method="ML", na.action=na.omit) 
+modNEMa<-lme(log(NEM)~1+I(invT-mean(invT))*trophic.level, random = ~I(invT-mean(invT))|week, data=data1, method="ML", na.action=na.omit)  
+modNEMb<-lme(log(NEM)~1+I(invT-mean(invT))*trophic.level, random = ~1|week, data=data1, method="ML", na.action=na.omit) 
 
 anova(modNEMa, modNEMb)
 
-modNEM0<-lme(log(NEM) ~ 1, random=~1|week, data=data, method="ML", na.action=na.omit)
-modNEM1<-lme(log(NEM)~1+I(invT-mean(invT)), random=~1|week, data=data, method="ML", na.action=na.omit)
-modNEM2<-lme(log(NEM)~1+I(invT-mean(invT))+trophic.level, random=~1|week, data=data, method="ML", na.action=na.omit)
-modNEM4<-lme(log(NEM)~1+I(invT-mean(invT))*trophic.level, random=~1|week, data=data, method="ML", na.action=na.omit)
+modNEM0<-lme(log(NEM) ~ 1, random=~1|week, data=data1, method="ML", na.action=na.omit)
+modNEM1<-lme(log(NEM)~1+I(invT-mean(invT)), random=~1|week, data=data1, method="ML", na.action=na.omit)
+modNEM2<-lme(log(NEM)~1+I(invT-mean(invT))+trophic.level, random=~1|week, data=data1, method="ML", na.action=na.omit)
+modNEM4<-lme(log(NEM)~1+I(invT-mean(invT))*trophic.level, random=~1|week, data=data1, method="ML", na.action=na.omit)
 
 model.sel(modNEM0, modNEM1, modNEM2, modNEM4)
 anova(modNEM4, modNEM2)
-anova(modNEM1, modNEM2)
+anova(modNEM0, modNEM2)
 anova(modNEM1, modNEM0)
 
 
 # for model fitting: 
-modNEM4r<-lme(log(NEM)~1+I(invT-mean(invT))*trophic.level, random=~1|week, data=data, method="REML", na.action=na.omit)
+modNEM4r<-lme(log(NEM)~1+I(invT-mean(invT))*trophic.level, random=~1|week, data=data1, method="REML", na.action=na.omit)
 
 summary(modNEM4r)
-
+confint(coef(modNEM4r))
 
 ## Does mass-specific NPP vary with temperature?  
 ## figures  
