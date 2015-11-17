@@ -128,21 +128,26 @@ anova(modNEM1, modNEM0)
 
 
 # for model fitting: 
-modNEM4r<-lme(log(NEM)~1+I(invT-mean(invT))*trophic.level, random=~1|week, data=data1, method="REML", na.action=na.omit)
+modNEM4r <- lme(log(NEM)~1+I(invT-mean(invT))*trophic.level, random=~1|week, data=data1, method="REML", na.action=na.omit)
+modNEM2r <- lme(log(NEM)~1+I(invT-mean(invT))+trophic.level, random=~1|week, data=data1, method="REML", na.action=na.omit)
+
+m.avg <- model.avg(modNEM4r, modNEM2r)
+summary(m.avg)
+confint(m.avg)
 
 summary(modNEM4r)
-confint(coef(modNEM4r))
 
 ## Does mass-specific NPP vary with temperature?  
 ## figures  
 ### NPP in umol/L/day per ugC
-hist(data$NPP.mass)
-hist(log(data$NPP.mass))
+data1 <- data[(data$NPP2 >= 0.5),]
+hist(data1$NPP.mass)
+hist(log(data1$NPP.mass))
 # hist(log(data$NPP.mass+.001)) # no reason to add a number, there are no -inf values.
 
 plot(log(data$NPP.mass)~data$Tank, pch = 19, col = data$trophic.level)
 plot(log(data$NPP.mass)~data$week, pch = 19, col = data$trophic.level)
-plot(log(data$NPP.mass)~I(data$invT-mean(data$invT)), pch = 19, col = data$trophic.level)
+plot(log(data1$NPP.mass)~I(data1$invT-mean(data1$invT)), pch = 19, col = data1$trophic.level)
 abline(-2.83, -1.89, lwd = 2, col = 1)
 abline((-2.83+1.36), (-1.89-1.41), lwd = 2, col = 2)
 abline((-2.83+0.46), (-1.89-0.05), lwd = 2, col = 3)
@@ -150,22 +155,31 @@ abline((-2.83+0.46), (-1.89-0.05), lwd = 2, col = 3)
 
 ## analysis
 ## determine need for random effects in the full model: 
-modNPPma<-lme(log(NPP.mass)~1+I(invT-mean(invT))*trophic.level, random = ~I(invT-mean(invT))|week, data=data, method="ML", na.action=na.omit)  
-modNPPmb<-lme(log(NPP.mass)~1+I(invT-mean(invT))*trophic.level, random = ~1|week, data=data, method="ML", na.action=na.omit) 
+modNPPma<-lme(log(NPP.mass)~1+I(invT-mean(invT))*trophic.level, random = ~I(invT-mean(invT))|week, data=data1, method="ML", na.action=na.omit)  
+modNPPmb<-lme(log(NPP.mass)~1+I(invT-mean(invT))*trophic.level, random = ~1|week, data=data1, method="ML", na.action=na.omit) 
 
 anova(modNPPma, modNPPmb)
 
-modNPPm0<-lme(log(NPP.mass) ~ 1, random = ~I(invT-mean(invT))|week, data=data, method="ML", na.action=na.omit)  
-modNPPm1<-lme(log(NPP.mass)~1+I(invT-mean(invT)), random = ~I(invT-mean(invT))|week, data=data, method="ML", na.action=na.omit)  
-modNPPm2<-lme(log(NPP.mass)~1+I(invT-mean(invT))+trophic.level, random = ~I(invT-mean(invT))|week, data=data, method="ML", na.action=na.omit)  
-modNPPm4<-lme(log(NPP.mass)~1+I(invT-mean(invT))*trophic.level, random = ~I(invT-mean(invT))|week, data=data, method="ML", na.action=na.omit)  
+modNPPm0<-lme(log(NPP.mass) ~ 1, random = ~1|week, data=data1, method="ML", na.action=na.omit)  
+modNPPm1<-lme(log(NPP.mass)~1+I(invT-mean(invT)), random = ~1|week, data=data1, method="ML", na.action=na.omit)  
+modNPPm2<-lme(log(NPP.mass)~1+I(invT-mean(invT))+trophic.level, random = ~1|week, data=data1, method="ML", na.action=na.omit)  
+modNPPm4<-lme(log(NPP.mass)~1+I(invT-mean(invT))*trophic.level, random = ~1|week, data=data1, method="ML", na.action=na.omit)  
 
 model.sel(modNPPm0, modNPPm1, modNPPm2, modNPPm4)
 
-# for model fitting: 
-modNPPm4r <- lme(log(NPP.mass)~1+I(invT-mean(invT))*trophic.level, random = ~I(invT-mean(invT))|week, data=data, method="REML", na.action=na.omit)  
+anova(modNPPm4, modNPPm2)
+anova(modNPPm2, modNPPm1)
+anova(modNPPm1, modNPPm2)
 
-summary(modNPPm4r)
+# for model fitting: 
+modNPPm4r <- lme(log(NPP.mass)~1+I(invT-mean(invT))*trophic.level, random = ~1|week, data=data1, method="REML", na.action=na.omit)  
+
+modNPPm2r <- lme(log(NPP.mass)~1+I(invT-mean(invT))+trophic.level, random = ~1|week, data=data1, method="REML", na.action=na.omit)   
+
+m.avg <- model.avg(modNPPm4r, modNPPm2r)
+
+summary(m.avg)
+confint(m.avg)
 
 ## Does ER vary with temperature?  
 ## figures 
