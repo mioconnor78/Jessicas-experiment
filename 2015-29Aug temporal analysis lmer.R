@@ -1,10 +1,10 @@
 ### MO made a new file on Aug29 from June file when I decided to take week out as a fixed effect, and instead model autocorrelation. 
 
-### revised this on Nov 13 to include correction fo oxygen flux
+### revised this on Nov 17 to redo models in lme4 so i can estimate confidence intervals on coefficients
 
 ### load libraries
 #library(qpcR)
-library(nlme)
+library(lme4)
 library(MuMIn)
 
 ### set working directory and load data
