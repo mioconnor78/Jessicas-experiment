@@ -9,7 +9,7 @@ library(plyr)
 ### size corrected biomass
 
 sdata <- read.csv("./zooplankton size for correction no eggs.csv")
-sdata$drywt <- ifelse(sdata$species == 'Daphnia', exp(log(1.468 + 2.829*log(sdata$size*10))), exp(log(1.821 + 0.654*log(sdata$size*100))))
+sdata$drywt <- ifelse(sdata$species == 'Daphnia', exp(log(1.468 + 2.829*log(sdata$size*10))), exp(log(1.821 + 0.654*log(sdata$size*10))))
 sdata$C.ug <- sdata$drywt*0.5
 
 #add in notonectids

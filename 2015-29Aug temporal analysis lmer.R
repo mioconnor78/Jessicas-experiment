@@ -81,8 +81,8 @@ abline((3.00+0.23), (-1.14+0.06), lwd = 2, col = 3)
 
 ## analysis
 ## determine need for random effects in the full model: 
-modNPP4a <- lmer(log(NPP2) ~ 1 + I(invT-mean(invT))*trophic.level + I(invT-mean(invT))|week, data=data1, REML = FALSE, na.action=na.omit,  control = lmerControl(optimizer = "Nelder_Mead"))  
-modNPP4b<-lmer(log(NPP2)~1+I(invT-mean(invT))*trophic.level + 1|week, data=data1, REML = FALSE, na.action=na.omit) 
+modNPP4a <- lmer(log(NPP2) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data1, REML = FALSE, na.action=na.omit)  
+modNPP4b<-lmer(log(NPP2)~1+I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = FALSE, na.action=na.omit) 
 
 anova(modNPP4a, modNPP4b)
 
@@ -139,10 +139,12 @@ anova(modNEM1, modNEM0)
 
 # for model fitting: 
 modNEM4r <- lmer(log(NEM) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = TRUE, na.action=na.omit)
+modNEM2r <- lmer(log(NEM) ~ 1 + I(invT-mean(invT))+trophic.level + (1|week), data=data1, REML = TRUE, na.action=na.omit)
 
 ## the best model is modNEM4r. Use this one for making figures. 
-summary(modNEM4r)
-confint(modNEM4r)
+m.avg <- model.avg(modNEM4r, modNEM2r)
+summary(m.avg)
+confint(m.avb)
 
 
 ## Does mass-specific NPP vary with temperature?  
@@ -219,9 +221,11 @@ anova(modER1, modER2)
 anova(modER1, modER0)
 
 # for model fitting: 
-modER4r <- lmer(log(ER2) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = FALSE, na.action=na.omit)
-summary(modER4r)
-confint(modER4r)
+modER4r <- lmer(log(ER2) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = TRUE, na.action=na.omit)
+modER2r <- lmer(log(ER2) ~ 1 + I(invT-mean(invT)) + trophic.level + (1|week), data=data1, REML = TRUE, na.action=na.omit)
+m.avg <- model.avg(modER4r, modER2r)
+summary(m.avg)
+confint(m.avg)
 
 ## Does mass specific ER vary with temperature?  
 ## figures 
@@ -248,7 +252,7 @@ modERm4 <- lmer(log(ER.mass+1) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week)
 model.sel(modERm0, modERm1, modERm2, modERm4)
 
 # for model fitting: 
-modERm4r <- lmer(log(ER.mass+1) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = TRUE, na.action=na.omit) 
+modERm4r <- lmer(log(ER.mass+1) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data1, REML = TRUE, na.action=na.omit) 
 summary(modERm4r)
 confint(modERm4r)
 
@@ -276,17 +280,17 @@ anova(modPPa, modPPb)
 # modPPc<-lme(log(PP.biomass)~1+I(invT-mean(invT))*trophic.level, random = ~1|week, data=data, method="ML", na.action=na.omit)
 # anova(modPPc, modPPb)
 
-modPP0 <- lmer(log(PP.biomass) ~ 1 + (1|week), data=data, REML = FALSE, na.action=na.omit)
-modPP1 <- lmer(log(PP.biomass) ~ 1 + I(invT-mean(invT)) + (1|week), data=data, REML = FALSE, na.action=na.omit)
-modPP2 <- lmer(log(PP.biomass) ~ 1 + I(invT-mean(invT))+trophic.level + (1|week), data=data, REML = FALSE, na.action=na.omit)
-modPP4 <- lmer(log(PP.biomass) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data, REML = FALSE, na.action=na.omit)
+modPP0 <- lmer(log(PP.biomass) ~ 1 + (I(invT-mean(invT))|week), data=data, REML = FALSE, na.action=na.omit)
+modPP1 <- lmer(log(PP.biomass) ~ 1 + I(invT-mean(invT)) + (I(invT-mean(invT))|week), data=data, REML = FALSE, na.action=na.omit)
+modPP2 <- lmer(log(PP.biomass) ~ 1 + I(invT-mean(invT))+trophic.level + (I(invT-mean(invT))|week), data=data, REML = FALSE, na.action=na.omit)
+modPP4 <- lmer(log(PP.biomass) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data, REML = FALSE, na.action=na.omit)
 
 model.sel(modPP0, modPP1, modPP2, modPP4) 
 
 anova(modPP4, modPP2)
 
 # for model fitting: 
-modPP4r <- lmer(log(PP.biomass) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data, REML = TRUE, na.action=na.omit)
+modPP4r <- lmer(log(PP.biomass) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data, REML = TRUE, na.action=na.omit)
 
 summary(modPP4r)
 confint(modPP4r)
@@ -331,17 +335,17 @@ modTCb<-lmer(log(total.carbon) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-
 modTCc<-lmer(log(total.carbon) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data, REML = FALSE, na.action=na.omit)
 anova(modTCc, modTCb)
 
-modTC0 <- lmer(log(total.carbon) ~ 1 + (I(invT-mean(invT))|week), data=data, REML = FALSE, na.action=na.omit)
-modTC1 <- lmer(log(total.carbon) ~ 1 + I(invT-mean(invT)) + (I(invT-mean(invT))|week), data=data, REML = FALSE, na.action=na.omit)
-modTC2 <- lmer(log(total.carbon) ~ 1 + I(invT-mean(invT)) + trophic.level + (I(invT-mean(invT))|week), data=data, REML = FALSE, na.action=na.omit)
-modTC4 <- lmer(log(total.carbon) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data, REML = FALSE, na.action=na.omit)
+modTC0 <- lmer(log(total.carbon) ~ 1 + (1|week), data=data, REML = FALSE, na.action=na.omit)
+modTC1 <- lmer(log(total.carbon) ~ 1 + I(invT-mean(invT)) + (1|week), data=data, REML = FALSE, na.action=na.omit)
+modTC2 <- lmer(log(total.carbon) ~ 1 + I(invT-mean(invT)) + trophic.level + (1|week), data=data, REML = FALSE, na.action=na.omit)
+modTC4 <- lmer(log(total.carbon) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data, REML = FALSE, na.action=na.omit)
 
 model.sel(modTC0, modTC1, modTC2, modTC4)
 anova(modTC2, modTC4)
 anova(modTC2, modTC1)
 
 # for model fitting: 
-modTC4r <- lmer(log(total.carbon) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data, REML = TRUE, na.action=na.omit)
+modTC4r <- lmer(log(total.carbon) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data, REML = TRUE, na.action=na.omit)
 
 summary(modTC4r)
 confint(modTC4r)
@@ -366,8 +370,10 @@ anova(modHA2, modHA4)
 anova(modHA2, modHA1)
 
 # for model fitting: 
-modTC4r <- lmer(log(HA) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data1, REML = TRUE, na.action=na.omit)
+modHA4r <- lmer(log(HA) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data1, REML = TRUE, na.action=na.omit)
+modHA2r <- lmer(log(HA) ~ 1 + I(invT-mean(invT)) + trophic.level + (I(invT-mean(invT))|week), data=data1, REML = TRUE, na.action=na.omit)
 
-summary(modTC4r)
-confint(modTC4r)
+m.avg <- model.avg(modHA4r, modHA2r)
+summary(m.avg)
+confint(m.avg)
 
