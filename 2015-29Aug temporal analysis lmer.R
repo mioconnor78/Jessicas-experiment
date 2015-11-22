@@ -23,15 +23,21 @@ dim(o.data)
 data2 <- merge(data, o.data, by.x = c("week", "Tank"), by.y = c("week", "Tank"))
 data <- data2
 
+data3 <- merge(data, mass.data, by.x = c("week", "Tank"), by.y = c("week", "tank"), all=TRUE)
+data3[is.na(data3)] <- 0
+data <- data3
+
 ### load libraries, define variables and add columns
 k <- 8.617342*10^-5  # eV/K
-data$invT <-  1/((data$average.temp + 273)*k)
+## create test temp
+data$temp.t <- (data$average.temp + data$temp.dawn1 + data$temp.dusk)/3
+data$invT <-  1/((data$temp.t + 273)*k)
 data$invT <- as.numeric(as.character(data$invT))
 
 data$PP.biomass <- (data$chla*55) #chla (ug/L)* 55 C in PP / 1 chla = ugPPC/L
-data$ZP.carbon1 <- ifelse(data$trophic.level=='P',  0, data$zoo.ug.carbon.liter) # for adding
-data$total.carbon <- data$PP.biomass + data$ZP.carbon1 #I'm assuming 0 for ZP in P treatments here.
-data$HeteroB <- ifelse(data$trophic.level=='PZN', data$ZP.carbon1 + 10.8/2, data$ZP.carbon1) # add notonectid weight
+data$ZP.carbon1 <- ifelse(data$trophic.level=='P',  0, data$M.uncorrz) # raw carbon
+data$HeteroB <- ifelse(data$trophic.level=='PZN', data$M.uncorrz + 10.8/2, data$ZP.carbon1) # add notonectid weight
+data$total.carbon <- data$PP.biomass + data$HeteroB
 data$HA <- data$HeteroB/data$PP.biomass
 
 ### estimating NPP and ER from the raw data: 
@@ -49,7 +55,7 @@ data$ER2 <- -(24/data$hours2)*(((data$dawn2 - data$dusk) - (C.star(data$temp.daw
 data$GPP <- data$NPP2+(data$ER2/24)*data$hours1 # daily oxygen production (NPP2) + estimated daytime community respiration (daily R / 24 * hours daylight)
 data$NEM <- data$ER2/data$GPP  # following Yvon Durochers 2010. NEM > 1 means the system is respiring more than it's fixing per day. This does not need to be logged.
 data$NPP.mass <- data$NPP2 / (data$PP.biomass)  # NPP on ummol 02/L/day/ugCPP
-data$ER.mass <- data$ER2/(data$total.carbon) # ER on ummol 02/L/day/ugTPP
+data$ER.mass <- data$ER2/(data$M.corrT + data$PP.biomass) # ER on ummol 02/L/day/ugTPP
 
 data <- data[data$week >= '4',]
 
@@ -63,6 +69,7 @@ data <- data[data$week >= '4',]
 data1 <- data[(data$NPP2 >= 0.5),] # three negative values and one very small value now, not sure what to do about them.
 hist(data[(data$NPP2 >= 0.5),]$NPP2)
 hist(log(data1$NPP2))
+hist(log(data$NPP2))
 
 plot(log(data$NPP2)~data$Tank, pch = 19, col = data$trophic.level)
 plot(log(data$NPP2)~data$week, pch = 19, col = data$trophic.level)
@@ -74,7 +81,7 @@ abline((3.00+0.23), (-1.14+0.06), lwd = 2, col = 3)
 
 ## analysis
 ## determine need for random effects in the full model: 
-modNPP4a <- lmer(log(NPP2)~1+I(invT-mean(invT))*trophic.level + I(invT-mean(invT))|week, data=data1, REML = FALSE, na.action=na.omit)  
+modNPP4a <- lmer(log(NPP2) ~ 1 + I(invT-mean(invT))*trophic.level + I(invT-mean(invT))|week, data=data1, REML = FALSE, na.action=na.omit,  control = lmerControl(optimizer = "Nelder_Mead"))  
 modNPP4b<-lmer(log(NPP2)~1+I(invT-mean(invT))*trophic.level + 1|week, data=data1, REML = FALSE, na.action=na.omit) 
 
 anova(modNPP4a, modNPP4b)
@@ -224,27 +231,24 @@ hist(log(data1$ER.mass))
 
 plot(log(data$ER.mass)~data$Tank, pch = 19, col = data$trophic.level)
 plot(log(data$ER.mass)~data$week, pch = 19, col = data$trophic.level)
-plot(log(data$ER.mass)~I(data$invT-mean(data$invT)), pch = 19, col = data$trophic.level)
-abline(-1.89, -1.49, lwd = 2, col = 1)
-abline((-1.89+1.54), (-1.49-0.74), lwd = 2, col = 2)
-abline((-1.89+0.21), (-1.49+0.43), lwd = 2, col = 3)
+plot(log(data$ER.mass+1)~I(data$invT-mean(data$invT)), pch = 19, col = data$trophic.level)
 
 ## analysis
 ## determine need for random effects in the full model: 
-modERma <- lmer(log(ER.mass) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data1, REML = FALSE, na.action=na.omit, control = lmerControl(optimizer = "Nelder_Mead"))  
-modERmb <- lmer(log(ER.mass) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = FALSE, na.action=na.omit, control = lmerControl(optimizer = "Nelder_Mead")) 
+modERma <- lmer(log(ER.mass+1) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data1, REML = FALSE, na.action=na.omit)  #, control = lmerControl(optimizer = "Nelder_Mead")
+modERmb <- lmer(log(ER.mass+1) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = FALSE, na.action=na.omit)  #, control = lmerControl(optimizer = "Nelder_Mead")
 
 anova(modERma, modERmb)
 
-modERm0 <- lmer(log(ER.mass) ~ 1 + (I(invT-mean(invT))|week), data=data1, REML = FALSE, na.action=na.omit, control = lmerControl(optimizer = "Nelder_Mead"))  
-modERm1 <- lmer(log(ER.mass) ~ 1 + I(invT-mean(invT)) + (I(invT-mean(invT))|week), data=data1, REML = FALSE, na.action=na.omit, control = lmerControl(optimizer = "Nelder_Mead"))  
-modERm2 <- lmer(log(ER.mass) ~ 1 + I(invT-mean(invT)) + trophic.level + (I(invT-mean(invT))|week), data=data1, REML = FALSE, na.action=na.omit, control = lmerControl(optimizer = "Nelder_Mead"))  
-modERm4 <- lmer(log(ER.mass) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data1, REML = FALSE, na.action=na.omit, control = lmerControl(optimizer = "Nelder_Mead"))  
+modERm0 <- lmer(log(ER.mass+1) ~ 1 + (1|week), data=data1, REML = FALSE, na.action=na.omit)  
+modERm1 <- lmer(log(ER.mass+1) ~ 1 + I(invT-mean(invT)) + (1|week), data=data1, REML = FALSE, na.action=na.omit)  
+modERm2 <- lmer(log(ER.mass+1) ~ 1 + I(invT-mean(invT)) + trophic.level + (1|week), data=data1, REML = FALSE, na.action=na.omit)  
+modERm4 <- lmer(log(ER.mass+1) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = FALSE, na.action=na.omit)  
 
 model.sel(modERm0, modERm1, modERm2, modERm4)
 
 # for model fitting: 
-modERm4r <- lmer(log(ER.mass) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data1, REML = TRUE, na.action=na.omit, control = lmerControl(optimizer = "Nelder_Mead")) 
+modERm4r <- lmer(log(ER.mass+1) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = TRUE, na.action=na.omit) 
 summary(modERm4r)
 confint(modERm4r)
 
@@ -287,22 +291,20 @@ modPP4r <- lmer(log(PP.biomass) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week
 summary(modPP4r)
 confint(modPP4r)
 
-## Does zooplankton carbon vary with temperature?  ### leaving this for now. JESSICA DID THIS FOR POISSON DISTRIBUTED ERRORS 
-## figures 
+## Does zooplankton carbon vary with temperature?  
+
 dataz <- data[(which(data$trophic.level != 'P')),] # because we don't have observations for the P treatments (we're just assuming they are 0) I don't htink we should analyze those tanks here.
 hist(dataz$zoo.ug.carbon.liter)
 hist(log(dataz$zoo.ug.carbon.liter))
-hist(log(dataz$zoo.ug.carbon.liter+1))
-plot(log(dataz$zoo.ug.carbon.liter)~dataz$Tank, pch = 19, col = data$trophic.level)
+hist(dataz$M.uncorrz)
+hist(log(dataz$M.uncorrz+1))
 
-plot(log(dataz[dataz$week >= '4',]$zoo.ug.carbon.liter+1)~dataz[dataz$week >= '4',]$Tank, pch = 19, col = dataz$trophic.level)
-plot(log(dataz[dataz$week >= '4',]$zoo.ug.carbon.liter+1)~dataz[dataz$week >= '4',]$week, pch = 19, col = dataz$trophic.level)
-plot(log(dataz[dataz$week >= '4',]$zoo.ug.carbon.liter+1)~dataz[dataz$week >= '4',]$invT, pch = 19, col = dataz$trophic.level)
+plot(log(dataz$M.uncorrz+1)~dataz$invT, pch = 19, col = dataz$trophic.level)
 
 ## analysis
 ## determine need for random effects in the full model: 
-modZa <- lmer(log(zoo.ug.carbon.liter + 1) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=dataz, REML = FALSE, na.action=na.omit)  
-modZb<-lme(log(zoo.ug.carbon.liter+1)~1+I(invT-mean(invT))*trophic.level, random = ~1|week, data=data, method="ML", na.action=na.omit) 
+modZa <- lmer(log(M.uncorrz0 + 1) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=dataz, REML = FALSE, na.action=na.omit)  
+modZb <- lmer(log(M.uncorrz0 + 1) ~ 1 + I(invT-mean(invT))*trophic.level + 1|week, data=dataz, REML = FALSE, na.action=na.omit)  
 anova(modZa, modZb)
 
 
@@ -348,7 +350,7 @@ confint(modTC4r)
 data1 <- data[which(data$HA > '0'),]
 hist(log(data1$HA))
 
-plot(log(data1$HA)~I(data1$invT-mean(data$invT)), pch = 19, col = data1$trophic.level)
+plot(log(data1$HA)~((data1$invT)), pch = 19, col = data1$trophic.level)
 
 modHAb <- lmer(log(HA) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data1, REML = FALSE, na.action=na.omit)
 modHAc <- lmer(log(HA) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = FALSE, na.action=na.omit)
