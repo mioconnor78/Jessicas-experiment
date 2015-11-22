@@ -31,7 +31,7 @@ data$invT <- as.numeric(as.character(data$invT))
 data$PP.biomass <- (data$chla*55) #chla (ug/L)* 55 C in PP / 1 chla = ugPPC/L
 data$ZP.carbon1 <- ifelse(data$trophic.level=='P',  0, data$zoo.ug.carbon.liter) # for adding
 data$total.carbon <- data$PP.biomass + data$ZP.carbon1 #I'm assuming 0 for ZP in P treatments here.
-data$HeteroB <- ifelse(data$trophic.level=='PZN', data$ZP.carbon1, data$ZP.carbon1 + 10.8/3) # add notonectid weight
+data$HeteroB <- ifelse(data$trophic.level=='PZN', data$ZP.carbon1 + 10.8/2, data$ZP.carbon1) # add notonectid weight
 data$HA <- data$HeteroB/data$PP.biomass
 
 ### estimating NPP and ER from the raw data: 
@@ -345,12 +345,14 @@ summary(modTC4r)
 confint(modTC4r)
 
 #### HA ratio
-data1 <- data[(data$HeteroB > '0'),]
+data1 <- data[which(data$HA > '0'),]
 hist(log(data1$HA))
+
+plot(log(data1$HA)~I(data1$invT-mean(data$invT)), pch = 19, col = data1$trophic.level)
 
 modHAb <- lmer(log(HA) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data1, REML = FALSE, na.action=na.omit)
 modHAc <- lmer(log(HA) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = FALSE, na.action=na.omit)
-anova(modTCc, modTCb)
+anova(modHAb, modHAc)
 
 modHA0 <- lmer(log(HA) ~ 1 + (I(invT-mean(invT))|week), data=data1, REML = FALSE, na.action=na.omit)
 modHA1 <- lmer(log(HA) ~ 1 + I(invT-mean(invT)) + (I(invT-mean(invT))|week), data=data1, REML = FALSE, na.action=na.omit)
