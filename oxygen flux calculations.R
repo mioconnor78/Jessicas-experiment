@@ -1,5 +1,6 @@
 ### Oxygen data file for correcting for temperature dependence of oxygen exchange with the atmosphere.
 
+# this calculates atmospheric pressure. 
 ln(P) = 5.25 x ln(1-h/44.3)
 
 #atmospheric pressure at our ponds:
@@ -32,7 +33,10 @@ C.star(Pt, p)
 
 ### another version, works well, is simplest: using this one.
 C.star <- function(T) exp(7.7117 - 1.31403*log(T+45.93)) - 0.035
+
 # the -0.035 is an approximate adjustment for elevation
+
+
 C.star(T)
 
 # So the change in oxygen resulting from a change in temperature, following this equation, tells me approximately how much o2 moved for physical reasons. I think I should just subtract this difference from the observed difference, right?

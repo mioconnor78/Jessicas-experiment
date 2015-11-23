@@ -66,7 +66,7 @@ data <- data[data$week >= '4',]
 
 ## Does NPP vary with temperature?  
 ## figures on invT
-data1 <- data[(data$NPP2 >= 0.5),] # three negative values and one very small value now, not sure what to do about them.
+data1 <- data[(data$NPP2 >= 0.3),] # three negative values and one very small value now, not sure what to do about them.
 hist(data[(data$NPP2 >= 0.5),]$NPP2)
 hist(log(data1$NPP2))
 hist(log(data$NPP2))
@@ -92,15 +92,17 @@ modNPP2 <- lmer(log(NPP2) ~ 1 + I(invT-mean(invT)) + trophic.level + (1|week), d
 modNPP4 <- lmer(log(NPP2) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = FALSE, na.action=na.omit)  
 
 model.sel(modNPP0, modNPP1, modNPP2, modNPP4)
-anova(modNPP1, modNPP4)
+anova(modNPP4, modNPP1)
 anova(modNPP1, modNPP2)
-anova(modNPP1, modNPP0)
+anova(modNPP2, modNPP0)
 
 # for model fitting: 
 modNPP1r <- lmer(log(NPP2) ~ 1 + I(invT-mean(invT)) + (1|week), data=data1, REML = TRUE, na.action=na.omit)  
 modNPP2r <- lmer(log(NPP2) ~ 1 + I(invT-mean(invT)) + trophic.level + (1|week), data=data1, REML = TRUE, na.action=na.omit)  
 modNPP4r <- lmer(log(NPP2) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = TRUE, na.action=na.omit)  
 
+summary(modNPP4r)
+confint(modNPP4r)
 
 m.avg <- model.avg(modNPP2r, modNPP4r, modNPP1r)
 summary(m.avg)
@@ -146,11 +148,13 @@ m.avg <- model.avg(modNEM4r, modNEM2r)
 summary(m.avg)
 confint(m.avb)
 
+summary(modNEM4r)
+confint(modNEM4r)
 
 ## Does mass-specific NPP vary with temperature?  
 ## figures  
 ### NPP in umol/L/day per ugC
-data1 <- data[(data$NPP2 >= 0.5),]
+data1 <- data[(data$NPP2 >= 0.3),]
 hist(data1$NPP.mass)
 hist(log(data1$NPP.mass))
 # hist(log(data$NPP.mass+.001)) # no reason to add a number, there are no -inf values.
@@ -227,6 +231,9 @@ m.avg <- model.avg(modER4r, modER2r)
 summary(m.avg)
 confint(m.avg)
 
+summary(modER4r)
+confint(modER4r)
+
 ## Does mass specific ER vary with temperature?  
 ## figures 
 data1 <- data[(data$ER2 >= 0),]
@@ -252,7 +259,7 @@ modERm4 <- lmer(log(ER.mass+1) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week)
 model.sel(modERm0, modERm1, modERm2, modERm4)
 
 # for model fitting: 
-modERm4r <- lmer(log(ER.mass+1) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data1, REML = TRUE, na.action=na.omit) 
+modERm4r <- lmer(log(ER.mass+1) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = TRUE, na.action=na.omit) 
 summary(modERm4r)
 confint(modERm4r)
 
