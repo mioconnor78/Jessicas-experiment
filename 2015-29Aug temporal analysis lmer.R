@@ -367,20 +367,22 @@ modHAb <- lmer(log(HA) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(inv
 modHAc <- lmer(log(HA) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = FALSE, na.action=na.omit)
 anova(modHAb, modHAc)
 
-modHA0 <- lmer(log(HA) ~ 1 + (I(invT-mean(invT))|week), data=data1, REML = FALSE, na.action=na.omit)
-modHA1 <- lmer(log(HA) ~ 1 + I(invT-mean(invT)) + (I(invT-mean(invT))|week), data=data1, REML = FALSE, na.action=na.omit)
-modHA2 <- lmer(log(HA) ~ 1 + I(invT-mean(invT)) + trophic.level + (I(invT-mean(invT))|week), data=data1, REML = FALSE, na.action=na.omit)
-modHA4 <- lmer(log(HA) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data1, REML = FALSE, na.action=na.omit)
+modHA0 <- lmer(log(HA) ~ 1 + (1|week), data=data1, REML = FALSE, na.action=na.omit)
+modHA1 <- lmer(log(HA) ~ 1 + I(invT-mean(invT)) + (1|week), data=data1, REML = FALSE, na.action=na.omit)
+modHA2 <- lmer(log(HA) ~ 1 + I(invT-mean(invT)) + trophic.level + (1|week), data=data1, REML = FALSE, na.action=na.omit)
+modHA4 <- lmer(log(HA) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = FALSE, na.action=na.omit)
 
 model.sel(modHA0, modHA1, modHA2, modHA4)
 anova(modHA2, modHA4)
 anova(modHA2, modHA1)
 
 # for model fitting: 
-modHA4r <- lmer(log(HA) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data1, REML = TRUE, na.action=na.omit)
+modHA4r <- lmer(log(HA) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = TRUE, na.action=na.omit)
 modHA2r <- lmer(log(HA) ~ 1 + I(invT-mean(invT)) + trophic.level + (I(invT-mean(invT))|week), data=data1, REML = TRUE, na.action=na.omit)
 
 m.avg <- model.avg(modHA4r, modHA2r)
 summary(m.avg)
 confint(m.avg)
 
+summary(modHA4r)
+confint(modHA4r)
