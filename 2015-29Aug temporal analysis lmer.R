@@ -1,3 +1,12 @@
+#################################################
+#### Garzke, O'Connor and Sommer temperature experiment
+#### Mixed effects models
+#### Code by Mary O'Connor, revised November 2015
+#################################################
+
+
+#Notes: 
+
 ### MO made a new file on Aug29 from June file when I decided to take week out as a fixed effect, and instead model autocorrelation. 
 
 ### revised this on Nov 17 to redo models in lme4 so i can estimate confidence intervals on coefficients
@@ -60,9 +69,11 @@ data$ER.mass <- data$ER2/(data$M.corrT + data$PP.biomass) # ER on ummol 02/L/day
 data <- data[data$week >= '4',]
 
 
-### data prep complete
+#### data prep complete ####
 
-### ANALYSIS
+
+
+#### ANALYSIS ####
 
 ## Does NPP vary with temperature?  
 ## figures on invT

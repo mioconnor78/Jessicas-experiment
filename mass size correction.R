@@ -1,3 +1,11 @@
+#################################################
+#### Garzke, O'Connor and Sommer temperature experiment
+#### File for creating size-corrected biomass estimates. Necessary for mixed effects models.
+#### Code by Mary O'Connor, revised November 2015
+#################################################
+
+
+
 ### size-corrected biomass analysis
 
 library(plyr)

@@ -1,0 +1,15 @@
+#################################################
+#### Food chain length modifies the effect of temperature on aquatic ecosystems
+#### Garzke, O'Connor and Sommer, in preparation for Ecology Letters
+#### README: guide to code and analyses
+#### Mary O'Connor, revised November 2015
+#################################################
+
+Main analysis file: 
+2015-29Aug temporal analysis lmer file
+
+supporting files: 
+mass size correction
+
+datafiles: 
+[needs updating]
