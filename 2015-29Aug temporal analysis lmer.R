@@ -23,14 +23,23 @@ head(data)
 tail(data)
 data <- data[-(241:255),]
 
-## bring in data file with temperatures at each sampling time
+### weekly average of daily average temps
+tdata <- read.csv("./avgtemps.csv")
+head(tdata)
+temp.data <- ddply(tdata, .(Week, Tank), summarise, mean(Temperature)) 
+head(temp.data)
+names(temp.data) <- c('Week', 'Tank', 'wklyTemp')
+
+data2 <- merge(data, temp.data, by.x = c("week", "Tank"), by.y = c("Week", "Tank"))
+data <- data2
+
 o.data <- read.csv("./oxygen_temp_temporal.csv")
 o.data <- o.data[,-(4:14)]
 o.data <- o.data[,-2]
 head(o.data)
 dim(o.data)
-data2 <- merge(data, o.data, by.x = c("week", "Tank"), by.y = c("week", "Tank"))
-data <- data2
+data4 <- merge(data, o.data, by.x = c("week", "Tank"), by.y = c("week", "Tank"))
+data <- data4
 
 data3 <- merge(data, mass.data, by.x = c("week", "Tank"), by.y = c("week", "tank"), all=TRUE)
 data3[is.na(data3)] <- 0
@@ -39,8 +48,8 @@ data <- data3
 ### load libraries, define variables and add columns
 k <- 8.617342*10^-5  # eV/K
 ## create test temp
-data$temp.t <- (data$average.temp + data$temp.dawn1 + data$temp.dusk)/3
-data$invT <-  1/((data$temp.t + 273)*k)
+# data$temp.t <- (data$average.temp + data$temp.dawn1 + data$temp.dusk)/3
+data$invT <-  1/((data$wklyTemp + 273)*k)
 data$invT <- as.numeric(as.character(data$invT))
 
 data$PP.biomass <- (data$chla*55) #chla (ug/L)* 55 C in PP / 1 chla = ugPPC/L
@@ -185,10 +194,10 @@ modNPPmb <- lmer(log(NPP.mass) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week)
 
 anova(modNPPma, modNPPmb)
 
-modNPPm0 <- lmer(log(NPP.mass) ~ 1 + (1|week), data=data1, REML = FALSE, na.action=na.omit)  
-modNPPm1 <- lmer(log(NPP.mass) ~ 1 + I(invT-mean(invT)) + (1|week), data=data1, REML = FALSE, na.action=na.omit)  
-modNPPm2 <- lmer(log(NPP.mass) ~ 1 + I(invT-mean(invT)) + trophic.level + (1|week), data=data1, REML = FALSE, na.action=na.omit)  
-modNPPm4 <- lmer(log(NPP.mass) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = FALSE, na.action=na.omit)  
+modNPPm0 <- lmer(log(NPP.mass) ~ 1 + (I(invT-mean(invT))|week), data=data1, REML = FALSE, na.action=na.omit)  
+modNPPm1 <- lmer(log(NPP.mass) ~ 1 + I(invT-mean(invT)) + (I(invT-mean(invT))|week), data=data1, REML = FALSE, na.action=na.omit)  
+modNPPm2 <- lmer(log(NPP.mass) ~ 1 + I(invT-mean(invT)) + trophic.level + (I(invT-mean(invT))|week), data=data1, REML = FALSE, na.action=na.omit)  
+modNPPm4 <- lmer(log(NPP.mass) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data1, REML = FALSE, na.action=na.omit)  
 
 model.sel(modNPPm0, modNPPm1, modNPPm2, modNPPm4)
 
@@ -262,15 +271,15 @@ modERmb <- lmer(log(ER.mass+1) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week)
 
 anova(modERma, modERmb)
 
-modERm0 <- lmer(log(ER.mass+1) ~ 1 + (1|week), data=data1, REML = FALSE, na.action=na.omit)  
-modERm1 <- lmer(log(ER.mass+1) ~ 1 + I(invT-mean(invT)) + (1|week), data=data1, REML = FALSE, na.action=na.omit)  
-modERm2 <- lmer(log(ER.mass+1) ~ 1 + I(invT-mean(invT)) + trophic.level + (1|week), data=data1, REML = FALSE, na.action=na.omit)  
-modERm4 <- lmer(log(ER.mass+1) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = FALSE, na.action=na.omit)  
+modERm0 <- lmer(log(ER.mass+1) ~ 1 + (I(invT-mean(invT))|week), data=data1, REML = FALSE, na.action=na.omit)  
+modERm1 <- lmer(log(ER.mass+1) ~ 1 + I(invT-mean(invT)) + (I(invT-mean(invT))|week), data=data1, REML = FALSE, na.action=na.omit)  
+modERm2 <- lmer(log(ER.mass+1) ~ 1 + I(invT-mean(invT)) + trophic.level + (I(invT-mean(invT))|week), data=data1, REML = FALSE, na.action=na.omit)  
+modERm4 <- lmer(log(ER.mass+1) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data1, REML = FALSE, na.action=na.omit)  
 
 model.sel(modERm0, modERm1, modERm2, modERm4)
 
 # for model fitting: 
-modERm4r <- lmer(log(ER.mass+1) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = TRUE, na.action=na.omit) 
+modERm4r <- lmer(log(ER.mass+1) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data1, REML = TRUE, na.action=na.omit) 
 summary(modERm4r)
 confint(modERm4r)
 
