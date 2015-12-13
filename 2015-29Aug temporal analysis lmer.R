@@ -383,7 +383,7 @@ confint(modTC4r)
 data1 <- data[which(data$HA > '0'),]
 data1 <- data1[which(data1$HA < '8'),]
 hist((data1$HA))
-hist(log(data$HA))
+hist(log(data1$HA))
 
 plot(log(data1$HA)~((data1$invT)), pch = 19, col = data1$trophic.level)
 
