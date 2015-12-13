@@ -381,7 +381,8 @@ confint(modTC4r)
 
 #### HA ratio
 data1 <- data[which(data$HA > '0'),]
-hist((data$HA))
+data1 <- data1[which(data1$HA < '8'),]
+hist((data1$HA))
 hist(log(data$HA))
 
 plot(log(data1$HA)~((data1$invT)), pch = 19, col = data1$trophic.level)
@@ -400,7 +401,7 @@ anova(modHA2, modHA4)
 anova(modHA2, modHA1)
 
 # for model fitting: 
-modHA4r <- lmer(log(HA) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data1, REML = TRUE, na.action=na.omit)
+modHA4r <- lmer(log(HA) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = TRUE, na.action=na.omit)
 
 summary(modHA4r)
 confint(modHA4r)
