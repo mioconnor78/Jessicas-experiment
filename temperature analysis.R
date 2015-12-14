@@ -19,7 +19,7 @@ temp.data <- ddply(tdata, .(Week, Tank), summarise, mean(Temperature))
 head(temp.data)
 names(temp.data) <- c('Week', 'Tank', 'wklyTemp')
 
-
+### this is the old way, don't need this now.
 ## bring in data file with temperatures at each sampling time
 o.data <- read.csv("./oxygen_temp_temporal.csv")
 o.data <- o.data[,-(4:14)]
