@@ -24,11 +24,63 @@ names(est.ER) <- c('est', 'se')
 rownames(est.ER) <- c('Intercept', 'ln(T)', '2TL', '3TL', 'T*2TL', 'T*3TL')
 est.ER$slint <- c('I',  'S', 'I', 'I', 'S', 'S')
 est.ER$resp <- c('ER', 'ER','ER','ER','ER','ER')
-est.ER.sl <- est.ER[est.ER$slint == 'S',]
-est.ER.int <- est.ER[est.ER$slint == 'I',]
 
-res <- rbind(est.ER, est.B)
+# NPPM
+modNPPm <- lmer(log(NPP.mass) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data, REML = TRUE, na.action=na.omit)   
+
+est.NPPm <- as.data.frame(as.numeric(round(fixef(modNPPm),2)))
+est.NPPm$se <- as.numeric(round(sqrt(diag(vcov(modNPPm))),2))
+names(est.NPPm) <- c('est', 'se')
+rownames(est.NPPm) <- c('Intercept', 'ln(T)', '2TL', '3TL', 'T*2TL', 'T*3TL')
+est.NPPm$slint <- c('I',  'S', 'I', 'I', 'S', 'S')
+est.NPPm$resp <- c('NPPm', 'NPPm','NPPm','NPPm','NPPm','NPPm')
+
+
+
+## ERm
+modERm <- lmer(log(ER.mass) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = TRUE, na.action=na.omit) 
+
+est.ERm <- as.data.frame(as.numeric(round(fixef(modERm),2)))
+est.ERm$se <- as.numeric(round(sqrt(diag(vcov(modERm))),2))
+names(est.ERm) <- c('est', 'se')
+rownames(est.ERm) <- c('Intercept', 'ln(T)', '2TL', '3TL', 'T*2TL', 'T*3TL')
+est.ERm$slint <- c('I',  'S', 'I', 'I', 'S', 'S')
+est.ERm$resp <- c('ERm', 'ERm','ERm','ERm','ERm','ERm')
+
+## NEM
+modNEM <- lmer(log(NEM + .1) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data, REML = TRUE, na.action=na.omit)
+
+est.NEM <- as.data.frame(as.numeric(round(fixef(modNEM),2)))
+est.NEM$se <- as.numeric(round(sqrt(diag(vcov(modNEM))),2))
+names(est.NEM) <- c('est', 'se')
+rownames(est.NEM) <- c('Intercept', 'ln(T)', '2TL', '3TL', 'T*2TL', 'T*3TL')
+est.NEM$slint <- c('I',  'S', 'I', 'I', 'S', 'S')
+est.NEM$resp <- c('NEM', 'NEM','NEM','NEM','NEM','NEM')
+
+#PP
+modPP <- lmer(log(PP.biomass) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data, REML = TRUE, na.action=na.omit)
+
+est.PP <- as.data.frame(as.numeric(round(fixef(modPP),2)))
+est.PP$se <- as.numeric(round(sqrt(diag(vcov(modPP))),2))
+names(est.PP) <- c('est', 'se')
+rownames(est.PP) <- c('Intercept', 'ln(T)', '2TL', '3TL', 'T*2TL', 'T*3TL')
+est.PP$slint <- c('I',  'S', 'I', 'I', 'S', 'S')
+est.PP$resp <- c('P.Biomass', 'P.Biomass','P.Biomass','P.Biomass','P.Biomass','P.Biomass')
+
+#Total Carbon
+modTC <- lmer(log(total.carbon) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data, REML = TRUE, na.action=na.omit)
+
+est.TC <- as.data.frame(as.numeric(round(fixef(modTC),2)))
+est.TC$se <- as.numeric(round(sqrt(diag(vcov(modTC))),2))
+names(est.TC) <- c('est', 'se')
+rownames(est.TC) <- c('Intercept', 'ln(T)', '2TL', '3TL', 'T*2TL', 'T*3TL')
+est.TC$slint <- c('I',  'S', 'I', 'I', 'S', 'S')
+est.TC$resp <- c('Total Biomass', 'Total Biomass','Total Biomass','Total Biomass','Total Biomass','Total Biomass')
+
+## put them all together
+res <- rbind(est.ER, est.B, est.NPPm, est.ERm, est.NEM, est.PP, est.TC)
 res.sl <- res[res$slint == 'S',]
+res.sl$trt <- rep(c('1TL', '2TL', '3TL'))
 res.int <- res[res$slint == 'I',]
 
 ### two-paneled figure
@@ -44,31 +96,51 @@ par(
 #SLOPES
 par(mar=(c(5,9,4,2))) #pin = c(2.3, 3.5), 
 plot(NULL,                                
-     xlim = c(-1.0, 1),                        	
+     xlim = c(-2.5, 2),                        	
      ylim = c(0, length(res.sl[,1]) + .3), 	
      axes = F, xlab = NA, ylab = NA, cex = 0.8)
 
 # add the data
-ests <- as.numeric(res.sl[,1])
-ses <- as.numeric(res.sl[,2])
-var.names<-rownames(res.sl)
-var.namesi<-rownames(res.int)
+ests.1 <- as.numeric(res.sl[,1]) #res.sl$trt == '1TL'
+#ests.2 <- as.numeric(res.sl[res.sl$trt == '2TL',1])
+#ests.3 <- as.numeric(res.sl[res.sl$trt == '3TL',1])
+ses.1 <- as.numeric(res.sl[,2]) #
+#ses.2 <- as.numeric(res.sl[res.sl$trt == '2TL',2])
+#ses.3 <- as.numeric(res.sl[res.sl$trt == '3TL',2])
+var.names <- res.sl$trt
+var.namesi <- rownames(res.int)
 
 for (i in 1:length(ests)) {                                            
-  points(ests[i], i, pch = 19, cex = 1.2, col = 1) 
-  lines(c(ests[i] + 1.96*ses[i], ests[i] - 1.96*ses[i]), c(i, i), col = 1, lwd = 2)
-  #points(ests.Ba[i], i+2*b, pch = 19, cex = 1.2, col = 'gray50') 
-  #lines(c(ests.Ba[i] + 1.96*ses.Ba[i], ests.Ba[i] - 1.96*ses.Ba[i]), c(i+2*b, i+2*b), col = 'gray50', lwd = 2)
-  text(-1.2, i, adj = c(1,0), var.names[i], xpd = T, cex = .8)        # add the variable names
-  text(1, length(res.sl[,1]) + .3, 'B', cex = 1.2)
+  points(ests.1[i], i, pch = 19, cex = 1.2, col = 1)
+  #points(ests.2[i], i, pch = 19, cex = 1.2, col = 'gray80')
+  #points(ests.3[i], i, pch = 19, cex = 1.2, col = 'gray60')
+  lines(c(ests.1[i] + 1.96*ses.1[i], ests.1[i] - 1.96*ses.1[i]), c(i, i), col = 1, lwd = 2)
+  #lines(c(ests.2[i] + 1.96*ses.2[i], ests.2[i] - 1.96*ses.2[i]), c(i, i), col = 1, lwd = 2)
+  #lines(c(ests.3[i] + 1.96*ses.3[i], ests.3[i] - 1.96*ses.3[i]), c(i, i), col = 1, lwd = 2)
+  text(-2.8, i, adj = c(1,0), var.names[i], xpd = T, cex = .8)      # add the variable names
+  text(2, length(res.sl[,1]) + .3, 'B', cex = 1.2)
+  text(-2.5, 3, 'NPP', adj = 0, cex = 0.8)
+  text(-2.5, 6, 'ER', adj = 0, cex = 0.8)
+  text(-2.5, 9, 'NPP/Mb', adj = 0, cex = 0.8)
+  text(-2.5, 12, 'ER/Mt', adj = 0, cex = 0.8)
+  text(-2.5, 15, 'NEM', adj = 0, cex = 0.8)
+  text(-2.5, 18, 'Phytoplankton biomass', adj = 0, cex = 0.8)
+  text(-2.5, 21, 'Total biomass', adj = 0, cex = 0.8)
 }
 
 # add axes and labels
 axis(side = 1)                                                                                         
-abline(v = 0, lty = 3, col = "grey40")     
-abline(v = -0.65, lty = 3, col = "grey40") 
-abline(v = -0.32, lty = 3, col = "grey40") 
+abline(v = 0, lty = 2, col = "grey40")     
+abline(v = -0.65, lty = 1, col = "grey40") 
+abline(v = -0.32, lty = 1, col = "grey40") 
+abline(v = 0.65, lty = 1, col = "grey40") 
+abline(v = 0.32, lty = 1, col = "grey40")
 abline(h = 3.5, lty = 3, col = 'grey40')
+abline(h = 6.5, lty = 3, col = 'grey40')
+abline(h = 9.5, lty = 3, col = 'grey40')
+abline(h = 12.5, lty = 3, col = 'grey40')
+abline(h = 15.5, lty = 3, col = 'grey40')
+abline(h = 18.5, lty = 3, col = 'grey40')
 mtext(side = 1, "Slope coefficients", line = 3)                                              
 mtext(side = 3, "", line = 1, cex = 0.8)   # add title
 box()                                          
