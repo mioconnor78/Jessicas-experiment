@@ -1,5 +1,8 @@
 ## making a figure for slopes only
 
+## maybe standardized coefficients? review what these are, and whether activation energy can be easily inferred. 
+## if we wanted this plot to be activation energies with confidence intervals, then i have to get slopes for the T x TL interactions. not sure how to do that. could maybe do it by taking the mean and ci for each week... but that's no right.
+
 #modNPP4r
 modNPP <- lmer(log(NPP2) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data, REML = TRUE, na.action=na.omit)  #modNPP4r
 
@@ -10,11 +13,9 @@ names(est.B) <- c('est', 'se')
 rownames(est.B) <- c('Intercept', 'ln(T)', '2TL', '3TL', 'T*2TL', 'T*3TL')
 est.B$slint <- c('I',  'S', 'I', 'I', 'S', 'S')
 est.B$resp <- c('NPP', 'NPP','NPP','NPP','NPP','NPP')
-est.B.sl <- est.B[est.B$slint == 'S',]
-est.B.int <- est.B[est.B$slint == 'I',]
 
 #ER
-modER4r <- lmer(log(ER2) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = TRUE, na.action=na.omit)
+modER4r <- lmer(log(ER2) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data[(data$ER2 >= 0),], REML = TRUE, na.action=na.omit)
 modER <- modER4r
 
 # create data for best model estimates
@@ -24,6 +25,7 @@ names(est.ER) <- c('est', 'se')
 rownames(est.ER) <- c('Intercept', 'ln(T)', '2TL', '3TL', 'T*2TL', 'T*3TL')
 est.ER$slint <- c('I',  'S', 'I', 'I', 'S', 'S')
 est.ER$resp <- c('ER', 'ER','ER','ER','ER','ER')
+
 
 # NPPM
 modNPPm <- lmer(log(NPP.mass) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data, REML = TRUE, na.action=na.omit)   
@@ -38,7 +40,7 @@ est.NPPm$resp <- c('NPPm', 'NPPm','NPPm','NPPm','NPPm','NPPm')
 
 
 ## ERm
-modERm <- lmer(log(ER.mass) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = TRUE, na.action=na.omit) 
+modERm <- lmer(log(ER.mass) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data[(data$ER2 >= 0),], REML = TRUE, na.action=na.omit) 
 
 est.ERm <- as.data.frame(as.numeric(round(fixef(modERm),2)))
 est.ERm$se <- as.numeric(round(sqrt(diag(vcov(modERm))),2))
@@ -78,7 +80,7 @@ est.TC$slint <- c('I',  'S', 'I', 'I', 'S', 'S')
 est.TC$resp <- c('Total Biomass', 'Total Biomass','Total Biomass','Total Biomass','Total Biomass','Total Biomass')
 
 ## put them all together
-res <- rbind(est.ER, est.B, est.NPPm, est.ERm, est.NEM, est.PP, est.TC)
+res <- rbind(est.B, est.ER, est.NPPm, est.ERm, est.NEM, est.PP, est.TC)
 res.sl <- res[res$slint == 'S',]
 res.sl$trt <- rep(c('1TL', '2TL', '3TL'))
 res.int <- res[res$slint == 'I',]
@@ -110,7 +112,7 @@ ses.1 <- as.numeric(res.sl[,2]) #
 var.names <- res.sl$trt
 var.namesi <- rownames(res.int)
 
-for (i in 1:length(ests)) {                                            
+for (i in 1:length(ests.1)) {                                            
   points(ests.1[i], i, pch = 19, cex = 1.2, col = 1)
   #points(ests.2[i], i, pch = 19, cex = 1.2, col = 'gray80')
   #points(ests.3[i], i, pch = 19, cex = 1.2, col = 'gray60')
@@ -144,6 +146,10 @@ abline(h = 18.5, lty = 3, col = 'grey40')
 mtext(side = 1, "Slope coefficients", line = 3)                                              
 mtext(side = 3, "", line = 1, cex = 0.8)   # add title
 box()                                          
+
+
+
+
 
 ### INTERCEPTS
 par(mar=c(5,8,4,4))  #pin = c(2.3, 3.5)), but this doesn't seem to work with mar
