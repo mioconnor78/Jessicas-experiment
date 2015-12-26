@@ -4,9 +4,7 @@
 
 ## So in practice: get the estimate (fixed + random) for each tank at each time; then take the means (and SEMs), and plot those in this figure.
 
-# need an indentifier for each week x TL
-data$ID <- paste(data$week, data$trophic.level, sep = '.')
-
+############
 #modNPP4r
 modNPP <- lmer(log(NPP2) ~ 1 + I(invT-mean(invT))*trophic.level + (1 + I(invT-mean(invT))|week), data=data, REML = TRUE, na.action=na.omit)  #modNPP4r
 
@@ -25,15 +23,6 @@ S$TL.term <- ifelse(S$TL == 'PZN', (S$I.invT...mean.invT.. + S$I.invT...mean.inv
 ranefs <- data.frame(ranef(modNPP)$week[,2])
 ranefs$week <- as.numeric(rownames(ranefs))+3
 S2 <- merge(S, ranefs, by.x = 'Week', by.y = 'week', all= FALSE)
-
-## still need this?
-b <- as.numeric(fixef(modNPP)[2])
-
-## estimating weekly slopes for models with no random slopes
-S2$slope <- (S2$TL.term + S2$ranef.modNPP..week...2.)
-S2$slope.se <- sd(ranefs[1])/sqrt(length(ranefs[1]))
-
-summary(S2$slope)
 
 ## summary with appropriate number of observations: 
 NPP.TL <- ddply(S2, .(Week, TL), summarize, mean(TL.term))
@@ -70,15 +59,6 @@ ranefs <- data.frame(ranef(modER4r)$week[,2])
 ranefs$week <- as.numeric(rownames(ranefs))+3
 S2 <- merge(S, ranefs, by.x = 'Week', by.y = 'week', all= FALSE)
 
-## estimating weekly slopes for models with no random slopes
-S2$slope <- (S2$TL.term + S2$ranef.modER4r..week...2.)
-#S2$slope.se <- sd(ranefs[1])/sqrt(length(ranefs[1]))
-
-summary(S2$slope)
-
-## still need this?
-b <- as.numeric(fixef(modER4r)[2])
-
 ## summary with appropriate number of observations: 
 ER.TL <- ddply(S2, .(Week, TL), summarize, mean(TL.term))
 ER.ranefs <- ddply(S2, .(Week, TL), summarize, mean(ranef.modER4r..week...2.))
@@ -91,18 +71,156 @@ Ea.sumER <- ddply(ER.S, .(TL), summarize, mean(Ea))
 Ea.sumER2 <- ddply(ER.S, .(TL), summarize, se(Ea))
 Ea.sumERs <- merge(Ea.sumER, Ea.sumER2, by = 'TL')
 
-### merge ERs
-Ea.sum <- rbind(Ea.sumNPPs, Ea.sumERs)
+
+## repeat for NPPm
+#################
+
+#modNPPm4r
+modNPPm4r <- lmer(log(NPP.mass) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data, REML = TRUE, na.action=na.omit)
+
+rand.cat <- ddply(data, .(week, Tank, ID, invT, trophic.level), summarize, mean(NPP.mass))
+names(rand.cat) <- c('Week', 'Tank', 'ID', 'invT','TL', 'ER2')
+Entry.coefs <- data.frame(coef(modNPPm4r)$week) #
+Entry.coefs$week <- rownames(Entry.coefs)
+S <- merge(rand.cat, Entry.coefs, by.x = 'Week', by.y = 'week', all = FALSE)
+
+## construct predicted slopes for trophic groups
+S$TL.term <- ifelse(S$TL == 'P', S$I.invT...mean.invT.., 0)
+S$TL.term <- ifelse(S$TL == 'PZ', (S$I.invT...mean.invT.. + S$I.invT...mean.invT...trophic.levelPZ), S$TL.term)
+S$TL.term <- ifelse(S$TL == 'PZN', (S$I.invT...mean.invT.. + S$I.invT...mean.invT...trophic.levelPZN), S$TL.term)
+
+#add week ranefs
+ranefs <- data.frame(ranef(modNPPm4r)$week[,2])
+ranefs$week <- as.numeric(rownames(ranefs))+3
+S2 <- merge(S, ranefs, by.x = 'Week', by.y = 'week', all= FALSE)
+
+## summary with appropriate number of observations: 
+NPPm.TL <- ddply(S2, .(Week, TL), summarize, mean(TL.term))
+NPPm.ranefs <- ddply(S2, .(Week, TL), summarize, mean(ranef.modNPPm4r..week...2.))
+NPPm.S <- merge(NPPm.TL, NPPm.ranefs, by = c('Week', 'TL'), all= FALSE)
+NPPm.S$Ea <- NPPm.S$..1.x + NPPm.S$..1.y
+
+se <- function(x) sd(x)/sqrt(length(x))
+
+Ea.sumNPPm <- ddply(NPPm.S, .(TL), summarize, mean(Ea))
+Ea.sumNPPm2 <- ddply(NPPm.S, .(TL), summarize, se(Ea))
+Ea.sumNPPms <- merge(Ea.sumNPPm, Ea.sumNPPm2, by = 'TL')
+
+
+## repeat for ERm
+#################
+
+#modERm4r
+modERm4r <- lmer(log(ER.mass) ~ 1 + I(invT-mean(invT))*trophic.level + (1 + I(invT-mean(invT))|week), data=data[(data$ER2 >= 0),], REML = TRUE, na.action=na.omit) 
+
+rand.cat <- ddply(data, .(week, Tank, ID, invT, trophic.level), summarize, mean(ER.mass))
+names(rand.cat) <- c('Week', 'Tank', 'ID', 'invT','TL', 'ER2')
+Entry.coefs <- data.frame(coef(modERm4r)$week) #
+Entry.coefs$week <- rownames(Entry.coefs)
+S <- merge(rand.cat, Entry.coefs, by.x = 'Week', by.y = 'week', all = FALSE)
+
+## construct predicted slopes for trophic groups
+S$TL.term <- ifelse(S$TL == 'P', S$I.invT...mean.invT.., 0)
+S$TL.term <- ifelse(S$TL == 'PZ', (S$I.invT...mean.invT.. + S$I.invT...mean.invT...trophic.levelPZ), S$TL.term)
+S$TL.term <- ifelse(S$TL == 'PZN', (S$I.invT...mean.invT.. + S$I.invT...mean.invT...trophic.levelPZN), S$TL.term)
+
+#add week ranefs
+ranefs <- data.frame(ranef(modERm4r)$week[,2])
+ranefs$week <- as.numeric(rownames(ranefs))+3
+S2 <- merge(S, ranefs, by.x = 'Week', by.y = 'week', all= FALSE)
+
+## summary with appropriate number of observations: 
+ERm.TL <- ddply(S2, .(Week, TL), summarize, mean(TL.term))
+ERm.ranefs <- ddply(S2, .(Week, TL), summarize, mean(ranef.modERm4r..week...2.))
+ERm.S <- merge(ERm.TL, ERm.ranefs, by = c('Week', 'TL'), all= FALSE)
+ERm.S$Ea <- ERm.S$..1.x + ERm.S$..1.y
+
+se <- function(x) sd(x)/sqrt(length(x))
+
+Ea.sumERm <- ddply(ERm.S, .(TL), summarize, mean(Ea))
+Ea.sumERm2 <- ddply(ERm.S, .(TL), summarize, se(Ea))
+Ea.sumERms <- merge(Ea.sumERm, Ea.sumERm2, by = 'TL')
+
+
+#modBBr
+modPP4r <- lmer(log(PP.biomass) ~ 1 + I(invT-mean(invT))*trophic.level + (1 + I(invT-mean(invT))|week), data=data, REML = TRUE, na.action=na.omit)
+
+rand.cat <- ddply(data, .(week, Tank, ID, invT, trophic.level), summarize, mean(PP.biomass))
+names(rand.cat) <- c('Week', 'Tank', 'ID', 'invT','TL', 'ER2')
+Entry.coefs <- data.frame(coef(modPP4r)$week) #
+Entry.coefs$week <- rownames(Entry.coefs)
+S <- merge(rand.cat, Entry.coefs, by.x = 'Week', by.y = 'week', all = FALSE)
+
+## construct predicted slopes for trophic groups
+S$TL.term <- ifelse(S$TL == 'P', S$I.invT...mean.invT.., 0)
+S$TL.term <- ifelse(S$TL == 'PZ', (S$I.invT...mean.invT.. + S$I.invT...mean.invT...trophic.levelPZ), S$TL.term)
+S$TL.term <- ifelse(S$TL == 'PZN', (S$I.invT...mean.invT.. + S$I.invT...mean.invT...trophic.levelPZN), S$TL.term)
+
+#add week ranefs
+ranefs <- data.frame(ranef(modPP4r)$week[,2])
+ranefs$week <- as.numeric(rownames(ranefs))+3
+S2 <- merge(S, ranefs, by.x = 'Week', by.y = 'week', all= FALSE)
+
+## summary with appropriate number of observations: 
+PBm.TL <- ddply(S2, .(Week, TL), summarize, mean(TL.term))
+PBm.ranefs <- ddply(S2, .(Week, TL), summarize, mean(ranef.modPP4r..week...2.))
+PBm.S <- merge(PBm.TL, PBm.ranefs, by = c('Week', 'TL'), all= FALSE)
+PBm.S$Ea <- PBm.S$..1.x + PBm.S$..1.y
+
+se <- function(x) sd(x)/sqrt(length(x))
+
+Ea.sumPBm <- ddply(PBm.S, .(TL), summarize, mean(Ea))
+Ea.sumPBm2 <- ddply(PBm.S, .(TL), summarize, se(Ea))
+Ea.sumPBms <- merge(Ea.sumPBm, Ea.sumPBm2, by = 'TL')
+
+###################
+#modTCr
+modTC4r <- lmer(log(total.carbon) ~ 1 + I(invT-mean(invT))*trophic.level + (1 + I(invT-mean(invT))|week), data=data, REML = TRUE, na.action=na.omit)
+
+rand.cat <- ddply(data, .(week, Tank, ID, invT, trophic.level), summarize, mean(total.carbon))
+names(rand.cat) <- c('Week', 'Tank', 'ID', 'invT','TL', 'ER2')
+Entry.coefs <- data.frame(coef(modTC4r)$week) #
+Entry.coefs$week <- rownames(Entry.coefs)
+S <- merge(rand.cat, Entry.coefs, by.x = 'Week', by.y = 'week', all = FALSE)
+
+## construct predicted slopes for trophic groups
+S$TL.term <- ifelse(S$TL == 'P', S$I.invT...mean.invT.., 0)
+S$TL.term <- ifelse(S$TL == 'PZ', (S$I.invT...mean.invT.. + S$I.invT...mean.invT...trophic.levelPZ), S$TL.term)
+S$TL.term <- ifelse(S$TL == 'PZN', (S$I.invT...mean.invT.. + S$I.invT...mean.invT...trophic.levelPZN), S$TL.term)
+
+#add week ranefs
+ranefs <- data.frame(ranef(modTC4r)$week[,2])
+ranefs$week <- as.numeric(rownames(ranefs))+3
+S2 <- merge(S, ranefs, by.x = 'Week', by.y = 'week', all= FALSE)
+
+## summary with appropriate number of observations: 
+TC.TL <- ddply(S2, .(Week, TL), summarize, mean(TL.term))
+TC.ranefs <- ddply(S2, .(Week, TL), summarize, mean(ranef.modTC4r..week...2.))
+TC.S <- merge(TC.TL, TC.ranefs, by = c('Week', 'TL'), all= FALSE)
+TC.S$Ea <- TC.S$..1.x + TC.S$..1.y
+
+se <- function(x) sd(x)/sqrt(length(x))
+
+Ea.sumTC <- ddply(TC.S, .(TL), summarize, mean(Ea))
+Ea.sumTC2 <- ddply(TC.S, .(TL), summarize, se(Ea))
+Ea.sumTCs <- merge(Ea.sumTC, Ea.sumTC2, by = 'TL')
+
+
+
+
+### merge Eas
+row <- c('','','')
+Ea.sum <- rbind(Ea.sumNPPs, row, Ea.sumERs, row, Ea.sumNPPms, row, Ea.sumERms, row, Ea.sumPBms, row, Ea.sumTCs, row)
 
 
 ### FIGURE
-pdf(file = "figure 1B.pdf", width = 7.5, height = 4)
+pdf(file = "figure 1B.pdf", width = 7, height = 5)
 
 #SLOPES
 par(mar=(c(5,9,4,2))) #pin = c(2.3, 3.5), 
 plot(NULL,                                
-     xlim = c(-2.5, 2),                        	
-     ylim = c(0, length(res.sl[,1]) + .3), 	
+     xlim = c(-4, 3),                        	
+     ylim = c(0, length(Ea.sum[,1]) + .3), 	
      axes = F, xlab = NA, ylab = NA, cex = 0.8)
 
 # add the data
@@ -113,14 +231,14 @@ var.names <- Ea.sum$TL
 for (i in 1:length(ests.1)) {                                            
   points(ests.1[i], i, pch = 19, cex = 1.2, col = 1)
   lines(c(ests.1[i] + 1.96*ses.1[i], ests.1[i] - 1.96*ses.1[i]), c(i, i), col = 1, lwd = 2)
-  text(-2.8, i, adj = c(1,0), var.names[i], xpd = T, cex = .8)      # add the variable names
-  text(2, length(res.sl[,1]) + .3, 'B', cex = 1.2)
-  text(-2.5, 3, 'NPP', adj = 0, cex = 0.8)
-  text(-2.5, 6, 'ER', adj = 0, cex = 0.8)
-  #text(-2.5, 9, 'NPP/Mb', adj = 0, cex = 0.8)
-  #text(-2.5, 12, 'ER/Mt', adj = 0, cex = 0.8)
-  #text(-2.5, 15, 'NEM', adj = 0, cex = 0.8)
-  #text(-2.5, 18, 'Phytoplankton biomass', adj = 0, cex = 0.8)
+  text(-4.5, i, adj = c(1,0), var.names[i], xpd = T, cex = .8)      # add the variable names
+  text(3, length(Ea.sum[,1]) + .3, 'B', cex = 1.2)
+  text(-4, 3, 'NPP', adj = 0, cex = 0.8)
+  text(-4, 7, 'ER', adj = 0, cex = 0.8)
+  text(-4, 11, 'NPP/Mb', adj = 0, cex = 0.8)
+  text(-4, 15, 'ER/Mt', adj = 0, cex = 0.8)
+  text(-4, 19, 'Phytoplankton biomass', adj = 0, cex = 0.8)
+  text(-4, 23, 'Total biomass', adj = 0, cex = 0.8)
   #text(-2.5, 21, 'Total biomass', adj = 0, cex = 0.8)
 }
 
@@ -131,12 +249,11 @@ abline(v = -0.65, lty = 1, col = "grey40")
 abline(v = -0.32, lty = 1, col = "grey40") 
 abline(v = 0.65, lty = 1, col = "grey40") 
 abline(v = 0.32, lty = 1, col = "grey40")
-abline(h = 3.5, lty = 3, col = 'grey40')
-abline(h = 6.5, lty = 3, col = 'grey40')
-abline(h = 9.5, lty = 3, col = 'grey40')
-abline(h = 12.5, lty = 3, col = 'grey40')
-abline(h = 15.5, lty = 3, col = 'grey40')
-abline(h = 18.5, lty = 3, col = 'grey40')
+abline(h = 4, lty = 3, col = 'grey40')
+abline(h = 8, lty = 3, col = 'grey40')
+abline(h = 12, lty = 3, col = 'grey40')
+abline(h = 16, lty = 3, col = 'grey40')
+abline(h = 20, lty = 3, col = 'grey40')
 mtext(side = 1, "Activation energies (Ea)", line = 3)                                              
 mtext(side = 3, "", line = 1, cex = 0.8)   # add title
 box()                                          
@@ -144,42 +261,4 @@ box()
 dev.off()
 
 
-
-### INTERCEPTS
-par(mar=c(5,8,4,4))  #pin = c(2.3, 3.5)), but this doesn't seem to work with mar
-plot(NULL,                                
-     xlim = c(-6, 6),                          
-     ylim = c(.7, length(est.B.int[,1]) + .3), 	
-     axes = F, xlab = NA, ylab = NA)
-
-# add the data
-#est <- as.numeric(est.int[,1]) 
-#se <- as.numeric(est.int[,2] )                                         
-ests.B <- as.numeric(est.B.int[,1])
-ses.B <- as.numeric(est.B.int[,2])
-#ests.Ba <- as.numeric(est.Ba.int[,1])
-#ses.Ba <- as.numeric(est.Ba.int[,2])
-var.names<-rownames(est.B.int)
-
-b <- 0
-for (i in 1:length(ests.B)) {                                            
-  #points(est[i], i, pch = 19, cex = 1.2)                              
-  #lines(c(est[i] + 1.96*se[i], est[i] - 1.96*se[i]), c(i, i), lwd = 2)  
-  points(ests.B[i], i+b, pch = 19, cex = 1.2, col = 1) 
-  lines(c(ests.B[i] + 1.96*ses.B[i], ests.B[i] - 1.96*ses.B[i]), c(i+b, i+b), col = 1, lwd = 2)
-  #lines(c(ests.Ba[i] + 1.96*ses.Ba[i], ests.Ba[i] - 1.96*ses.Ba[i]), c(i+2*b, i+2*b), col = 'gray50', lwd = 2)
-  #points(ests.Ba[i], i+2*b, pch = 19, cex = 1.2, col = 'gray50')   # add 95% CIs
-  text(-7, i, adj = c(1,0), var.namesi[i], xpd = T, cex = .8)        # add the variable names
-  text(5.5, length(est.B.int[,1])+ 0.2, 'C', cex = 1.2)
-}
-
-# add axes and labels
-axis(side = 1, at = c(-6, 0, 6))
-#axis(side = 2, pos = -2)
-abline(v = 0, lty = 3, col = "grey40")                                                                   
-mtext(side = 1, "Intercept coefficients", line = 3)                                              
-mtext(side = 3, "", line = 1, cex = 0.8)   # add title
-box()                    
-
-dev.off()
 
