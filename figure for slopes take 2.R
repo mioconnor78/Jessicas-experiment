@@ -10,12 +10,9 @@ data$ID <- paste(data$week, data$trophic.level, sep = '.')
 #modNPP4r
 modNPP <- lmer(log(NPP2) ~ 1 + I(invT-mean(invT))*trophic.level + (1 + I(invT-mean(invT))|week), data=data, REML = TRUE, na.action=na.omit)  #modNPP4r
 
-# get fixed effect coefficient estimates for each tank
-mod <- modNPP
-
 rand.cat <- ddply(data, .(week, Tank, ID, invT, trophic.level), summarize, mean(NPP2))
 names(rand.cat) <- c('Week', 'Tank', 'ID', 'invT','TL', 'NPP2')
-Entry.coefs <- data.frame(coef(mod)$week) #
+Entry.coefs <- data.frame(coef(modNPP)$week) #
 Entry.coefs$week <- rownames(Entry.coefs)
 S <- merge(rand.cat, Entry.coefs, by.x = 'Week', by.y = 'week', all = FALSE)
 
@@ -25,30 +22,77 @@ S$TL.term <- ifelse(S$TL == 'PZ', (S$I.invT...mean.invT.. + S$I.invT...mean.invT
 S$TL.term <- ifelse(S$TL == 'PZN', (S$I.invT...mean.invT.. + S$I.invT...mean.invT...trophic.levelPZN), S$TL.term)
 
 #add week ranefs
-ranefs <- data.frame(ranef(mod)$week[,2])
+ranefs <- data.frame(ranef(modNPP)$week[,2])
 ranefs$week <- as.numeric(rownames(ranefs))+3
 S2 <- merge(S, ranefs, by.x = 'Week', by.y = 'week', all= FALSE)
 
 ## still need this?
-b <- as.numeric(fixef(mod)[2])
+b <- as.numeric(fixef(modNPP)[2])
 
 ## estimating weekly slopes for models with no random slopes
-S2$slope <- (S2$TL.term + S2$ranef.mod..week...2.)
-S2$slope.se <- st.dev(ranefs[1])/sqrt(length(ranefs[1]))
+S2$slope <- (S2$TL.term + S2$ranef.modNPP..week...2.)
+S2$slope.se <- sd(ranefs[1])/sqrt(length(ranefs[1]))
 
 summary(S2$slope)
 
 ## summary with appropriate number of observations: 
 NPP.TL <- ddply(S2, .(Week, TL), summarize, mean(TL.term))
-NPP.ranefs <- ddply(S2, .(Week, TL), summarize, mean(ranef.mod..week...2.))
+NPP.ranefs <- ddply(S2, .(Week, TL), summarize, mean(ranef.modNPP..week...2.))
 NPP.S <- merge(NPP.TL, NPP.ranefs, by = c('Week', 'TL'), all= FALSE)
 NPP.S$Ea <- NPP.S$..1.x + NPP.S$..1.y
 
 se <- function(x) sd(x)/sqrt(length(x))
 
-Ea.sum <- ddply(NPP.S, .(TL), summarize, mean(Ea))
-Ea.sum2 <- ddply(NPP.S, .(TL), summarize, se(Ea))
-Ea.sums <- merge(Ea.sum, Ea.sum2, by = 'TL')
+Ea.sumNPP <- ddply(NPP.S, .(TL), summarize, mean(Ea))
+Ea.sumNPP2 <- ddply(NPP.S, .(TL), summarize, se(Ea))
+Ea.sumNPPs <- merge(Ea.sumNPP, Ea.sumNPP2, by = 'TL')
+
+
+## repeat for ES
+#################
+
+#modERr
+modER4r <- lmer(log(ER2) ~ 1 + I(invT-mean(invT))*trophic.level + (1 + I(invT-mean(invT))|week), data=data[(data$ER2 >= 0),], REML = TRUE, na.action=na.omit)
+
+rand.cat <- ddply(data, .(week, Tank, ID, invT, trophic.level), summarize, mean(ER2))
+names(rand.cat) <- c('Week', 'Tank', 'ID', 'invT','TL', 'ER2')
+Entry.coefs <- data.frame(coef(modER4r)$week) #
+Entry.coefs$week <- rownames(Entry.coefs)
+S <- merge(rand.cat, Entry.coefs, by.x = 'Week', by.y = 'week', all = FALSE)
+
+## construct predicted slopes for trophic groups
+S$TL.term <- ifelse(S$TL == 'P', S$I.invT...mean.invT.., 0)
+S$TL.term <- ifelse(S$TL == 'PZ', (S$I.invT...mean.invT.. + S$I.invT...mean.invT...trophic.levelPZ), S$TL.term)
+S$TL.term <- ifelse(S$TL == 'PZN', (S$I.invT...mean.invT.. + S$I.invT...mean.invT...trophic.levelPZN), S$TL.term)
+
+#add week ranefs
+ranefs <- data.frame(ranef(modER4r)$week[,2])
+ranefs$week <- as.numeric(rownames(ranefs))+3
+S2 <- merge(S, ranefs, by.x = 'Week', by.y = 'week', all= FALSE)
+
+## estimating weekly slopes for models with no random slopes
+S2$slope <- (S2$TL.term + S2$ranef.modER4r..week...2.)
+#S2$slope.se <- sd(ranefs[1])/sqrt(length(ranefs[1]))
+
+summary(S2$slope)
+
+## still need this?
+b <- as.numeric(fixef(modER4r)[2])
+
+## summary with appropriate number of observations: 
+ER.TL <- ddply(S2, .(Week, TL), summarize, mean(TL.term))
+ER.ranefs <- ddply(S2, .(Week, TL), summarize, mean(ranef.modER4r..week...2.))
+ER.S <- merge(ER.TL, ER.ranefs, by = c('Week', 'TL'), all= FALSE)
+ER.S$Ea <- ER.S$..1.x + ER.S$..1.y
+
+se <- function(x) sd(x)/sqrt(length(x))
+
+Ea.sumER <- ddply(ER.S, .(TL), summarize, mean(Ea))
+Ea.sumER2 <- ddply(ER.S, .(TL), summarize, se(Ea))
+Ea.sumERs <- merge(Ea.sumER, Ea.sumER2, by = 'TL')
+
+### merge ERs
+Ea.sum <- rbind(Ea.sumNPPs, Ea.sumERs)
 
 
 ### FIGURE
@@ -62,31 +106,22 @@ plot(NULL,
      axes = F, xlab = NA, ylab = NA, cex = 0.8)
 
 # add the data
-ests.1 <- as.numeric(Ea.sums[,2]) #res.sl$trt == '1TL'
-#ests.2 <- as.numeric(res.sl[res.sl$trt == '2TL',1])
-#ests.3 <- as.numeric(res.sl[res.sl$trt == '3TL',1])
-ses.1 <- as.numeric(Ea.sums[,3]) #
-#ses.2 <- as.numeric(res.sl[res.sl$trt == '2TL',2])
-#ses.3 <- as.numeric(res.sl[res.sl$trt == '3TL',2])
-var.names <- Ea.sums$TL
-#var.namesi <- rownames(res.int)
+ests.1 <- as.numeric(Ea.sum[,2]) #res.sl$trt == '1TL'
+ses.1 <- as.numeric(Ea.sum[,3]) #
+var.names <- Ea.sum$TL
 
 for (i in 1:length(ests.1)) {                                            
   points(ests.1[i], i, pch = 19, cex = 1.2, col = 1)
-  #points(ests.2[i], i, pch = 19, cex = 1.2, col = 'gray80')
-  #points(ests.3[i], i, pch = 19, cex = 1.2, col = 'gray60')
   lines(c(ests.1[i] + 1.96*ses.1[i], ests.1[i] - 1.96*ses.1[i]), c(i, i), col = 1, lwd = 2)
-  #lines(c(ests.2[i] + 1.96*ses.2[i], ests.2[i] - 1.96*ses.2[i]), c(i, i), col = 1, lwd = 2)
-  #lines(c(ests.3[i] + 1.96*ses.3[i], ests.3[i] - 1.96*ses.3[i]), c(i, i), col = 1, lwd = 2)
   text(-2.8, i, adj = c(1,0), var.names[i], xpd = T, cex = .8)      # add the variable names
   text(2, length(res.sl[,1]) + .3, 'B', cex = 1.2)
   text(-2.5, 3, 'NPP', adj = 0, cex = 0.8)
   text(-2.5, 6, 'ER', adj = 0, cex = 0.8)
-  text(-2.5, 9, 'NPP/Mb', adj = 0, cex = 0.8)
-  text(-2.5, 12, 'ER/Mt', adj = 0, cex = 0.8)
-  text(-2.5, 15, 'NEM', adj = 0, cex = 0.8)
-  text(-2.5, 18, 'Phytoplankton biomass', adj = 0, cex = 0.8)
-  text(-2.5, 21, 'Total biomass', adj = 0, cex = 0.8)
+  #text(-2.5, 9, 'NPP/Mb', adj = 0, cex = 0.8)
+  #text(-2.5, 12, 'ER/Mt', adj = 0, cex = 0.8)
+  #text(-2.5, 15, 'NEM', adj = 0, cex = 0.8)
+  #text(-2.5, 18, 'Phytoplankton biomass', adj = 0, cex = 0.8)
+  #text(-2.5, 21, 'Total biomass', adj = 0, cex = 0.8)
 }
 
 # add axes and labels
@@ -106,7 +141,7 @@ mtext(side = 1, "Activation energies (Ea)", line = 3)
 mtext(side = 3, "", line = 1, cex = 0.8)   # add title
 box()                                          
 
-
+dev.off()
 
 
 
