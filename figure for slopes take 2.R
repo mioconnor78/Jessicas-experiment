@@ -210,7 +210,7 @@ Ea.sumTCs <- merge(Ea.sumTC, Ea.sumTC2, by = 'TL')
 
 ### merge Eas
 row <- c('','','')
-Ea.sum <- rbind(Ea.sumNPPs, row, Ea.sumERs, row, Ea.sumNPPms, row, Ea.sumERms, row, Ea.sumPBms, row, Ea.sumTCs, row)
+Ea.sum <- rbind(Ea.sumTCs, row, Ea.sumPBms, row, Ea.sumERms, row, Ea.sumNPPms,  row, Ea.sumERs, row, Ea.sumNPPs, row)
 
 
 ### FIGURE
@@ -233,12 +233,12 @@ for (i in 1:length(ests.1)) {
   lines(c(ests.1[i] + 1.96*ses.1[i], ests.1[i] - 1.96*ses.1[i]), c(i, i), col = 1, lwd = 2)
   text(-4.5, i, adj = c(1,0), var.names[i], xpd = T, cex = .8)      # add the variable names
   text(3, length(Ea.sum[,1]) + .3, 'B', cex = 1.2)
-  text(-4, 3, 'NPP', adj = 0, cex = 0.8)
-  text(-4, 7, 'ER', adj = 0, cex = 0.8)
-  text(-4, 11, 'NPP/Mb', adj = 0, cex = 0.8)
-  text(-4, 15, 'ER/Mt', adj = 0, cex = 0.8)
-  text(-4, 19, 'Phytoplankton biomass', adj = 0, cex = 0.8)
-  text(-4, 23, 'Total biomass', adj = 0, cex = 0.8)
+  text(-4, 23, 'NPP', adj = 0, cex = 0.8)
+  text(-4, 19, 'ER', adj = 0, cex = 0.8)
+  text(-4, 15, 'NPP/Mb', adj = 0, cex = 0.8)
+  text(-4, 11, 'ER/Mt', adj = 0, cex = 0.8)
+  text(-4, 7, 'Phytoplankton biomass', adj = 0, cex = 0.8)
+  text(-4, 3, 'Total biomass', adj = 0, cex = 0.8)
   #text(-2.5, 21, 'Total biomass', adj = 0, cex = 0.8)
 }
 
