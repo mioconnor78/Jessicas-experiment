@@ -8,8 +8,8 @@
 #modNPP4r
 modNPP <- lmer(log(NPP2) ~ 1 + I(invT-mean(invT))*trophic.level + (1 + I(invT-mean(invT))|week), data=data, REML = TRUE, na.action=na.omit)  #modNPP4r
 
-rand.cat <- ddply(data, .(week, Tank, ID, invT, trophic.level), summarize, mean(NPP2))
-names(rand.cat) <- c('Week', 'Tank', 'ID', 'invT','TL', 'NPP2')
+rand.cat <- ddply(data, .(week, Tank, invT, trophic.level), summarize, mean(NPP2))
+names(rand.cat) <- c('Week', 'Tank', 'invT','TL', 'NPP2')
 Entry.coefs <- data.frame(coef(modNPP)$week) #
 Entry.coefs$week <- rownames(Entry.coefs)
 S <- merge(rand.cat, Entry.coefs, by.x = 'Week', by.y = 'week', all = FALSE)
@@ -35,6 +35,7 @@ se <- function(x) sd(x)/sqrt(length(x))
 Ea.sumNPP <- ddply(NPP.S, .(TL), summarize, mean(Ea))
 Ea.sumNPP2 <- ddply(NPP.S, .(TL), summarize, se(Ea))
 Ea.sumNPPs <- merge(Ea.sumNPP, Ea.sumNPP2, by = 'TL')
+names(Ea.sumNPPs) <- c('TL', 'means','se')
 
 
 ## repeat for ES

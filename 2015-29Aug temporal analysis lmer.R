@@ -15,6 +15,7 @@
 #library(qpcR)
 library(lme4)
 library(MuMIn)
+library(plyr)
 
 ### set working directory and load data
 data <- read.csv("./temporal_dataFEB12.csv")
@@ -23,12 +24,68 @@ head(data)
 tail(data)
 data <- data[-(241:255),]
 
+--------------------------------------------------
 ### weekly average of daily average temps
 tdata <- read.csv("./avgtemps.csv")
 head(tdata)
 temp.data <- ddply(tdata, .(Week, Tank), summarise, mean(Temperature)) 
 head(temp.data)
 names(temp.data) <- c('Week', 'Tank', 'wklyTemp')
+
+## ses for temp data, for tabla AX
+temp.ses <- ddply(tdata, .(Week, Tank), summarise, sd(Temperature)) 
+head(temp.ses)
+names(temp.ses) <- c('Week', 'Tank', 'sd')
+temps.mse <- merge(temp.data, temp.ses, by = c('Week', 'Tank'))
+names(temps.mse) <- c('Week', 'Tank', 'mean', 'sd')
+
+temp.means <- ddply(tdata, .(Tank), summarise, mean(Temperature)) 
+names(temp.means) <- c('Tank', 'Mean')
+order(temp.means$Mean)
+temps.mses <- merge(temps.mse, temp.means, by = 'Tank')
+names(temps.mses) <- c('Tank', 'Week', 'mean', 'sd', 'mean.tot')
+temps.mses$Tank2 <- factor(temps.mses$Tank, levels = temps.mses[order(temps.mses$mean.tot), "Tank"])
+
+library(ggplot2)
+library(gridExtra)
+
+#temps.mses$mt <- factor(temp.means$Tank, levels = temp.means[order(temp.means$Mean), "mt"])
+x <- ggplot(temps.mses[(temps.mses$Week > '3'),], aes(y = sd, x = Tank2)) +
+  geom_point(stat = "identity", col = temps.mses[(temps.mses$Week > '3'),]$Week) +
+theme_bw(base_size = 16)
+
+y <- ggplot(temps.mses[(temps.mses$Week > '3'),], aes(y = sd, x = Week)) +
+  geom_point(stat = "identity", col = temps.mses[(temps.mses$Week > '3'),]$Week) +
+  theme_bw(base_size = 16)
+
+z <- ggplot(temps.mses[(temps.mses$Week > '3'),], aes(y = sd, x = mean)) +
+  geom_point(stat = "identity", col = temps.mses[(temps.mses$Week > '3'),]$Week) +
+  theme_bw(base_size = 16)
+
+grid.arrange(x, y, z, nrow = 3) 
+
+
+par(mfrow = c(1,2))
+plot(temps.mse$wklyTemp ~ temp.ses$Tank, xlim = c(0,30), ylim = c(0, 3), xlab = 'Tank', ylab = 'sd(Temp)', col = temp.ses$Week)
+plot(temp.ses$wklyTemp ~ temp.ses$Week, xlim = c(0,10), ylim = c(0, 3), xlab = 'Week', ylab = 'sd(Temp)', col = temp.ses$Week)
+
+### testing for trends
+mod1 <- lm(temps.mses[(temps.mses$Week > '3'),]$sd ~ as.factor(temps.mses[(temps.mses$Week > '3'),]$mean.tot))
+anova(mod1)
+
+mod2 <- lm(temps.mses$sd ~ as.numeric(temps.mses$Week))
+anova(mod2)
+summary(mod2)
+
+mod2.1 <- lm(temps.mses[(temps.mses$Week > '3'),]$sd ~ as.numeric(temps.mses[(temps.mses$Week > '3'),]$Week))
+anova(mod2.1)
+summary(mod2.1)
+
+mod3 <- lm(temps.mses[(temps.mses$Week > '3'),]$sd ~ as.numeric(temps.mses[(temps.mses$Week > '3'),]$mean))
+anova(mod3)
+summary(mod3)
+
+-----------------------------------
 
 data2 <- merge(data, temp.data, by.x = c("week", "Tank"), by.y = c("Week", "Tank"))
 data <- data2
