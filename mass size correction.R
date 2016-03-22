@@ -9,8 +9,8 @@
 ### size-corrected biomass analysis
 
 library(plyr)
-library(broom)
-library(dplyr)
+#library(broom)
+#library(dplyr)
 
 ### following Barneche et al 2014
 
