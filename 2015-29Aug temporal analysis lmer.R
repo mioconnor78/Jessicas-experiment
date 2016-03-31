@@ -16,6 +16,7 @@
 library(lme4)
 library(MuMIn)
 library(plyr)
+library(lmerTest)
 
 ### set working directory and load data
 data <- read.csv("./temporal_dataFEB12.csv")
@@ -165,6 +166,7 @@ hist(log(data$NPP2))
 plot(log(data$NPP2)~data$Tank, pch = 19, col = data$trophic.level)
 plot(log(data$NPP2)~data$week, pch = 19, col = data$trophic.level)
 plot(log(data$NPP2)~I(data$invT-mean(data$invT)), pch = 19, col = data$trophic.level, ylim = c(0,6))
+
 abline(3.00, -1.14, lwd = 2, col = 1)
 abline((3.00+0.18), (-1.14-0.32), lwd = 2, col = 2)
 abline((3.00+0.23), (-1.14+0.06), lwd = 2, col = 3)
@@ -181,6 +183,12 @@ modNPP0 <- lmer(log(NPP2) ~ 1 + (1|week), data=data, REML = FALSE, na.action=na.
 modNPP1 <- lmer(log(NPP2) ~ 1 + I(invT-mean(invT)) + (1|week), data=data, REML = FALSE, na.action=na.omit)  
 modNPP2 <- lmer(log(NPP2) ~ 1 + I(invT-mean(invT)) + trophic.level + (1|week), data=data, REML = FALSE, na.action=na.omit)  
 modNPP4 <- lmer(log(NPP2) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data, REML = FALSE, na.action=na.omit)  
+
+modNPP4b <- lmer(log(NPP2) ~ 1 + I(invT-mean(invT))*trophic.level +  I((invT-mean(invT))^2) + (1|week), data=data, REML = FALSE, na.action=na.omit)  
+
+modNPP4c <- lmer(log(NPP2) ~ 1 + I(invT-mean(invT))*trophic.level +  I(1/(invT-mean(invT))) + (1|week), data=data, REML = FALSE, na.action=na.omit) 
+
+model.sel(modNPP4, modNPP4b, modNPP4c)
 
 model.sel(modNPP0, modNPP1, modNPP2, modNPP4)
 anova(modNPP4, modNPP1)
@@ -270,6 +278,16 @@ modNPPm1 <- lmer(log(NPP.mass) ~ 1 + I(invT-mean(invT)) + (I(invT-mean(invT))|we
 modNPPm2 <- lmer(log(NPP.mass) ~ 1 + I(invT-mean(invT)) + trophic.level + (I(invT-mean(invT))|week), data=data, REML = FALSE, na.action=na.omit)  
 modNPPm4 <- lmer(log(NPP.mass) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data, REML = FALSE, na.action=na.omit)  
 
+modNPPm4b <- lmer(log(NPP.mass) ~ 1 + I(invT-mean(invT))*trophic.level +  I((invT-mean(invT))^2) +  (I(invT-mean(invT))|week), data=data, REML = FALSE, na.action=na.omit) 
+
+modNPPm4c <- lmer(log(NPP.mass) ~ 1 + I(invT-mean(invT))*trophic.level +  I(1/(invT-mean(invT))) +  (I(invT-mean(invT))|week), data=data, REML = FALSE, na.action=na.omit)
+
+
+line.func <- function(invT, a, b, e) log(a) + b*(invT-mean(invT)) + e*(1/(invT-mean(invT)))
+line.func <- function(invT, a, b, e) log(a) + b*(invT-mean(invT)) + e*((invT-mean(invT))^2)
+lines(line.func(data$invT, -1.55239, -1.57481, 1.30567))
+
+
 model.sel(modNPPm0, modNPPm1, modNPPm2, modNPPm4)
 
 anova(modNPPm4, modNPPm2)
@@ -309,6 +327,11 @@ modER1 <- lmer(log(ER2) ~ 1 + I(invT-mean(invT)) + (1|week), data=data1, REML = 
 modER2 <- lmer(log(ER2) ~ 1 + I(invT-mean(invT)) + trophic.level + (1|week), data=data1, REML = FALSE, na.action=na.omit)
 modER4 <- lmer(log(ER2) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = FALSE, na.action=na.omit)
 
+modER4b <- lmer(log(ER2) ~ 1 + I(invT-mean(invT))*trophic.level +  I((invT-mean(invT))^2) + (1|week), data=data1, REML = FALSE, na.action=na.omit)
+
+
+
+
 model.sel(modER0, modER1, modER2, modER4)
 
 anova(modER4, modER2)
@@ -347,6 +370,10 @@ modERm1 <- lmer(log(ER.mass) ~ 1 + I(invT-mean(invT)) + (1|week), data=data1, RE
 modERm2 <- lmer(log(ER.mass) ~ 1 + I(invT-mean(invT)) + trophic.level + (1|week), data=data1, REML = FALSE, na.action=na.omit)  
 modERm4 <- lmer(log(ER.mass) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data1, REML = FALSE, na.action=na.omit)  
 
+modERm4b <- lmer(log(ER.mass) ~ 1 + I(invT-mean(invT))*trophic.level +  I((invT-mean(invT))^2) + (1|week), data=data1, REML = FALSE, na.action=na.omit)  
+
+
+
 model.sel(modERm0, modERm1, modERm2, modERm4)
 
 # for model fitting: 
@@ -382,6 +409,9 @@ modPP0 <- lmer(log(PP.biomass) ~ 1 + (I(invT-mean(invT))|week), data=data, REML 
 modPP1 <- lmer(log(PP.biomass) ~ 1 + I(invT-mean(invT)) + (I(invT-mean(invT))|week), data=data, REML = FALSE, na.action=na.omit)
 modPP2 <- lmer(log(PP.biomass) ~ 1 + I(invT-mean(invT))+trophic.level + (I(invT-mean(invT))|week), data=data, REML = FALSE, na.action=na.omit)
 modPP4 <- lmer(log(PP.biomass) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data, REML = FALSE, na.action=na.omit)
+
+modPP4b <- lmer(log(PP.biomass) ~ 1 + I(invT-mean(invT))*trophic.level +  I((invT-mean(invT))^2) + (I(invT-mean(invT))|week), data=data, REML = FALSE, na.action=na.omit)
+
 
 model.sel(modPP0, modPP1, modPP2, modPP4) 
 
