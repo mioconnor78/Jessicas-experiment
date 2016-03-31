@@ -379,7 +379,7 @@ abline(h = 8, lty = 3, col = 'grey40')
 abline(h = 12, lty = 3, col = 'grey40')
 abline(h = 16, lty = 3, col = 'grey40')
 abline(h = 20, lty = 3, col = 'grey40')
-mtext(side = 1, "Temperature depednence (B1)", line = 3)                                              
+mtext(side = 1, "Temperature depedence (B1)", line = 3)                                              
 mtext(side = 3, "", line = 1, cex = 0.8)   # add title
 box()                                          
 

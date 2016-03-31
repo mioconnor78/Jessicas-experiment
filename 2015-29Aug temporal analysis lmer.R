@@ -24,8 +24,10 @@ head(data)
 tail(data)
 data <- data[-(241:255),]
 
---------------------------------------------------
+
+#--------------------------------------------------
 ### weekly average of daily average temps
+
 tdata <- read.csv("./avgtemps.csv")
 head(tdata)
 temp.data <- ddply(tdata, .(Week, Tank), summarise, mean(Temperature)) 
@@ -109,9 +111,21 @@ k <- 8.617342*10^-5  # eV/K
 data$invT <-  1/((data$wklyTemp + 273)*k)
 data$invT <- as.numeric(as.character(data$invT))
 
-data$PP.biomass <- (data$chla*55) #chla (ug/L)* 55 C in PP / 1 chla = ugPPC/L
+#data$PP.biomass <- (data$chla*55) #chla (ug/L)* 55 C in PP / 1 chla = ugPPC/L
+data$PP.biomass1 <- (data$chla/0.05) #chla (ug/L)* 55 C in PP / 1 chla = ugPPC/L
+
+m <- -0.025/(1/(k*295)-1/(k*275)) 
+b <- 0.05-m*1/(k*295)
+chla.func <- function(c) m*c + b
+data$PP.biomass <- (data$chla/(chla.func(data$invT))) 
+plot(data$invT, chla.func(data$invT))
+plot(data$PP.biomass, data$PP.biomass2)
+abline(0,1)
+## equation for temperature dependence of chla/c: m = 0.025/(42.1982-39.33731); x = 1/(k*295), y = 0.05, so b = 0.16
+
 data$ZP.carbon1 <- ifelse(data$trophic.level=='P',  0, data$M.uncorrz) # raw carbon
 data$HeteroB <- ifelse(data$trophic.level=='PZN', data$M.uncorrz + 10.8/2, data$ZP.carbon1) # add notonectid weight
+data$total.c.mc <- data$PP.biomass + data$M.corrz
 data$total.carbon <- data$PP.biomass + data$HeteroB
 data$HA <- data$HeteroB/data$PP.biomass
 
@@ -238,7 +252,7 @@ hist(log(data$NPP.mass))
 
 plot(log(data$NPP.mass)~data$Tank, pch = 19, col = data$trophic.level)
 plot(log(data$NPP.mass)~data$week, pch = 19, col = data$trophic.level)
-plot(log(data$NPP.mass)~I(data$invT-mean(data1$invT)), pch = 19, col = data$trophic.level)
+plot(log(data$NPP.mass)~I(data$invT-mean(data$invT)), pch = 19, col = data$trophic.level)
 abline(-2.83, -1.89, lwd = 2, col = 1)
 abline((-2.83+1.36), (-1.89-1.41), lwd = 2, col = 2)
 abline((-2.83+0.46), (-1.89-0.05), lwd = 2, col = 3)
@@ -386,8 +400,8 @@ confint(modPP4r)
 dataz <- data[(which(data$trophic.level != 'P')),] # because we don't have observations for the P treatments (we're just assuming they are 0) I don't htink we should analyze those tanks here.
 hist(dataz$zoo.ug.carbon.liter)
 hist(log(dataz$zoo.ug.carbon.liter))
-hist(dataz$M.uncorrz)
-hist(log(dataz$M.uncorrz + 1))
+hist(dataz$M.corrz)
+hist(log(dataz$M.corrz + 1))
 
 plot(log(dataz$M.uncorrz + 1)~dataz$invT, pch = 19, col = dataz$trophic.level)
 
@@ -435,6 +449,32 @@ modTC4r <- lmer(log(total.carbon) ~ 1 + I(invT-mean(invT))*trophic.level + (I(in
 
 summary(modTC4r)
 confint(modTC4r)
+
+
+### total carbon - mass-corrected
+hist(log(data$total.c.mc))
+
+modTCmb<-lmer(log(total.c.mc) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data, REML = FALSE, na.action=na.omit)
+modTCmc<-lmer(log(total.c.mc) ~ 1 + I(invT-mean(invT))*trophic.level + (1|week), data=data, REML = FALSE, na.action=na.omit)
+anova(modTCmc, modTCmb)
+
+modTCm0 <- lmer(log(total.c.mc) ~ 1 + (I(invT-mean(invT))|week), data=data, REML = FALSE, na.action=na.omit)
+modTCm1 <- lmer(log(total.c.mc) ~ 1 + I(invT-mean(invT)) + (I(invT-mean(invT))|week), data=data, REML = FALSE, na.action=na.omit)
+modTCm2 <- lmer(log(total.c.mc) ~ 1 + I(invT-mean(invT)) + trophic.level + (I(invT-mean(invT))|week), data=data, REML = FALSE, na.action=na.omit)
+modTCm4 <- lmer(log(total.c.mc) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data, REML = FALSE, na.action=na.omit)
+
+model.sel(modTCm0, modTCm1, modTCm2, modTCm4)
+anova(modTC2, modTC4)
+anova(modTC2, modTC1)
+
+# for model fitting: 
+modTCm4r <- lmer(log(total.c.mc) ~ 1 + I(invT-mean(invT))*trophic.level + (I(invT-mean(invT))|week), data=data, REML = TRUE, na.action=na.omit)
+
+summary(modTCm4r)
+confint(modTCm4r)
+
+
+
 
 #### HA ratio
 data1 <- data[which(data$HA > '0'),]
