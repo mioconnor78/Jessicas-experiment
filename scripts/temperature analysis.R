@@ -13,11 +13,15 @@ library(plyr)
 
 ### weekly average of daily average temps
 
-tdata <- read.csv("./avgtemps.csv")
+tdata <- read.csv("./data/avgtemps.csv")
 head(tdata)
 temp.data <- ddply(tdata, .(Week, Tank), summarise, mean(Temperature)) 
 head(temp.data)
 names(temp.data) <- c('Week', 'Tank', 'wklyTemp')
+
+tank.means <- ddply(tdata, .(Tank), summarise, mean(Temperature)) 
+head(tank.means)
+names(tank.means) <- c("Tank", "TankTemp")
 
 ### this is the old way, don't need this now.
 ## bring in data file with temperatures at each sampling time

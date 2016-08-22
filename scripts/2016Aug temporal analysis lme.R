@@ -23,10 +23,17 @@ dim(o.data)
 data2 <- merge(data, o.data, by.x = c("week", "Tank"), by.y = c("week", "Tank"))
 data <- data2
 
+data3 <- merge(data, tank.means, by.x = "Tank", by.y = "Tank") #tank.means from temperature analysis file
+
+head(data3)
+data <- data3
+
 ### load libraries, define variables and add columns
 k <- 8.617342*10^-5  # eV/K
 data$invT <-  1/((data$average.temp + 273)*k)
+data$invTT <-  1/((data$TankTemp + 273)*k)
 data$invT <- as.numeric(as.character(data$invT))
+data$invTT <- as.numeric(as.character(data$invTT))
 
 data$PP.biomass <- (data$chla*55) #chla (ug/L)* 55 C in PP / 1 chla = ugPPC/L
 data$ZP.carbon1 <- ifelse(data$trophic.level=='P',  0, data$zoo.ug.carbon.liter) # for adding
@@ -55,6 +62,20 @@ data <- data[data$week >= '4',]
 ### data prep complete
 
 ### ANALYSIS
+## trying the method suggested by VandePOl and Wright 2009
+# center by within-tank temperature
+# how to i calculate the mean temp within tanks over time?
+
+modNPP4a<-lme(log(NPP2) ~ 1 + (invT - invTT) + invTT, random = ~ 1 | Tank, data=data1, na.action=na.omit) 
+
+
+modNPP0<-lme(log(NPP2) ~ 1, random = ~ 1 | Tank, data=data1, na.action=na.omit)  
+modNPP1<-lme(log(NPP2) ~ 1 + invT + invTT, random = ~ 1 | Tank, data=data1, na.action=na.omit)
+modNPP2<-lme(log(NPP2) ~ 1 + invT + invTT + trophic.level, random = ~1|week, data=data1, method="ML", na.action=na.omit)  
+modNPP4<-lme(log(NPP2)~ 1 + invT + invTT*trophic.level, random = ~1|week, data=data1, method="ML", na.action=na.omit) 
+modNPP5<-lme(log(NPP2)~ 1 + invT*trophic.level + invTT*trophic.level, random = ~1|Tank, data=data1, method="ML", na.action=na.omit) 
+
+model.sel(modNPP0, modNPP1, modNPP2, modNPP4, modNPP5)
 
 ## Does NPP vary with temperature?  
 ## figures on invT
