@@ -62,20 +62,39 @@ data <- data[data$week >= '4',]
 ### data prep complete
 
 ### ANALYSIS
-## trying the method suggested by VandePOl and Wright 2009
+## trying the method suggested by Van de pol and Wright 2009
 # center by within-tank temperature
 # how to i calculate the mean temp within tanks over time?
 
+data1 <- data
+
 modNPP4a<-lme(log(NPP2) ~ 1 + (invT - invTT) + invTT, random = ~ 1 | Tank, data=data1, na.action=na.omit) 
 
+modNPP0<-lme(log(NPP2) ~ 1, random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")  
+#modNPP1<-lme(log(NPP2) ~ 1 + (invT - invTT) + invTT, random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")
+modNPP2<-lme(log(NPP2) ~ 1 + (invT - invTT) + invTT + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)  
+modNPP4<-lme(log(NPP2) ~ 1 + (invT - invTT) + invTT*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+modNPP5<-lme(log(NPP2) ~ 1 + (invT - invTT)*trophic.level + invTT*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
 
-modNPP0<-lme(log(NPP2) ~ 1, random = ~ 1 | Tank, data=data1, na.action=na.omit)  
-modNPP1<-lme(log(NPP2) ~ 1 + invT + invTT, random = ~ 1 | Tank, data=data1, na.action=na.omit)
-modNPP2<-lme(log(NPP2) ~ 1 + invT + invTT + trophic.level, random = ~1|week, data=data1, method="ML", na.action=na.omit)  
-modNPP4<-lme(log(NPP2)~ 1 + invT + invTT*trophic.level, random = ~1|week, data=data1, method="ML", na.action=na.omit) 
-modNPP5<-lme(log(NPP2)~ 1 + invT*trophic.level + invTT*trophic.level, random = ~1|Tank, data=data1, method="ML", na.action=na.omit) 
+model.sel(modNPP0, modNPP2, modNPP4,modNPP4a, modNPP5)
 
-model.sel(modNPP0, modNPP1, modNPP2, modNPP4, modNPP5)
+## We need to be sure we don't have inflated degrees of freedome on the intercept and slope (invT) parameters. I think we still do:
+
+anova(modNPP4a)
+numDF denDF  F-value p-value
+(Intercept)     1   149 5186.790  <.0001
+invT            1   149   37.115  <.0001
+invTT           1    28    9.761  0.0041
+
+> anova(modNPP2)
+numDF denDF  F-value p-value
+(Intercept)       1   149 5170.963  <.0001
+invT              1   149   37.002  <.0001
+invTT             1    26    9.731  0.0044
+trophic.level     2    26    0.730  0.4915
+
+
+# so the inference for the invTT term is ok here. The invTT term is the 
 
 ## Does NPP vary with temperature?  
 ## figures on invT
