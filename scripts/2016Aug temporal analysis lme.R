@@ -84,6 +84,8 @@ modNPP6 <- lme(log(NPP2) ~ 1 + I(invT - invTT)*I(invTT - mean(invTT)) + I(invTT 
 
 model.sel(modNPP0, modNPP2, modNPP4,modNPP1, modNPP5, modNPP6)
 
+## next step: Model average modNPP1 and modNPP6. Plot and interpret that.
+
 ## We need to be sure we don't have inflated degrees of freedom on the intercept and slope (invT) parameters. I think we still do:
 
 anova(modNPP1)
