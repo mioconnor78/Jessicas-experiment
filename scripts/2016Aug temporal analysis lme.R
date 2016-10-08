@@ -91,6 +91,7 @@ numDF denDF  F-value p-value
 I(invT - invTT)            1   149    3.028  0.0839
 I(invTT - mean(invTT))     1    28   43.847  <.0001
 
+intervals(modNPP1, which = "fixed")
 
 # so the inference for the invTT term is ok here. The invTT term is the important one.
 
@@ -102,8 +103,10 @@ hist(log(data1$NPP2))
 
 plot(log(data$NPP2)~data$Tank, pch = 19, col = data$trophic.level)
 plot(log(data$NPP2)~data$week, pch = 19, col = data$trophic.level)
-plot(log(data1$NPP2)~I(data1$invTT-mean(data1$invTT)), pch = 19, col = data1$trophic.level, ylim = c(0,6))
+plot(log(data1$NPP2)~I(data1$invTT-mean(data1$invTT)), pch = data1$Tank, col = data1$Tank, ylim = c(0,6))
+plot(log(data1$NPP2)~I(data1$invT-(data1$invTT)), pch = data1$Tank, col = data1$Tank, ylim = c(0,6))
 abline(3.00, -0.82, lwd = 2, col = 1)
+plot(log(data$NPP2)~data$invT, pch = data1$Tank, col = data1$Tank)
 
 
 ### analysis with autocorrelation term
