@@ -76,7 +76,7 @@ data1 <- data
 
 ## model with mean tank temperature (invTT) and the weekly deviation from that long-term average (invT - invTT), with Tank as a random intercept effect.  
 modNPP0 <- lme(log(NPP2) ~ 1, random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")  
-modNPP1 <- lme(log(NPP2) ~ 1+ I(invT - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")
+modNPP1 <- lme(log(NPP2) ~ 1 + I(invT - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")
 modNPP2 <- lme(log(NPP2) ~ 1 + I(invT - invTT) + I(invTT - mean(invTT)) + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)  
 modNPP4 <- lme(log(NPP2) ~ 1 + I(invT - invTT) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
 modNPP5 <- lme(log(NPP2) ~ 1 + I(invT - invTT)*trophic.level + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
@@ -106,11 +106,46 @@ plot(log(data$NPP2)~data$week, pch = 19, col = data$trophic.level)
 plot(log(data1$NPP2)~I(data1$invTT-mean(data1$invTT)), pch = data1$Tank, col = data1$Tank, ylim = c(0,6))
 plot(log(data1$NPP2)~I(data1$invT-(data1$invTT)), pch = data1$Tank, col = data1$Tank, ylim = c(0,6))
 abline(3.00, -0.82, lwd = 2, col = 1)
-plot(log(data$NPP2)~data$invT, pch = data1$Tank, col = data1$Tank)
+plot(log(data1$NPP2)~data1$invT, pch = data1$Tank, col = data1$Tank)
+
+library(tidyverse) group = Tank, color = trophic.level formula = log(data1$NPP2) ~ data1$invT, inherit.aes = FALSE
+
+## here is a plot with basic regression lines fitted
+ggplot(data = data1, aes(x = invT, y = log(NPP2))) + 
+  theme_minimal() +
+  geom_point(aes(group = Tank, color = trophic.level)) +
+  geom_smooth(method = "lm", se = FALSE, aes(group = Tank, color = trophic.level)) +
+  geom_smooth(method = "lm", se = FALSE, formula = y ~ x, color = 'black') +
+  xlab("Temperature 1/kT") +
+  ylab("ln(NPP)")
+
+## I think the way to do this with lme results is to create a dataframe with those model output coefficients... or add the predictions of the model to the original dataset and plot those here...
+
+plot(modNPP1)
+predw <- predict(modNPP1, level = 0:1)
+## ok, I think this predict is predicting each value in the dataset. by replotting this (hiding the points) but fitting the lines to these data, we'd get our modeled lines overlayed on the real data. and i can see here that the effect of time is missing. can i rewrite - in the model - the different temperature terms in terms if invT, so that i can plot it all against invT more straightforwardly?
+## here is a plot with basic regression lines fitted
+dim(data1)
+dim(predw)
+data1$Tank
+data1$ID <- seq.int(nrow(data1))
+predw$ID <- seq.int(nrow(predw))
+data.pred <- left_join(data1, predw, by = "ID")
+
+ggplot(data = data.pred, aes(x = invT, y = log(NPP2))) + 
+  theme_minimal() +
+  geom_point(aes(group = Tank.x, color = trophic.level)) +
+  geom_smooth(data = data.pred, aes(x = invT, y = predict.fixed, group = Tank.x, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
+  geom_smooth(data = data.pred, aes(x = invT, y = predict.fixed), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black') +
+  xlab("Temperature 1/kT") +
+  ylab("ln(NPP)")
+
 
 
 ### analysis with autocorrelation term
 modNPP4a<-lm(log(NPP2)~1+I(invT-mean(invT))*trophic.level, data=data1, na.action=na.omit, correlation = corCAR1(0.2, ~ week|Tank)) 
+
+display.brewer.all()
 
 # for model fitting: 
 modNPP1 <- lme(log(NPP2) ~ 1+ I(invT - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, na.action=na.omit, method="REML")
