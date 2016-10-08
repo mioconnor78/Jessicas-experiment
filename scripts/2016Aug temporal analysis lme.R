@@ -80,8 +80,9 @@ modNPP1 <- lme(log(NPP2) ~ 1 + I(invT - invTT) + I(invTT - mean(invTT)), random 
 modNPP2 <- lme(log(NPP2) ~ 1 + I(invT - invTT) + I(invTT - mean(invTT)) + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)  
 modNPP4 <- lme(log(NPP2) ~ 1 + I(invT - invTT) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
 modNPP5 <- lme(log(NPP2) ~ 1 + I(invT - invTT)*trophic.level + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+modNPP6 <- lme(log(NPP2) ~ 1 + I(invT - invTT)*I(invTT - mean(invTT)) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
 
-model.sel(modNPP0, modNPP2, modNPP4,modNPP1, modNPP5)
+model.sel(modNPP0, modNPP2, modNPP4,modNPP1, modNPP5, modNPP6)
 
 ## We need to be sure we don't have inflated degrees of freedom on the intercept and slope (invT) parameters. I think we still do:
 
