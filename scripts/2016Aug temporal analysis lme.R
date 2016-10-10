@@ -168,24 +168,19 @@ ggplot(data = mod.coefs, aes(x = invT, y = log(NPP2))) +
 # B1 = effect of temperature with groups (fixed) reflects main and interactive effect with the among-groups term. 
 # B2 = the among groups term
 
-Tb <- function(x) -0.61-1.03*x
+Tb <- function(m, x) 3.54 - (0.61-1.03*(m-x))*x
 x <- seq(37, 42, 0.001)
 ggplot(data = mod.coefs, aes(x = invT, y = log(NPP2))) + 
   theme_minimal() +
   geom_point(aes(group = Tank, color = trophic.level)) +
-  geom_abline(intercept = 3.54, slope = Tb(x)) +
+  stat_function(fun = Tb(invT, x), geom = 'line') +  ## stuck trying to get this function to plot
   #geom_ribbon(aes(x = x, ymin = Tb(x) ), fill = "grey70")
   geom_smooth(data = mod.coefs, aes(x = invT, y = .fitted, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
-  geom_smooth(data = mod.coefs, aes(x = invT, y = .fitted), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black') +
+  #geom_smooth(data = mod.coefs, aes(x = invT, y = .fitted), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black') +
   xlab("Temperature 1/kT") +
   ylab("ln(NPP)")
 
 
-
-### analysis with autocorrelation term
-modNPP4a<-lm(log(NPP2)~1+I(invT-mean(invT))*trophic.level, data=data1, na.action=na.omit, correlation = corCAR1(0.2, ~ week|Tank)) 
-
-display.brewer.all()
 
 # for model fitting: 
 modNPP1 <- lme(log(NPP2) ~ 1+ I(invT - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, na.action=na.omit, method="REML")
@@ -253,12 +248,11 @@ modER1<-lme(log(ER2) ~ 1 + I(invT - invTT) + I(invTT - mean(invTT)), random = ~ 
 modER2<-lme(log(ER2) ~ 1 + I(invT - invTT) + I(invTT - mean(invTT)) + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
 modER4<-lme(log(ER2) ~ 1 + I(invT - invTT) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
 modER5 <- lme(log(ER2) ~ 1 + I(invT - invTT)*trophic.level + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+modER6 <- lme(log(ER2) ~ 1 + I(invT - invTT)*I(invTT - mean(invTT)) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+modER7 <- lme(log(ER2) ~ 1 + I(invT - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
 
-model.sel(modER0, modER1, modER2, modER4, modER5)
+model.sel(modER0, modER1, modER2, modER4, modER5, modER6, modER7)
 
-anova(modER4, modER2)
-anova(modER1, modER2)
-anova(modER1, modER0)
 
 # for model fitting: 
 modER2r<-lme(log(ER2) ~ 1 + I(invT - invTT) + I(invTT - mean(invTT)) + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
@@ -296,6 +290,20 @@ summary(modERm4r)
 
 m.avg <- model.avg(modERm4r, modERm5r)
 summary(m.avg)
+
+### plotting
+
+Tb <- function(x) -0.61-1.03*x
+x <- seq(37, 42, 0.001)
+ggplot(data = mod.coefs, aes(x = invT, y = log(NPP2))) + 
+  theme_minimal() +
+  geom_point(aes(group = Tank, color = trophic.level)) +
+  geom_abline(intercept = 3.54, slope = Tb(x)) +
+  #geom_ribbon(aes(x = x, ymin = Tb(x) ), fill = "grey70")
+  geom_smooth(data = mod.coefs, aes(x = invT, y = .fitted, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
+  geom_smooth(data = mod.coefs, aes(x = invT, y = .fitted), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black') +
+  xlab("Temperature 1/kT") +
+  ylab("ln(NPP)")
 
 
 ##### BIOMASS RESULTS #####
