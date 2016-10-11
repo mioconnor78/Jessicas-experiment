@@ -6,6 +6,7 @@
 #library(qpcR)
 library(nlme)
 library(MuMIn)
+library(plyr)
 
 ### set working directory and load data
 data <- read.csv("./data/temporal_dataFEB12.csv")
@@ -13,6 +14,18 @@ dim(data)
 head(data)
 tail(data)
 data <- data[-(241:255),]
+
+
+### load temperature data
+tdata <- read.csv("./data/avgtemps.csv")
+head(tdata)
+temp.data <- ddply(tdata, .(Week, Tank), summarise, mean(Temperature)) 
+head(temp.data)
+names(temp.data) <- c('Week', 'tank', 'wklyTemp')
+
+tank.means <- ddply(tdata, .(Tank), summarise, mean(Temperature)) 
+head(tank.means)
+names(tank.means) <- c("Tank", "TankTemp")
 
 ## bring in data file with temperatures at each sampling time
 o.data <- read.csv("./data/oxygen_temp_temporal.csv")
@@ -84,13 +97,14 @@ modNPP6 <- lme(log(NPP2) ~ 1 + I(invT - invTT)*I(invTT - mean(invTT)) + I(invTT 
 modNPP7 <- lme(log(NPP2) ~ 1 + I(invT - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
 
 model.sel(modNPP0, modNPP2, modNPP4,modNPP1, modNPP5, modNPP6, modNPP7)
-#m.avg <- model.avg(modNPP1, modNPP6)
-intervals(modNPP7)
 
-## next step: Model average modNPP1 and modNPP6. Plot and interpret that.
-
-
+## Best model: create fitted values to use later for plotting
 intervals(modNPP1, which = "fixed")
+plot(modNPP1)
+#predw <- predict(modNPP7, level = 0:1)
+## alternatively (yes, this works): 
+library(broom)
+mod.coefs <- augment(modNPP7, effect = "random") # puts fitted values back in the original dataset.
 
 # so the inference for the invTT term is ok here. The invTT term is the important one.
 
@@ -110,60 +124,23 @@ plot(log(data1$NPP2)~data1$invT, pch = data1$Tank, col = data1$Tank)
 ### plotting within- and among-group regressions and model outputs
 library(tidyverse) #group = Tank, color = trophic.level formula = log(data1$NPP2) ~ data1$invT, inherit.aes = FALSE
 
-## here is a plot with basic regression lines fitted
-ggplot(data = data1, aes(x = invT, y = log(NPP2))) + 
+NPP.plot <- ggplot(data = data1, aes(x = invT, y = log(NPP2))) + 
   theme_minimal() +
   geom_point(aes(group = Tank, color = trophic.level)) +
+  xlab("Temperature 1/kT") +
+  ylab("ln(NPP)")
+
+## PLOT 1: Individual regression lines fitted within and among groups
+NPP.plot +
   geom_smooth(method = "lm", se = FALSE, aes(group = Tank, color = trophic.level)) +
-  geom_smooth(method = "lm", se = FALSE, formula = y ~ x, color = 'black') +
-  xlab("Temperature 1/kT") +
-  ylab("ln(NPP)")
+  geom_smooth(method = "lm", se = FALSE, formula = y ~ x, color = 'black')
 
-## I can do this, and then add on top the lines with coefficients from the model output:
-
-ggplot(data = data1, aes(x = invT, y = log(NPP2))) + 
-  theme_minimal() +
-  geom_point(aes(group = Tank, color = trophic.level)) +
-  geom_smooth(data = data.pred, aes(x = invT, y = predict.fixed, group = Tank.x, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
-
-## I think the way to do this with lme results is to create a dataframe with those model output coefficients... or add the predictions of the model to the original dataset and plot those here...
-
-plot(modNPP1)
-predw <- predict(modNPP7, level = 0:1)
-## ok, I think this predict is predicting each value in the dataset. by replotting this (hiding the points) but fitting the lines to these data, we'd get our modeled lines overlayed on the real data. and i can see here that the effect of time is missing. can i rewrite - in the model - the different temperature terms in terms if invT, so that i can plot it all against invT more straightforwardly?
-## here is a plot with basic regression lines fitted
-dim(data1)
-dim(predw)
-data1$Tank
-data1$ID <- seq.int(nrow(data1))
-predw$ID <- seq.int(nrow(predw))
-data.pred <- left_join(data1, predw, by = "ID")
-
-ggplot(data = data.pred, aes(x = invT, y = log(NPP2))) + 
-  theme_minimal() +
-  geom_point(aes(group = Tank.x, color = trophic.level)) +
-  geom_smooth(data = data.pred, aes(x = invT, y = predict.fixed, group = Tank.x, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
-  geom_smooth(data = data.pred, aes(x = invT, y = predict.fixed), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black') +
-  xlab("Temperature 1/kT") +
-  ylab("ln(NPP)")
-
-
-## alternatively (yes, this works): 
-## first, tidy modNPP7
-library(broom)
-mod.coefs <- augment(modNPP7, effect = "random") # puts fitted values back in the original dataset.
-
-ggplot(data = mod.coefs, aes(x = invT, y = log(NPP2))) + 
-  theme_minimal() +
-  geom_point(aes(group = Tank, color = trophic.level)) +
+## PLOT 2: Use fitted lines from the model. Create a dataframe with those model output coefficients... or add the predictions of the model to the original dataset and plot those here, then fit lines to those using linear regressions
+NPP.plot +
   geom_smooth(data = mod.coefs, aes(x = invT, y = .fitted, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
-  geom_smooth(data = mod.coefs, aes(x = invT, y = .fitted), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black') +
-  xlab("Temperature 1/kT") +
-  ylab("ln(NPP)")
+  geom_smooth(data = mod.coefs, aes(x = invT, y = .fitted), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black')
 
-
-## now try adding the lines based on the model outputs. : 
-## following van de pol and wright, we can plot all this on one temperature axis, with one slope for between group change, and another for within group change. So, we just have to figure out what are those coefficients...
+## Now try to plot the model results directly, as lines. Following van de pol and wright, we can plot all this on one temperature axis, with one slope for between group change, and another for within group change. So, we just have to figure out what are those coefficients...
 # B0 = intercept varies within group (fixed + random)
 # B1 = effect of temperature with groups (fixed) reflects main and interactive effect with the among-groups term. 
 # B2 = the among groups term
