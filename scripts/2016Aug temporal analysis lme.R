@@ -43,16 +43,16 @@ data <- data3
 
 ### load libraries, define variables and add columns
 k <- 8.617342*10^-5  # eV/K
-data$invT <-  1/((data$average.temp + 273)*k)
-data$invTT <-  1/((data$TankTemp + 273)*k)
-data$invT <- as.numeric(as.character(data$invT))
+data$invTi <-  1/((data$average.temp + 273)*k) # average temp of the week
+data$invTT <-  1/((data$TankTemp + 273)*k) # average temp of the tank over all weeks
+data$invTi <- as.numeric(as.character(data$invTi))
 data$invTT <- as.numeric(as.character(data$invTT))
 
 ## some plots for the two temperature terms:
-plot((data1$invT - data1$invTT) ~ data1$week)
-plot((data1$invT - data1$invTT) ~ data1$invTT)
-plot((data1$invT) ~ data1$invTT)
-plot((data1$invT - data1$invTT) ~ data1$Tank)
+plot((data$invTi - data$invTT) ~ data$week)
+plot((data$invTi - data$invTT) ~ data$invTT)
+plot((data$invTi) ~ data$invTT)
+plot((data$invTi - data$invTT) ~ data$Tank)
 
 
 data$PP.biomass <- (data$chla*55) #chla (ug/L)* 55 C in PP / 1 chla = ugPPC/L
@@ -89,18 +89,18 @@ data1 <- data
 
 ## model with mean tank temperature (invTT) and the weekly deviation from that long-term average (invT - invTT), with Tank as a random intercept effect.  
 modNPP0 <- lme(log(NPP2) ~ 1, random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")  
-modNPP1 <- lme(log(NPP2) ~ 1 + I(invT - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")
-modNPP2 <- lme(log(NPP2) ~ 1 + I(invT - invTT) + I(invTT - mean(invTT)) + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)  
-modNPP4 <- lme(log(NPP2) ~ 1 + I(invT - invTT) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
-modNPP5 <- lme(log(NPP2) ~ 1 + I(invT - invTT)*trophic.level + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
-modNPP6 <- lme(log(NPP2) ~ 1 + I(invT - invTT)*I(invTT - mean(invTT)) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
-modNPP7 <- lme(log(NPP2) ~ 1 + I(invT - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+modNPP1 <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")
+modNPP2 <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)  
+modNPP4 <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+modNPP5 <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*trophic.level + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+modNPP6 <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+modNPP7 <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
 
 model.sel(modNPP0, modNPP2, modNPP4,modNPP1, modNPP5, modNPP6, modNPP7)
 
 ## Best model: create fitted values to use later for plotting
-intervals(modNPP1, which = "fixed")
-plot(modNPP1)
+intervals(modNPP7, which = "fixed")
+modNPP7 <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit) 
 #predw <- predict(modNPP7, level = 0:1)
 ## alternatively (yes, this works): 
 library(broom)
@@ -114,21 +114,21 @@ data1 <- data[(data$NPP2 >= 0.5),] # three negative values and one very small va
 hist(data[(data$NPP2 >= 0.5),]$NPP2)
 hist(log(data1$NPP2))
 
-plot(log(data$NPP2)~data$Tank, pch = 19, col = data$trophic.level)
-plot(log(data$NPP2)~data$week, pch = 19, col = data$trophic.level)
+plot(log(data1$NPP2)~data1$Tank, pch = 19, col = data1$trophic.level)
+plot(log(data1$NPP2)~data1$week, pch = 19, col = data1$trophic.level)
 plot(log(data1$NPP2)~I(data1$invTT-mean(data1$invTT)), pch = data1$Tank, col = data1$Tank, ylim = c(0,6))
-plot(log(data1$NPP2)~I(data1$invT-(data1$invTT)), pch = data1$Tank, col = data1$Tank, ylim = c(0,6))
+plot(log(data1$NPP2)~I(data1$invTi-(data1$invTT)), pch = data1$Tank, col = data1$Tank, ylim = c(0,6))
 abline(3.00, -0.82, lwd = 2, col = 1)
-plot(log(data1$NPP2)~data1$invT, pch = data1$Tank, col = data1$Tank)
+plot(log(data1$NPP2)~data1$invTi, pch = data1$Tank, col = data1$Tank)
 
 ### plotting within- and among-group regressions and model outputs
 library(tidyverse) #group = Tank, color = trophic.level formula = log(data1$NPP2) ~ data1$invT, inherit.aes = FALSE
 
-NPP.plot <- ggplot(data = data1, aes(x = invT, y = log(NPP2))) + 
-  theme_minimal() +
+NPP.plot <- ggplot(data = data1, aes(x = invTi, y = log(NPP2))) + 
+  theme_bw() +
   geom_point(aes(group = Tank, color = trophic.level)) +
-  xlab("Temperature 1/kT") +
-  ylab("ln(NPP)")
+  xlab("Temperature 1/kTi") +
+  ylab("ln(NPPi)")
 
 ## PLOT 1: Individual regression lines fitted within and among groups
 NPP.plot +
@@ -137,34 +137,24 @@ NPP.plot +
 
 ## PLOT 2: Use fitted lines from the model. Create a dataframe with those model output coefficients... or add the predictions of the model to the original dataset and plot those here, then fit lines to those using linear regressions
 NPP.plot +
-  geom_smooth(data = mod.coefs, aes(x = invT, y = .fitted, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
-  geom_smooth(data = mod.coefs, aes(x = invT, y = .fitted), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black')
+  geom_smooth(data = mod.coefs, aes(x = invTi, y = .fitted, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
+  geom_smooth(data = mod.coefs, aes(x = invTT, y = .fitted), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black')
 
 ## Now try to plot the model results directly, as lines. Following van de pol and wright, we can plot all this on one temperature axis, with one slope for between group change, and another for within group change. So, we just have to figure out what are those coefficients...
 # B0 = intercept varies within group (fixed + random)
 # B1 = effect of temperature with groups (fixed) reflects main and interactive effect with the among-groups term. 
 # B2 = the among groups term
 
-Tb <- function(m, x) 3.54 - (0.61-1.03*(m-x))*x
-x <- seq(37, 42, 0.001)
-ggplot(data = mod.coefs, aes(x = invT, y = log(NPP2))) + 
-  theme_minimal() +
-  geom_point(aes(group = Tank, color = trophic.level)) +
-  stat_function(fun = Tb(invT, x), geom = 'line') +  ## stuck trying to get this function to plot
+## define NPP.func for effect of weekly temperature on NPP, the linear model relating temperature to NPP, where T is mean tank temperature and m is the tank temp in week i  
+
+NPP.func <- function(Tw) fixef(modNPP7)[1] + (fixef(modNPP7)[3])*Tw
+
+NPP.plot +
+  geom_smooth(data = mod.coefs, aes(x = invTi, y = .fitted, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
+  stat_function(data = mod.coefs, aes(y = .fitted, group = Tank), inherit.aes = FALSE, fun = NPP.func, args = list(Tw = mod.coefs$invTT), geom = 'line')  ## stuck trying to get this function to plot
   #geom_ribbon(aes(x = x, ymin = Tb(x) ), fill = "grey70")
-  geom_smooth(data = mod.coefs, aes(x = invT, y = .fitted, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
-  #geom_smooth(data = mod.coefs, aes(x = invT, y = .fitted), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black') +
-  xlab("Temperature 1/kT") +
-  ylab("ln(NPP)")
 
-
-
-# for model fitting: 
-modNPP1 <- lme(log(NPP2) ~ 1+ I(invT - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, na.action=na.omit, method="REML")
-summary(modNPP1)
-
-confint(modNPP1)
-
+aes(x = invTT, y = .fitted, group = Tank), inherit.aes = FALSE,
 
 ################################################
 ## Does mass-specific NPP vary with temperature?  
