@@ -89,7 +89,7 @@ data <- data[data$week >= '4',]
 
 data1 <- data
 
-## model with mean tank temperature (invTT) and the weekly deviation from that long-term average (invT - invTT), with Tank as a random intercept effect.  
+## model with mean tank temperature (invTT) and the weekly deviation from that long-term average (invTi - invTT), with Tank as a random intercept effect.  
 modNPP0 <- lme(log(NPP2) ~ 1, random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")  
 modNPP1 <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")
 modNPP2 <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)  
@@ -108,11 +108,8 @@ modNPP7 <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random =
 library(broom)
 mod.coefs <- augment(modNPP7, effect = "random") # puts fitted values back in the original dataset.
 
-# so the inference for the invTT term is ok here. The invTT term is the important one.
-
-## Does NPP vary with temperature?  
-## figures on invT
-data1 <- data[(data$NPP2 >= 0.5),] # three negative values and one very small value now, not sure what to do about them.
+### SOME BASIC PLOTS
+#data1 <- data[(data$NPP2 >= 0.5),] # three negative values and one very small value now, not sure what to do about them.
 hist(data[(data$NPP2 >= 0.5),]$NPP2)
 hist(log(data1$NPP2))
 
@@ -120,7 +117,7 @@ plot(log(data1$NPP2)~data1$Tank, pch = 19, col = data1$trophic.level)
 plot(log(data1$NPP2)~data1$week, pch = 19, col = data1$trophic.level)
 plot(log(data1$NPP2)~I(data1$invTT-mean(data1$invTT)), pch = data1$Tank, col = data1$Tank, ylim = c(0,6))
 plot(log(data1$NPP2)~I(data1$invTi-(data1$invTT)), pch = data1$Tank, col = data1$Tank, ylim = c(0,6))
-abline(3.00, -0.82, lwd = 2, col = 1)
+abline(3.5435395, -0.6159088, lwd = 2, col = 1)
 plot(log(data1$NPP2)~data1$invTi, pch = data1$Tank, col = data1$Tank)
 
 ### WITHIN AND AMONG GROUP PLOTS
@@ -144,19 +141,27 @@ NPP.plot +
 
 ## PLOT 3: Now try to plot the model results directly, as lines. Following van de pol and wright, we can plot all this on one temperature axis, with one slope for between group change, and another for within group change. So, we just have to figure out what are those coefficients...
 # B0 = intercept varies within group (fixed + random)
-# B1 = effect of temperature with groups (fixed) reflects main and interactive effect with the among-groups term. 
+# B1 = effect of temperature within groups (fixed) reflects main and interactive effect with the among-groups term. I'll plot it with the interaction term in the within group slopes
 # B2 = the among groups term
 
 ## define NPP.func for effect of weekly temperature on NPP, the linear model relating temperature to NPP, where T is mean tank temperature and m is the tank temp in week i  
 
-NPP.func <- function(Tw) fixef(modNPP7)[1] + (fixef(modNPP7)[3])*Tw
+NPP.func <- function(Tw) fixef(modNPP7)[1] + (fixef(modNPP7)[3])*Tw # the negative here is intentional, the slope needs to b
+
+NPP.func <- function(Tw) 3.5435395 - (-0.6159088)*(Tw - mean(Tw))
 
 NPP.plot +
   geom_smooth(data = mod.coefs, aes(x = invTi, y = .fitted, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
-  stat_function(data = mod.coefs, aes(y = .fitted, group = Tank), inherit.aes = FALSE, fun = NPP.func, args = list(Tw = mod.coefs$invTT), geom = 'line')  ## stuck trying to get this function to plot
+  stat_function(data = mod.coefs, aes(x = (invTT - mean(invTT)), y = .fitted, group = Tank), inherit.aes = FALSE, fun = NPP.func, args = list(Tw = mod.coefs$invTT), geom = 'line')  ## stuck trying to get this function to plot
   #geom_ribbon(aes(x = x, ymin = Tb(x) ), fill = "grey70")
 
-aes(x = invTT, y = .fitted, group = Tank), inherit.aes = FALSE,
+# I wonder if I need to redefine the ggplot to be on centered temperature data... i thought this wouldn't matter, but it might.
+### this isn't right now... but I have to run.
+NPP.plotc <- ggplot(data = mod.coefs, aes(x = (invTT - mean(invTT)), y = .fixed)) + 
+  theme_bw() +
+  geom_point(aes(group = Tank, color = trophic.level)) +
+  xlab("Temperature 1/kTi") +
+  ylab("ln(NPPi)")
 
 ################################################
 ## Does mass-specific NPP vary with temperature?  
