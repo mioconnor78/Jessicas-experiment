@@ -1,6 +1,6 @@
+### Garzke et al temperature experiment
+### this is the current working code file
 ### MO made a new file on Aug29 from June file when I decided to take week out as a fixed effect, and instead model autocorrelation. 
-
-### revised this on Nov 13 to include correction fo oxygen flux
 
 ### load libraries
 #library(qpcR)
