@@ -7,6 +7,8 @@
 library(nlme)
 library(MuMIn)
 library(plyr)
+library(tidyverse) 
+library(broom)
 
 ### set working directory and load data
 data <- read.csv("./data/temporal_dataFEB12.csv")
@@ -121,8 +123,8 @@ plot(log(data1$NPP2)~I(data1$invTi-(data1$invTT)), pch = data1$Tank, col = data1
 abline(3.00, -0.82, lwd = 2, col = 1)
 plot(log(data1$NPP2)~data1$invTi, pch = data1$Tank, col = data1$Tank)
 
+### WITHIN AND AMONG GROUP PLOTS
 ### plotting within- and among-group regressions and model outputs
-library(tidyverse) #group = Tank, color = trophic.level formula = log(data1$NPP2) ~ data1$invT, inherit.aes = FALSE
 
 NPP.plot <- ggplot(data = data1, aes(x = invTi, y = log(NPP2))) + 
   theme_bw() +
@@ -140,7 +142,7 @@ NPP.plot +
   geom_smooth(data = mod.coefs, aes(x = invTi, y = .fitted, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
   geom_smooth(data = mod.coefs, aes(x = invTT, y = .fitted), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black')
 
-## Now try to plot the model results directly, as lines. Following van de pol and wright, we can plot all this on one temperature axis, with one slope for between group change, and another for within group change. So, we just have to figure out what are those coefficients...
+## PLOT 3: Now try to plot the model results directly, as lines. Following van de pol and wright, we can plot all this on one temperature axis, with one slope for between group change, and another for within group change. So, we just have to figure out what are those coefficients...
 # B0 = intercept varies within group (fixed + random)
 # B1 = effect of temperature with groups (fixed) reflects main and interactive effect with the among-groups term. 
 # B2 = the among groups term
