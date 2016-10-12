@@ -56,7 +56,7 @@ plot((data$invTi - data$invTT) ~ data$invTT)
 plot((data$invTi) ~ data$invTT)
 plot((data$invTi - data$invTT) ~ data$Tank)
 
-
+### estimate biomass from chlorophyll concentration
 data$PP.biomass <- (data$chla*55) #chla (ug/L)* 55 C in PP / 1 chla = ugPPC/L
 data$ZP.carbon1 <- ifelse(data$trophic.level=='P',  0, data$zoo.ug.carbon.liter) # for adding
 data$total.carbon <- data$PP.biomass + data$ZP.carbon1 #I'm assuming 0 for ZP in P treatments here.
@@ -148,19 +148,19 @@ NPP.plot +
 
 NPP.func <- function(Tw) fixef(modNPP7)[1] + (fixef(modNPP7)[3])*Tw # the negative here is intentional, the slope needs to b
 
-NPP.func <- function(Tw) 3.5435395 - (-0.6159088)*(Tw - mean(Tw))
+NPP.func <- function(invTT) 3.5435395 - (-0.6159088)*(invTT - mean(invTT))
 
-NPP.plot +
-  geom_smooth(data = mod.coefs, aes(x = invTi, y = .fitted, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
-  stat_function(data = mod.coefs, aes(x = (invTT - mean(invTT)), y = .fitted, group = Tank), inherit.aes = FALSE, fun = NPP.func, args = list(Tw = mod.coefs$invTT), geom = 'line')  ## stuck trying to get this function to plot
+NPP.plotc +
+  #geom_smooth(data = mod.coefs, aes(x = invTi, y = .fitted, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
+  stat_function(data = mod.coefs, fun = NPP.func, args = list(invTT = mod.coefs$invTT), geom = 'line')  ## stuck trying to get this function to plot
   #geom_ribbon(aes(x = x, ymin = Tb(x) ), fill = "grey70")
 
 # I wonder if I need to redefine the ggplot to be on centered temperature data... i thought this wouldn't matter, but it might.
 ### this isn't right now... but I have to run.
-NPP.plotc <- ggplot(data = mod.coefs, aes(x = (invTT - mean(invTT)), y = .fixed)) + 
+NPP.plotc <- ggplot(data = data1, aes(x = (invTT - mean(invTT)), y = log(NPP2))) + 
   theme_bw() +
   geom_point(aes(group = Tank, color = trophic.level)) +
-  xlab("Temperature 1/kTi") +
+  xlab("Temperature 1/kTw") +
   ylab("ln(NPPi)")
 
 ################################################
