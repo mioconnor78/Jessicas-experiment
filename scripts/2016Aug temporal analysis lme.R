@@ -105,7 +105,6 @@ intervals(modNPP7, which = "fixed")
 modNPP7 <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit) 
 #predw <- predict(modNPP7, level = 0:1)
 ## alternatively (yes, this works): 
-library(broom)
 mod.coefs <- augment(modNPP7, effect = "random") # puts fitted values back in the original dataset.
 
 ### SOME BASIC PLOTS
@@ -148,22 +147,26 @@ NPP.plot +
 
 NPP.func <- function(Tw) fixef(modNPP7)[1] + (fixef(modNPP7)[3])*Tw # the negative here is intentional, the slope needs to b
 
-NPP.func <- function(invTT) 3.5435395 + (-0.6159088)*(invTT - mean(invTT))
-NPP.func2 <- function(invTT) 3.5435395 + 0.6159088*mean(invTT) + (-0.6159088)*(invTT)
+#1. the linear model for within groups variation
+#NPPwg.fun <- function(invTi) 3.5435395 + (0.028891)*(invTi - mean(invTi))
+#NPPwg.fun <- function(invTi) 3.5435395 + (0.028891)*(invTi) - (0.028891)*(mean(invTi))
 
-## i'm wrestling with trying to capture the centering of the two groups. seems to work with no centering, so could just shift to that and then adusting the intercept.
-NPP.plotc +
-  geom_smooth(data = mod.coefs, aes(x = (invTi-mean(invTi)), y = log(NPP2), group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
-  stat_function(data = mod.coefs, fun = NPP.func2, args = list(invTT = invTT), geom = 'line')  ## stuck trying to get this function to plot
-  #geom_ribbon(aes(x = x, ymin = Tb(x) ), fill = "grey70")
+#2. the linear model for among groups variation
+#NPP.func <- function(invTT) 3.5435395 + (-0.6159088)*(invTT - mean(invTT))
 
-# I wonder if I need to redefine the ggplot to be on centered temperature data... i thought this wouldn't matter, but it might.
-### this isn't right now... but I have to run.
-NPP.plotc <- ggplot(data = mod.coefs, aes(x = (invTi-mean(invTi)), y = log(NPP2))) + 
-  theme_bw() +
-  geom_point(aes(group = Tank, color = trophic.level)) +
-  xlab("Temperature 1/k(Ti-mean(Ti))") +
-  ylab("ln(NPPi)")
+# after some algebra, i can isolate the slope for data modeled as centered
+NPP.func2 <- function(x) {fixef(modNPP7)[1] - fixef(modNPP7)[3]*mean(x) + (fixef(modNPP7)[3])*(x)} #x = invTT
+# use this function to compute yvals for plotting.
+yvals <- NPP.func2(mod.coefs$invTT)
+
+NPP.plot +
+  #geom_smooth(data = mod.coefs, aes(x = (invTi), y = log(NPP2), group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE, lwd = 0.75) +
+  geom_smooth(data = mod.coefs, aes(x = invTi, y = (.fitted), group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
+  geom_ribbon(aes(x = (mod.coefs$invTT), y = yvals, ymin = yvals - 0.3, ymax = yvals + 0.3), fill = "grey70", alpha = 0.6) +
+  geom_line(aes(x = (mod.coefs$invTT), y = yvals), lwd = 2)
+  #stat_function(data = mod.coefs, aes(x = (mod.coefs$invTT)), fun = NPP.func2, geom = 'line') + ## ok, this is plotting the slope of -0.62; not matching the intercept from yvals and I'm not sure why or which is right.
+
+
 
 ################################################
 ## Does mass-specific NPP vary with temperature?  
