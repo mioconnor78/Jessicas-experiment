@@ -148,19 +148,21 @@ NPP.plot +
 
 NPP.func <- function(Tw) fixef(modNPP7)[1] + (fixef(modNPP7)[3])*Tw # the negative here is intentional, the slope needs to b
 
-NPP.func <- function(invTT) 3.5435395 - (-0.6159088)*(invTT - mean(invTT))
+NPP.func <- function(invTT) 3.5435395 + (-0.6159088)*(invTT - mean(invTT))
+NPP.func2 <- function(invTT) 3.5435395 + 0.6159088*mean(invTT) + (-0.6159088)*(invTT)
 
+## i'm wrestling with trying to capture the centering of the two groups. seems to work with no centering, so could just shift to that and then adusting the intercept.
 NPP.plotc +
-  #geom_smooth(data = mod.coefs, aes(x = invTi, y = .fitted, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
-  stat_function(data = mod.coefs, fun = NPP.func, args = list(invTT = mod.coefs$invTT), geom = 'line')  ## stuck trying to get this function to plot
+  geom_smooth(data = mod.coefs, aes(x = (invTi-mean(invTi)), y = log(NPP2), group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
+  stat_function(data = mod.coefs, fun = NPP.func2, args = list(invTT = invTT), geom = 'line')  ## stuck trying to get this function to plot
   #geom_ribbon(aes(x = x, ymin = Tb(x) ), fill = "grey70")
 
 # I wonder if I need to redefine the ggplot to be on centered temperature data... i thought this wouldn't matter, but it might.
 ### this isn't right now... but I have to run.
-NPP.plotc <- ggplot(data = data1, aes(x = (invTT - mean(invTT)), y = log(NPP2))) + 
+NPP.plotc <- ggplot(data = mod.coefs, aes(x = (invTi-mean(invTi)), y = log(NPP2))) + 
   theme_bw() +
   geom_point(aes(group = Tank, color = trophic.level)) +
-  xlab("Temperature 1/kTw") +
+  xlab("Temperature 1/k(Ti-mean(Ti))") +
   ylab("ln(NPPi)")
 
 ################################################
