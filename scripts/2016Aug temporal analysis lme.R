@@ -166,7 +166,7 @@ NPP.plot +
   geom_line(aes(x = (mod.coefs$invTT), y = yvals), lwd = 2)
   #stat_function(data = mod.coefs, aes(x = (mod.coefs$invTT)), fun = NPP.func2, geom = 'line') + ## ok, this is plotting the slope of -0.62; not matching the intercept from yvals and I'm not sure why or which is right.
 
-
+ggsave("NPPplot.pdf", device = "pdf")
 
 ################################################
 ## Does mass-specific NPP vary with temperature?  
