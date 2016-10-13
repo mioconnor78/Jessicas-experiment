@@ -263,7 +263,7 @@ summary(modER2)
 #   ERwg.fun <- function(invTi) fixef(modER2r)[1] + fixef(modER2r)[2]*(invTi) - fixef(modER2r)[2]*(mean(invTi))
 
 #2. ER.func <- function(invTT) {fixef(modER2r)[1] + fixef(modER2r)[3]*(invTT - mean(invTT))}
-    ER.func <- function(invTT) {fixef(modER2r)[1] + fixef(modER2r)[3]*(invTT) - fixef(modER2r)[3]*(mean(invTT))}
+    ER.func <- function(invTT) {fixef(modER2r)[1] + fixef(modER2r)[3]*(invTT) - fixef(modER2r)[3]*(mean(invTT))} # for trophic level 1
 
 yvals <- ER.func(mod.coefs$invTT)
 
@@ -345,21 +345,63 @@ abline((6.11 - 0.01), (0.87 + 0.25), col = 3, lwd = 2)
 
 ## analysis
 modPP0<-lme(log(PP.biomass) ~ 1, random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")  
-modPP1<-lme(log(PP.biomass) ~ 1 + I(invT - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML") 
-modPP2<-lme(log(PP.biomass) ~ 1 + I(invT - invTT) + I(invTT - mean(invTT)) + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
-modPP4<-lme(log(PP.biomass) ~ 1 + I(invT - invTT) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
-modPP5 <- lme(log(PP.biomass) ~ 1 + I(invT - invTT)*trophic.level + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+modPP1<-lme(log(PP.biomass) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML") 
+modPP2<-lme(log(PP.biomass) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+modPP4<-lme(log(PP.biomass) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+modPP5 <- lme(log(PP.biomass) ~ 1 + I(invTi - invTT)*trophic.level + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+modPP6 <- lme(log(PP.biomass) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+modPP7 <- lme(log(PP.biomass) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
 
-model.sel(modPP0, modPP1, modPP2, modPP4, modPP5) 
+model.sel(modPP0, modPP1, modPP2, modPP4, modPP5, modPP6, modPP7) 
 
-anova(modPP4, modPP5)
+## Best model: create fitted values to use later for plotting  
+modPP6r <- lme(log(PP.biomass) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit) 
+summary(modPP6r)
+intervals(modPP6r, which = "fixed")
+mod.coefs <- augment(modPP6r, effect = "random") 
 
-# for model fitting: 
-modPP4r <- lme(log(PP.biomass) ~ 1 + I(invT - invTT) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit) 
-modPP5r <- lme(log(PP.biomass) ~ 1 + I(invT - invTT)*trophic.level + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit)
 
-m.avg <- model.avg(modPP4r, modPP5r)
-summary(m.avg)
+### WITHIN AND AMONG GROUP PLOTS
+### plotting within- and among-group regressions and model outputs
+
+PP.plot <- ggplot(data = data1, aes(x = invTi, y = log(PP.biomass))) + 
+  theme_bw() +
+  geom_point(aes(group = Tank, color = trophic.level)) +
+  xlab("Temperature 1/kTi") +
+  ylab("ln(PPi)")
+
+## PLOT 1: Individual regression lines fitted within and among groups
+PP.plot +
+  geom_smooth(method = "lm", se = FALSE, aes(group = Tank, color = trophic.level)) +
+  geom_smooth(method = "lm", se = FALSE, formula = y ~ x, color = 'black')
+
+## PLOT 2: Use fitted lines from the model. 
+PP.plot +
+  geom_smooth(data = mod.coefs, aes(x = invTi, y = .fitted, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
+  geom_smooth(data = mod.coefs, aes(x = invTT, y = .fitted), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black')
+
+## PLOT 3: 
+## define PP.func for effect of weekly temperature on PP, the linear model relating temperature to PP, where T is mean tank temperature and m is the tank temp in week i  
+
+## next steps: follow template of ER model or NPP model; figure out the terms here.
+
+# after some algebra, i can isolate the slope for data modeled as centered: UPDATE THIS FOR PP
+NPP.func2 <- function(x) {fixef(modNPP7)[1] - fixef(modNPP7)[3]*mean(x) + (fixef(modNPP7)[3])*(x)} #x = invTT
+# use this function to compute yvals for plotting.
+yvals <- PP.func(mod.coefs$invTT)
+
+## FOR PLOT, BORROW ABLINE APPROACH USED IN ER PLOT
+NPP.plot +
+  geom_smooth(data = mod.coefs, aes(x = invTi, y = (.fitted), group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
+  geom_ribbon(aes(x = (mod.coefs$invTT), y = yvals, ymin = yvals - 0.3, ymax = yvals + 0.3), fill = "grey70", alpha = 0.6) +
+  geom_line(aes(x = (mod.coefs$invTT), y = yvals), lwd = 2)
+
+
+ggsave("PPplot.png", device = "png")
+
+
+
+
 
 
 ## Does zooplankton carbon vary with temperature?  ### leaving this for now. 
