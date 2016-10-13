@@ -166,7 +166,7 @@ NPP.plot +
   geom_line(aes(x = (mod.coefs$invTT), y = yvals), lwd = 2)
   #stat_function(data = mod.coefs, aes(x = (mod.coefs$invTT)), fun = NPP.func2, geom = 'line') + ## ok, this is plotting the slope of -0.62; not matching the intercept from yvals and I'm not sure why or which is right.
 
-ggsave("NPPplot.pdf", device = "pdf")
+ggsave("NPPplot.png", device = "png")
 
 ################################################
 ## Does mass-specific NPP vary with temperature?  
@@ -208,12 +208,29 @@ summary(modNPPm5r)
 ######################################
 ## Does ER vary with temperature?  
 #####################################
-## figures 
 hist(data$ER2)
 data1 <- data[(data$ER2 >= 0),]
 hist(log(data1$ER2))
-#hist(log(data$calc.ER+1))
 
+#analysis
+modER0<-lme(log(ER2) ~ 1, random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")  
+modER1<-lme(log(ER2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML") 
+modER2<-lme(log(ER2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+modER4<-lme(log(ER2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+modER5 <- lme(log(ER2) ~ 1 + I(invTi - invTT)*trophic.level + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+modER6 <- lme(log(ER2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+modER7 <- lme(log(ER2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+
+model.sel(modER0, modER1, modER2, modER4, modER5, modER6, modER7)
+
+## Best model: create fitted values to use later for plotting 
+modER2r<-lme(log(ER2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level, random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit) 
+summary(modER2r)
+intervals(modER2r, which = "fixed")
+mod.coefs <- augment(modER2r, effect = "random") 
+
+### SOME BASIC PLOTS
+## figures 
 plot(log(data$ER2)~data$Tank, pch = 19, col = data$trophic.level)
 plot(log(data$ER2)~data$week, pch = 19, col = data$trophic.level)
 plot(log(data1$ER2)~I(data1$invTT-mean(data1$invTT)), pch = 19, col = data1$trophic.level, ylim = c(0,6))
@@ -221,21 +238,51 @@ abline(4.27, -0.43, lwd = 2, col = 1)
 abline((4.27+0.35), (-0.43), lwd = 2, col = 2)
 abline((3.88-0.04), (-0.43), lwd = 2, col = 3)
 
-#analysis
-modER0<-lme(log(ER2) ~ 1, random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")  
-modER1<-lme(log(ER2) ~ 1 + I(invT - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML") 
-modER2<-lme(log(ER2) ~ 1 + I(invT - invTT) + I(invTT - mean(invTT)) + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
-modER4<-lme(log(ER2) ~ 1 + I(invT - invTT) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
-modER5 <- lme(log(ER2) ~ 1 + I(invT - invTT)*trophic.level + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
-modER6 <- lme(log(ER2) ~ 1 + I(invT - invTT)*I(invTT - mean(invTT)) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
-modER7 <- lme(log(ER2) ~ 1 + I(invT - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+### WITHIN AND AMONG GROUP PLOTS
+### plotting within- and among-group regressions and model outputs
+ER.plot <- ggplot(data = data1, aes(x = invTi, y = log(ER2))) + 
+  theme_bw() +
+  geom_point(aes(group = Tank, color = trophic.level)) +
+  xlab("Temperature 1/kTi") +
+  ylab("ln(ERi)")
 
-model.sel(modER0, modER1, modER2, modER4, modER5, modER6, modER7)
+ER.plot +
+  geom_smooth(method = "lm", se = FALSE, aes(group = Tank, color = trophic.level), alpha = 0.23) +
+  geom_smooth(method = "lm", se = FALSE, aes(group = trophic.level), formula = y ~ x, color = 'black')
+
+#1. the linear model for within groups variation
+#NPPwg.fun <- function(invTi) 3.5435395 + (0.028891)*(invTi - mean(invTi))
+#NPPwg.fun <- function(invTi) 3.5435395 + (0.028891)*(invTi) - (0.028891)*(mean(invTi))
+
+#2. the linear model for among groups variation
+#NPP.func <- function(invTT) 3.5435395 + (-0.6159088)*(invTT - mean(invTT))
+
+summary(modER2)
+#within groups, for each TG (different intercept)
+#1. ERwg.fun <- function(invTi) fixef(modER2r)[1] + fixef(modER2r)[2]*(invTi - mean(invTi))
+#   ERwg.fun <- function(invTi) fixef(modER2r)[1] + fixef(modER2r)[2]*(invTi) - fixef(modER2r)[2]*(mean(invTi))
+
+#2. ER.func <- function(invTT) {fixef(modER2r)[1] + fixef(modER2r)[3]*(invTT - mean(invTT))}
+    ER.func <- function(invTT) {fixef(modER2r)[1] + fixef(modER2r)[3]*(invTT) - fixef(modER2r)[3]*(mean(invTT))}
+
+yvals1 <- ER.func(mod.coefs[(mod.coefs$trophic.level=='P'),]$invTT)
+
+ER.plot +
+  geom_smooth(data = mod.coefs, aes(x = invTi, y = (.fitted), group = interaction(Tank, trophic.level), color = trophic.level), method = "lm", se = FALSE) +
+  #geom_ribbon(aes(x = (mod.coefs$invTT), y = yvals, ymin = yvals - 0.3, ymax = yvals + 0.3), fill = "grey70", alpha = 0.6) +
+  geom_line(aes(x = (mod.coefs$invTT), y = yvals, group = interaction(Tank, trophic.level), inherit.aes = FALSE), lwd = 2, color = "black")
+#stat_function(data = mod.coefs, aes(x = (mod.coefs$invTT)), fun = NPP.func2, geom = 'line') + ## ok, this is plotting the slope of -0.62; not matching the intercept from yvals and I'm not sure why or which is right.
+
+ggsave("NPPplot.pdf", device = "pdf")
 
 
-# for model fitting: 
-modER2r<-lme(log(ER2) ~ 1 + I(invT - invTT) + I(invTT - mean(invTT)) + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
-summary(modER2r)
+
+
+
+
+
+
+
 
 ##################################################
 ## Does mass specific ER vary with temperature? 
