@@ -265,21 +265,16 @@ summary(modER2)
 #2. ER.func <- function(invTT) {fixef(modER2r)[1] + fixef(modER2r)[3]*(invTT - mean(invTT))}
     ER.func <- function(invTT) {fixef(modER2r)[1] + fixef(modER2r)[3]*(invTT) - fixef(modER2r)[3]*(mean(invTT))}
 
-yvals1 <- ER.func(mod.coefs[(mod.coefs$trophic.level=='P'),]$invTT)
+yvals <- ER.func(mod.coefs$invTT)
 
 ER.plot +
   geom_smooth(data = mod.coefs, aes(x = invTi, y = (.fitted), group = interaction(Tank, trophic.level), color = trophic.level), method = "lm", se = FALSE) +
   #geom_ribbon(aes(x = (mod.coefs$invTT), y = yvals, ymin = yvals - 0.3, ymax = yvals + 0.3), fill = "grey70", alpha = 0.6) +
-  geom_line(aes(x = (mod.coefs$invTT), y = yvals, group = interaction(Tank, trophic.level), inherit.aes = FALSE), lwd = 2, color = "black")
-#stat_function(data = mod.coefs, aes(x = (mod.coefs$invTT)), fun = NPP.func2, geom = 'line') + ## ok, this is plotting the slope of -0.62; not matching the intercept from yvals and I'm not sure why or which is right.
-
-ggsave("NPPplot.pdf", device = "pdf")
-
-
-
-
-
-
+  geom_abline(slope = fixef(modER2r)[3], intercept = (fixef(modER2r)[1])- fixef(modER2r)[3]*(mean(mod.coefs$invTT))) +
+  geom_abline(slope = fixef(modER2r)[3], intercept = (fixef(modER2r)[1] + fixef(modER2r)[4] - fixef(modER2r)[3]*mean(mod.coefs$invTT))) +
+  geom_abline(slope = fixef(modER2r)[3], intercept = (fixef(modER2r)[1] + fixef(modER2r)[5] - fixef(modER2r)[3]*mean(mod.coefs$invTT)))
+  
+ggsave("ERplot.png", device = "png")
 
 
 
