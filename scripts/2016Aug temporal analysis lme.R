@@ -101,11 +101,11 @@ modNPP7 <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random =
 model.sel(modNPP0, modNPP2, modNPP4,modNPP1, modNPP5, modNPP6, modNPP7)
 
 ## Best model: create fitted values to use later for plotting
-intervals(modNPP7, which = "fixed")
-modNPP7 <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit) 
+intervals(modNPP7r, which = "fixed")
+modNPP7r <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit) 
 #predw <- predict(modNPP7, level = 0:1)
 ## alternatively (yes, this works): 
-mod.coefs <- augment(modNPP7, effect = "random") # puts fitted values back in the original dataset.
+mod.coefs <- augment(modNPP7r, effect = "random") # puts fitted values back in the original dataset.
 
 ### SOME BASIC PLOTS
 #data1 <- data[(data$NPP2 >= 0.5),] # three negative values and one very small value now, not sure what to do about them.
@@ -163,14 +163,33 @@ NPP.plot +
   #geom_smooth(data = mod.coefs, aes(x = (invTi), y = log(NPP2), group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE, lwd = 0.75) +
   geom_smooth(data = mod.coefs, aes(x = invTi, y = (.fitted), group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
   geom_ribbon(aes(x = (mod.coefs$invTT), y = yvals, ymin = yvals - 0.3, ymax = yvals + 0.3), fill = "grey70", alpha = 0.6) +
-  geom_line(aes(x = (mod.coefs$invTT), y = yvals), lwd = 2)
-  #stat_function(data = mod.coefs, aes(x = (mod.coefs$invTT)), fun = NPP.func2, geom = 'line') + ## ok, this is plotting the slope of -0.62; not matching the intercept from yvals and I'm not sure why or which is right.
+  geom_line(aes(x = (mod.coefs$invTT), y = yvals), lwd = 2) +
+  geom_text(label = "B2i = -0.62", x = 40.0, y = 4.5)  
+  # geom_abline(slope = fixef(modNPP7r)[3], intercept = (fixef(modNPP7r)[1] - fixef(modNPP7r)[3]*(mean(mod.coefs$invTT))), colour = "red") # this plots the model coefs, use it to check that the above method worked (and it did). this red line should be exactly on top of the black line.
 
 ggsave("NPPplot.png", device = "png")
 
 ################################################
 ## Does mass-specific NPP vary with temperature?  
 ################################################
+### NPP in umol/L/day per ugC
+
+
+## model with mean tank temperature (invTT) and the weekly deviation from that long-term average (invTi - invTT), with Tank as a random intercept effect.  
+modNPPm0 <- lme(log(NPP.mass) ~ 1, random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")  
+modNPPm1 <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")
+modNPPm2 <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)  
+modNPPm4 <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+modNPPm5 <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT)*trophic.level + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+modNPPm6 <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+modNPPm7 <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+
+model.sel(modNPPm0, modNPPm2, modNPPm4, modNPPm1, modNPPm5, modNPPm6, modNPPm7)
+
+## Best model: create fitted values to use later for plotting
+modNPPm6r <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+intervals(modNPPm6r, which = "fixed") 
+mod.coefs <- augment(modNPPm6r, effect = "random") # puts fitted values back in the original dataset.
 
 ## figures  
 ### NPP in umol/L/day per ugC
@@ -188,22 +207,45 @@ abline((-2.62+1.53), (-1.83-1.40), lwd = 2, col = 2)
 abline((-2.62+0.13), (-1.83-0.05), lwd = 2, col = 3)
 
 
-## analysis
-modNPPm0 <- lme(log(NPP.mass) ~ 1, random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")  
-modNPPm1 <- lme(log(NPP.mass) ~ 1 + I(invT - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML") 
-modNPPm2 <- lme(log(NPP.mass) ~ 1 + I(invT - invTT) + I(invTT - mean(invTT)) + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
-modNPPm4 <- lme(log(NPP.mass) ~ 1 + I(invT - invTT) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
-modNPPm5 <- lme(log(NPP.mass) ~ 1 + I(invT - invTT)*trophic.level + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
-model.sel(modNPPm0, modNPPm1, modNPPm2, modNPPm4, modNPPm5)
+### WITHIN AND AMONG GROUP PLOTS
+### plotting within- and among-group regressions and model outputs
 
-anova(modNPPm4, modNPPm2)
-anova(modNPPm2, modNPPm1)
-anova(modNPPm1, modNPPm2)
+NPPm.plot <- ggplot(data = data1, aes(x = invTi, y = log(NPP.mass))) + 
+  theme_bw() +
+  geom_point(aes(group = Tank, color = trophic.level)) +
+  xlab("Temperature 1/kTi") +
+  ylab("ln(NPPi)")
 
-# for model fitting: 
-modNPPm5r <- lme(log(NPP.mass) ~ 1 + I(invT - invTT)*trophic.level + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit) 
+## PLOT 1: Individual regression lines fitted within and among groups
+NPPm.plot +
+  geom_smooth(method = "lm", se = FALSE, aes(group = Tank, color = trophic.level)) +
+  geom_smooth(method = "lm", se = FALSE, formula = y ~ x, color = 'black')
 
-summary(modNPPm5r)
+## PLOT 2: Fit lines to fitted data from the model
+NPPm.plot +
+  geom_smooth(data = mod.coefs, aes(x = invTi, y = .fitted, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
+  geom_smooth(data = mod.coefs, aes(x = invTT, y = .fitted), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black')
+
+## PLOT 3: Plot lines from model
+
+
+NPPm.plot +
+  geom_smooth(data = mod.coefs, aes(x = invTi, y = (.fitted), group = interaction(Tank, trophic.level), color = trophic.level), method = "lm", se = FALSE) +
+  geom_abline(slope = (fixef(modNPPm6r)[3] + fixef(modNPPm6r)[2]*mean(mod.coefs$invTT)), intercept = (fixef(modNPPm6r)[1]- fixef(modNPPm6r)[3]*(mean(mod.coefs$invTT))), colour = "pink") +
+  geom_abline(slope = (fixef(modNPPm6r)[3] + fixef(modNPPm6r)[7] + fixef(modNPPm6r)[2]*mean(mod.coefs$invTT)), intercept = (fixef(modNPPm6r)[1] + fixef(modNPPm6r)[4] - fixef(modNPPm6r)[3]*(mean(mod.coefs$invTT)) - fixef(modNPPm6r)[4]*(mean(mod.coefs$invTT))), colour = "seagreen") + 
+  geom_abline(slope = (fixef(modNPPm6r)[3] + fixef(modNPPm6r)[8] + fixef(modNPPm6r)[2]*mean(mod.coefs$invTT)), intercept = (fixef(modNPPm6r)[1] + fixef(modNPPm6r)[5] - fixef(modNPPm6r)[3]*(mean(mod.coefs$invTT)) - fixef(modNPPm6r)[5]*(mean(mod.coefs$invTT))), colour = "blue")
+  
+  
+    geom_smooth(data = mod.coefs, aes(x = invTi, y = (.fitted), group = interaction(Tank, trophic.level), color = trophic.level), method = "lm", se = FALSE) +
+
+  geom_abline(slope = fixef(modER2r)[3], intercept = (fixef(modER2r)[1])- fixef(modER2r)[3]*(mean(mod.coefs$invTT))) +
+  geom_abline(slope = fixef(modER2r)[3], intercept = (fixef(modER2r)[1] + fixef(modER2r)[4] - fixef(modER2r)[3]*mean(mod.coefs$invTT))) +
+  geom_abline(slope = fixef(modER2r)[3], intercept = (fixef(modER2r)[1] + fixef(modER2r)[5] - fixef(modER2r)[3]*mean(mod.coefs$invTT)))
+
+
+geom_abline(slope = fixef(modNPPm6r)[3], intercept = (fixef(modNPPm6r)[1]- fixef(modNPPm6r)[3]*(mean(mod.coefs$invTT))), colour = "red")
+
+ggsave("ERplot.png", device = "png")
 
 ######################################
 ## Does ER vary with temperature?  
