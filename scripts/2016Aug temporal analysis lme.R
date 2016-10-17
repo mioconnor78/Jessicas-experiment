@@ -145,14 +145,14 @@ NPP.plot +
 
 ## define NPP.func for effect of weekly temperature on NPP, the linear model relating temperature to NPP, where T is mean tank temperature and m is the tank temp in week i  
 
-NPP.func <- function(Tw) fixef(modNPP7)[1] + (fixef(modNPP7)[3])*Tw # the negative here is intentional, the slope needs to b
+NPP.func <- function(Tw) fixef(modNPP7)[1] + (fixef(modNPP7)[3])*Tw 
 
 # i thought i needed to include coefficients from all terms here, but this just isn't working
 z <- 0.5 #invTi - invTT for each tank; i'm not sure if this should be the average devation? # ok if we make z = 0 the line is close. ideally, we set z as a function to estimate the mean deviation from the average for each tank, and then use that in the formula. come back to this.
 #z <- function(Ti) { (Ti - mean(Ti))}
-NPP.func2 <- function(x, Ti) { (fixef(modNPP7r)[1] - fixef(modNPP7r)[3]*mean(mod.coefs$invTT) - fixef(modNPP7r)[4]*(Ti - mean(Ti))*mean(mod.coefs$invTT)) + (fixef(modNPP7r)[3] + fixef(modNPP7r)[4]*(Ti - mean(Ti)))*x }
+NPP.func2 <- function(x, Ti) { (fixef(modNPP7r)[1] - fixef(modNPP7r)[3]*mean(mod.coefs$invTT) - fixef(modNPP7r)[4]*(z)*mean(mod.coefs$invTT)) + (fixef(modNPP7r)[3] + fixef(modNPP7r)[4]*(z))*x }
 
-yvals <- NPP.func2(mod.coefs$invTT, mod.coefs$invTi)
+yvals <- NPP.func2(mod.coefs$invTT)
 
 ## some attempts to write the z function; didn't get this working
 z <- function (Ti) {
@@ -172,12 +172,8 @@ NPP.plot +
   geom_smooth(data = mod.coefs, aes(x = invTi, y = (.fitted), group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
   geom_ribbon(aes(x = (mod.coefs$invTT), y = yvals, ymin = yvals - 0.3, ymax = yvals + 0.3), fill = "grey70", alpha = 0.6) +
   geom_line(aes(x = (mod.coefs$invTT), y = yvals), lwd = 2) +
-  geom_text(label = "B2i = -0.62", x = 40.0, y = 4.5)  
-  # geom_abline(slope = fixef(modNPP7r)[3], intercept = (fixef(modNPP7r)[1] - fixef(modNPP7r)[3]*(mean(mod.coefs$invTT))), colour = "red") # this plots the model coefs, use it to check that the above method worked (and it did). this red line should be exactly on top of the black line.
-
-NPP.plot +
-  geom_smooth(data = mod.coefs, aes(x = invTi, y = (.fitted), group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
-  stat_function(aes(x = invTT), args = invTi, fun = NPP.func2)
+  geom_text(label = "B2i = -0.62", x = 40.0, y = 4.5) + 
+  geom_abline(slope = (fixef(modNPP7r)[3] + fixef(modNPP7r)[4]*(z)), intercept = (fixef(modNPP7r)[1] - fixef(modNPP7r)[3]*mean(mod.coefs$invTT) - fixef(modNPP7r)[4]*(z)*mean(mod.coefs$invTT)), colour = "red") # this plots the model coefs, use it to check that the above method worked (and it did). this red line should be exactly on top of the black line.
 
 ggsave("NPPplot.png", device = "png")
 
