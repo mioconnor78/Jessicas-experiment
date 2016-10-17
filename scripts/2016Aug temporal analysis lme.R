@@ -147,18 +147,26 @@ NPP.plot +
 
 NPP.func <- function(Tw) fixef(modNPP7)[1] + (fixef(modNPP7)[3])*Tw # the negative here is intentional, the slope needs to b
 
-#1. the linear model for within groups variation
-#NPPwg.fun <- function(invTi) 3.5435395 + (0.028891)*(invTi - mean(invTi))
-#NPPwg.fun <- function(invTi) 3.5435395 + (0.028891)*(invTi) - (0.028891)*(mean(invTi))
+# i thought i needed to include coefficients from all terms here, but this just isn't working
+z <- 0.5 #invTi - invTT for each tank; i'm not sure if this should be the average devation? # ok if we make z = 0 the line is close. ideally, we set z as a function to estimate the mean deviation from the average for each tank, and then use that in the formula. come back to this.
+#z <- function(Ti) { (Ti - mean(Ti))}
+NPP.func2 <- function(x, Ti) { (fixef(modNPP7r)[1] - fixef(modNPP7r)[3]*mean(mod.coefs$invTT) - fixef(modNPP7r)[4]*(Ti - mean(Ti))*mean(mod.coefs$invTT)) + (fixef(modNPP7r)[3] + fixef(modNPP7r)[4]*(Ti - mean(Ti)))*x }
 
-#2. the linear model for among groups variation
-#NPP.func <- function(invTT) 3.5435395 + (-0.6159088)*(invTT - mean(invTT))
+yvals <- NPP.func2(mod.coefs$invTT, mod.coefs$invTi)
 
-# after some algebra, i can isolate the slope for data modeled as centered
-NPP.func2 <- function(x) {fixef(modNPP7)[1] - fixef(modNPP7)[3]*mean(x) + (fixef(modNPP7)[3])*(x)} #x = invTT
-# use this function to compute yvals for plotting.
-yvals <- NPP.func2(mod.coefs$invTT)
+## some attempts to write the z function; didn't get this working
+z <- function (Ti) {
+  diffs <- Ti - mean(Ti)
+  return(data.frame(diffs))
+}
 
+devs <- data1 %>%
+  group_by(Tank) %>%
+  do(devs = z(.$invTi)) 
+
+devs[[2]]
+
+## this plot works if z = 0 or is small.
 NPP.plot +
   #geom_smooth(data = mod.coefs, aes(x = (invTi), y = log(NPP2), group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE, lwd = 0.75) +
   geom_smooth(data = mod.coefs, aes(x = invTi, y = (.fitted), group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
@@ -166,6 +174,10 @@ NPP.plot +
   geom_line(aes(x = (mod.coefs$invTT), y = yvals), lwd = 2) +
   geom_text(label = "B2i = -0.62", x = 40.0, y = 4.5)  
   # geom_abline(slope = fixef(modNPP7r)[3], intercept = (fixef(modNPP7r)[1] - fixef(modNPP7r)[3]*(mean(mod.coefs$invTT))), colour = "red") # this plots the model coefs, use it to check that the above method worked (and it did). this red line should be exactly on top of the black line.
+
+NPP.plot +
+  geom_smooth(data = mod.coefs, aes(x = invTi, y = (.fitted), group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
+  stat_function(aes(x = invTT), args = invTi, fun = NPP.func2)
 
 ggsave("NPPplot.png", device = "png")
 
@@ -187,7 +199,7 @@ modNPPm7 <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), ran
 model.sel(modNPPm0, modNPPm2, modNPPm4, modNPPm1, modNPPm5, modNPPm6, modNPPm7)
 
 ## Best model: create fitted values to use later for plotting
-modNPPm6r <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+modNPPm6r <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit) 
 intervals(modNPPm6r, which = "fixed") 
 mod.coefs <- augment(modNPPm6r, effect = "random") # puts fitted values back in the original dataset.
 
@@ -221,16 +233,30 @@ NPPm.plot +
   geom_smooth(method = "lm", se = FALSE, aes(group = Tank, color = trophic.level)) +
   geom_smooth(method = "lm", se = FALSE, formula = y ~ x, color = 'black')
 
-## PLOT 2: Fit lines to fitted data from the model
+## PLOT 2: Fit lines to fitted data from the model [close here - go get the coefficients as estimated for NPP, and write them out here with a z value. should plot up well.]
 NPPm.plot +
   geom_smooth(data = mod.coefs, aes(x = invTi, y = .fitted, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
   geom_smooth(data = mod.coefs, aes(x = invTT, y = .fitted), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black')
 
 ## PLOT 3: Plot lines from model
+# after some algebra, i can isolate the slope for data modeled as centered
+NPPmPP.func <- function(x) {(fixef(modNPPm6r)[1] - fixef(modNPPm6r)[3]*mean(data1$invTT)) + (fixef(modNPPm6r)[3] - fixef(modNPPm6r)[2] - fixef(modNPPm6r)[6]*x + fixef(modNPPm6r)[6]*mean(data1$invTT))*x} #x = invTT
+# use this function to compute yvals for plotting.
+yvals <- NPPmPP.func(data1$invTT)
 
+NPP.plot +
+  #geom_smooth(data = mod.coefs, aes(x = (invTi), y = log(NPP2), group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE, lwd = 0.75) +
+  geom_smooth(data = mod.coefs, aes(x = invTi, y = (.fitted), group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
+  geom_ribbon(aes(x = (mod.coefs$invTT), y = yvals, ymin = yvals - 0.3, ymax = yvals + 0.3), fill = "grey70", alpha = 0.6) +
+  geom_line(aes(x = (mod.coefs$invTT), y = yvals), lwd = 2)
+#stat_function(data = mod.coefs, aes(x = (mod.coefs$invTT)), fun = NPP.func2, geom = 'line')
 
 NPPm.plot +
-  geom_smooth(data = mod.coefs, aes(x = invTi, y = (.fitted), group = interaction(Tank, trophic.level), color = trophic.level), method = "lm", se = FALSE) +
+  #geom_smooth(data = mod.coefs, aes(x = invTi, y = (.fitted), group = interaction(Tank, trophic.level), color = trophic.level), method = "lm", se = FALSE) +
+  geom_line(aes(x = (data1$invTT), y = yvals))
+  
+  stat_function(data = mod.coefs, aes(x = invTT), fun = NPPmPP.func, geom = 'line')
+  
   geom_abline(slope = (fixef(modNPPm6r)[3] + fixef(modNPPm6r)[2]*mean(mod.coefs$invTT)), intercept = (fixef(modNPPm6r)[1]- fixef(modNPPm6r)[3]*(mean(mod.coefs$invTT))), colour = "pink") +
   geom_abline(slope = (fixef(modNPPm6r)[3] + fixef(modNPPm6r)[7] + fixef(modNPPm6r)[2]*mean(mod.coefs$invTT)), intercept = (fixef(modNPPm6r)[1] + fixef(modNPPm6r)[4] - fixef(modNPPm6r)[3]*(mean(mod.coefs$invTT)) - fixef(modNPPm6r)[4]*(mean(mod.coefs$invTT))), colour = "seagreen") + 
   geom_abline(slope = (fixef(modNPPm6r)[3] + fixef(modNPPm6r)[8] + fixef(modNPPm6r)[2]*mean(mod.coefs$invTT)), intercept = (fixef(modNPPm6r)[1] + fixef(modNPPm6r)[5] - fixef(modNPPm6r)[3]*(mean(mod.coefs$invTT)) - fixef(modNPPm6r)[5]*(mean(mod.coefs$invTT))), colour = "blue")
