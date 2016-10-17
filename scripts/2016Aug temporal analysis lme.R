@@ -143,10 +143,6 @@ NPP.plot +
 # B1 = effect of temperature within groups (fixed) reflects main and interactive effect with the among-groups term. I'll plot it with the interaction term in the within group slopes
 # B2 = the among groups term
 
-## define NPP.func for effect of weekly temperature on NPP, the linear model relating temperature to NPP, where T is mean tank temperature and m is the tank temp in week i  
-
-NPP.func <- function(Tw) fixef(modNPP7)[1] + (fixef(modNPP7)[3])*Tw 
-
 # i thought i needed to include coefficients from all terms here, but this just isn't working
 z <- 0.5 #invTi - invTT for each tank; i'm not sure if this should be the average devation? # ok if we make z = 0 the line is close. ideally, we set z as a function to estimate the mean deviation from the average for each tank, and then use that in the formula. come back to this.
 #z <- function(Ti) { (Ti - mean(Ti))}
@@ -238,7 +234,16 @@ NPPm.plot +
 # after some algebra, i can isolate the slope for data modeled as centered
 NPPmPP.func <- function(x) {(fixef(modNPPm6r)[1] - fixef(modNPPm6r)[3]*mean(data1$invTT)) + (fixef(modNPPm6r)[3] - fixef(modNPPm6r)[2] - fixef(modNPPm6r)[6]*x + fixef(modNPPm6r)[6]*mean(data1$invTT))*x} #x = invTT
 # use this function to compute yvals for plotting.
-yvals <- NPPmPP.func(data1$invTT)
+yvals <- NPPmPP.func(mod.coefs$invTT)
+
+#### pasted in NPP code to reference
+z <- 0.5 #invTi - invTT for each tank; i'm not sure if this should be the average devation? # ok if we make z = 0 the line is close. ideally, we set z as a function to estimate the mean deviation from the average for each tank, and then use that in the formula. come back to this.
+#z <- function(Ti) { (Ti - mean(Ti))}
+NPP.func2 <- function(x, Ti) { (fixef(modNPP7r)[1] - fixef(modNPP7r)[3]*mean(mod.coefs$invTT) - fixef(modNPP7r)[4]*(z)*mean(mod.coefs$invTT)) + (fixef(modNPP7r)[3] + fixef(modNPP7r)[4]*(z))*x }
+####
+
+
+
 
 NPP.plot +
   #geom_smooth(data = mod.coefs, aes(x = (invTi), y = log(NPP2), group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE, lwd = 0.75) +
