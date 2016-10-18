@@ -17,6 +17,8 @@ head(data)
 tail(data)
 data <- data[-(241:255),]
 
+#data<-dataJ
+#dataJ <- read.csv("~/Dropbox/OConnor Lab/manuscripts/Jessica Tank experiment 2012/DATA MARY SHOULD USE TODAY/temporal_data.FEB12.csv")
 
 ### load temperature data
 tdata <- read.csv("./data/avgtemps.csv")
@@ -88,7 +90,7 @@ data <- data[data$week >= '4',]
 # center by within-tank temperature
 
 data1 <- data
-
+data1 <- data[(data$NPP2 >= 0.5),]
 ## model with mean tank temperature (invTT) and the weekly deviation from that long-term average (invTi - invTT), with Tank as a random intercept effect.  
 modNPP0 <- lme(log(NPP2) ~ 1, random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")  
 modNPP1 <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")
@@ -101,8 +103,8 @@ modNPP7 <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random =
 model.sel(modNPP0, modNPP2, modNPP4,modNPP1, modNPP5, modNPP6, modNPP7)
 
 ## Best model: create fitted values to use later for plotting
-intervals(modNPP7r, which = "fixed")
 modNPP7r <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit) 
+intervals(modNPP7r, which = "fixed")
 #predw <- predict(modNPP7, level = 0:1)
 ## alternatively (yes, this works): 
 mod.coefs <- augment(modNPP7r, effect = "random") # puts fitted values back in the original dataset.
@@ -177,10 +179,10 @@ ggsave("NPPplot.png", device = "png")
 ## Does mass-specific NPP vary with temperature?  
 ################################################
 ### NPP in umol/L/day per ugC
-
+data1 <- data[(data$NPP2 >= 0.5),]
 
 ## model with mean tank temperature (invTT) and the weekly deviation from that long-term average (invTi - invTT), with Tank as a random intercept effect.  
-modNPPm0 <- lme(log(NPP.mass) ~ 1, random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")  
+modNPPm0 <- lme(log(NPP.mass) ~ 1, random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML") 
 modNPPm1 <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")
 modNPPm2 <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)  
 modNPPm4 <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
@@ -197,7 +199,6 @@ mod.coefs <- augment(modNPPm6r, effect = "random") # puts fitted values back in 
 
 ## figures  
 ### NPP in umol/L/day per ugC
-data1 <- data[(data$NPP2 >= 0.5),]
 hist(data1$NPP.mass)
 hist(log(data1$NPP.mass))
 # hist(log(data$NPP.mass+.001)) # no reason to add a number, there are no -inf values.
@@ -216,7 +217,7 @@ abline((-2.62+0.13), (-1.83-0.05), lwd = 2, col = 3)
 
 NPPm.plot <- ggplot(data = data1, aes(x = invTi, y = log(NPP.mass))) + 
   theme_bw() +
-  geom_point(aes(group = Tank, color = trophic.level)) +
+  geom_point(aes(shape = trophic.level), colour = 312) +
   xlab("Temperature 1/kTi") +
   ylab("ln(NPPmi)")
 
@@ -231,10 +232,12 @@ NPPm.plot +
   geom_smooth(data = mod.coefs, aes(x = invTT, y = .fitted), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black')
 
 ## PLOT 3: Plot lines from model
+z <- 0.5 #invTi - invTT for each tank; 
+
 # PP coefs
 NPPmPP.func <- function(x) { (fixef(modNPPm6r)[1] - fixef(modNPPm6r)[3]*mean(data1$invTT) - fixef(modNPPm6r)[6]*z*mean(mod.coefs$invTT)) + (fixef(modNPPm6r)[3] + fixef(modNPPm6r)[6]*z)*x } #x = invTT # slope = -2.47
 # use this function to compute yvals for plotting.
-yvals <- NPPmPP.func(mod.coefs$invTT)
+yvalsPP <- NPPmPP.func(mod.coefs$invTT)
 
 # ZP coefs
 NPPmZP.func <- function(x) { (fixef(modNPPm6r)[1] - fixef(modNPPm6r)[3]*mean(data1$invTT) - fixef(modNPPm6r)[6]*z*mean(mod.coefs$invTT) + fixef(modNPPm6r)[4] - fixef(modNPPm6r)[7]*mean(mod.coefs$invTT)) + (fixef(modNPPm6r)[3] + fixef(modNPPm6r)[6]*z + fixef(modNPPm6r)[7])*x } #x = invTT #slope = -3.98
@@ -245,16 +248,15 @@ yvalsZP <- NPPmZP.func(mod.coefs$invTT)
 NPPmPZN.func <- function(x) { (fixef(modNPPm6r)[1] - fixef(modNPPm6r)[3]*mean(data1$invTT) - fixef(modNPPm6r)[6]*z*mean(mod.coefs$invTT) + fixef(modNPPm6r)[5] - fixef(modNPPm6r)[8]*mean(mod.coefs$invTT)) + (fixef(modNPPm6r)[3] + fixef(modNPPm6r)[6]*z + fixef(modNPPm6r)[8])*x } #x = invTT, #slope = -2.38
 yvalsPZN <- NPPmPZN.func(mod.coefs$invTT)
 
-z <- 0.5 #invTi - invTT for each tank; 
-
 NPPm.plot +
-  geom_smooth(data = mod.coefs, aes(x = invTi, y = (.fitted), group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
-  geom_ribbon(aes(x = (mod.coefs$invTT), y = yvalsPP, ymin = yvalsPP - 0.3, ymax = yvalsPP + 0.3), fill = "grey70", alpha = 0.6) +
-  geom_line(aes(x = (mod.coefs$invTT), y = yvalsPP), lwd = 2) +
-  geom_ribbon(aes(x = (mod.coefs$invTT), y = yvalsZP, ymin = yvalsZP - 0.3, ymax = yvalsZP + 0.3), fill = "grey70", alpha = 0.6) +
-  geom_line(aes(x = (mod.coefs$invTT), y = yvalsZP), lwd = 2, color = "seagreen") +
-  geom_ribbon(aes(x = (mod.coefs$invTT), y = yvalsPZN, ymin = yvalsPZN - 0.3, ymax = yvalsPZN + 0.3), fill = "grey70", alpha = 0.6) +
-  geom_line(aes(x = (mod.coefs$invTT), y = yvalsPZN), lwd = 2, color = "blue") +
+  geom_smooth(data = mod.coefs, aes(x = invTi, y = (.fitted), group = Tank, colour = trophic.level), size = 0.5, method = "lm", se = FALSE, inherit.aes = FALSE) +
+  scale_colour_manual(values = c("#999999","#666666","#000000")) +
+  #geom_ribbon(aes(x = (mod.coefs$invTT), y = yvalsPP, ymin = yvalsPP - 0.3, ymax = yvalsPP + 0.3), fill = "grey70", alpha = 0.6) +
+  geom_line(aes(x = (mod.coefs$invTT), y = yvalsPP), lwd = 2, color = "#999999") +
+  #geom_ribbon(aes(x = (mod.coefs$invTT), y = yvalsZP, ymin = yvalsZP - 0.3, ymax = yvalsZP + 0.3), fill = "grey70", alpha = 0.6) +
+  geom_line(aes(x = (mod.coefs$invTT), y = yvalsZP), lwd = 2, color = "#666666") +
+  #geom_ribbon(aes(x = (mod.coefs$invTT), y = yvalsPZN, ymin = yvalsPZN - 0.3, ymax = yvalsPZN + 0.3), fill = "grey70", alpha = 0.6) +
+  geom_line(aes(x = (mod.coefs$invTT), y = yvalsPZN), lwd = 2, color = "#000000") +
 
 ggsave("NPPmplot.png", device = "png")
 
