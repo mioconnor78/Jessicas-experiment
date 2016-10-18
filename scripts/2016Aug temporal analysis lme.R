@@ -25,14 +25,15 @@ tdata <- read.csv("./data/avgtemps.csv")
 head(tdata)
 temp.data <- ddply(tdata, .(Week, Tank), summarise, mean(Temperature)) 
 head(temp.data)
-names(temp.data) <- c('Week', 'tank', 'wklyTemp')
+names(temp.data) <- c('Week', 'Tank', 'wklyTemp')
 
 tank.means <- ddply(tdata, .(Tank), summarise, mean(Temperature)) 
 head(tank.means)
 names(tank.means) <- c("Tank", "TankTemp")
 
 ## bring in data file with temperatures at each sampling time
-o.data <- read.csv("./data/oxygen_temp_temporal.csv")
+#o.data <- read.csv("./data/oxygen_temp_temporal.csv")
+o.data <- read.csv("~/Dropbox/OConnor Lab/manuscripts/Jessica Tank experiment 2012/DATA MARY SHOULD USE TODAY/oxygen_temp_temporal2.csv")
 o.data <- o.data[,-(4:14)]
 o.data <- o.data[,-2]
 head(o.data)
