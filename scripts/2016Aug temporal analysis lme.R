@@ -9,6 +9,7 @@ library(MuMIn)
 library(plyr)
 library(tidyverse) 
 library(broom)
+library(reshape2)
 
 ### set working directory and load data
 data <- read.csv("./data/temporal_dataFEB12.csv")
@@ -32,8 +33,9 @@ head(tank.means)
 names(tank.means) <- c("Tank", "TankTemp")
 
 ## bring in data file with temperatures at each sampling time
+## MO on Oct 20: I'm not sure we need these... we can extract them from the datalogger IF we can be sure about the dates.
 #o.data <- read.csv("./data/oxygen_temp_temporal.csv")
-o.data <- read.csv("~/Dropbox/OConnor Lab/manuscripts/Jessica Tank experiment 2012/DATA MARY SHOULD USE TODAY/oxygen_temp_temporal2.csv")
+o.data2 <- read.csv("~/Dropbox/OConnor Lab/manuscripts/Jessica Tank experiment 2012/DATA MARY SHOULD USE TODAY/oxygen_temp_temporal2.csv")
 o.data <- o.data[,-(4:14)]
 o.data <- o.data[,-2]
 head(o.data)
@@ -45,6 +47,14 @@ data3 <- merge(data, tank.means, by.x = "Tank", by.y = "Tank") #tank.means from 
 
 head(data3)
 data <- data3
+
+### extract temps from datalogger data, and only use these. This should override the o.data as well as the temperature data code above. 
+temps <- read.csv("./data/dailytemps.csv")
+# rearrange data
+temps2 <- melt(temps, id = c("Hours", "Date"))
+names(temps2) <- c('time', 'date', 'Tank', 'temp')  # next step: have to get rid of the X
+
+
 
 ### load libraries, define variables and add columns
 k <- 8.617342*10^-5  # eV/K
