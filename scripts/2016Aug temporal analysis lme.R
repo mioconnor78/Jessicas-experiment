@@ -51,10 +51,19 @@ data <- data3
 ### extract temps from datalogger data, and only use these. This should override the o.data as well as the temperature data code above. 
 temps <- read.csv("./data/dailytemps.csv")
 # rearrange data
-temps2 <- melt(temps, id = c("Hours", "Date"))
-names(temps2) <- c('time', 'date', 'Tank', 'temp')  # next step: have to get rid of the X
+temps2 <- melt(temps, id = c("Hours", "Date", "Week"))
+names(temps2) <- c('time', 'date','Week','Tank', 'temp')  # next step: have to get rid of the X
+temps3 <- tidyr::separate(temps2, Tank, c("X", "Tank"), sep = 1)
+temps3 <- temps3[,-4]
+## what temps do we need?
 
+## average temp over each week for each tank
+library(lubridate)
+temps3$date <- dmy(temps3$date)
+temps3 <- tidyr::separate(temps3, date, c("Year", "Month", "Date"), sep = "-")
+#now just calculate the weekly average
 
+## temperature at the time of measurement of oxygen for oxygen exchange corrections
 
 ### load libraries, define variables and add columns
 k <- 8.617342*10^-5  # eV/K
