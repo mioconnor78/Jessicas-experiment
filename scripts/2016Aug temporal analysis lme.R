@@ -18,41 +18,11 @@ head(data)
 tail(data)
 data <- data[-(241:255),]
 
-#data<-dataJ
-#dataJ <- read.csv("~/Dropbox/OConnor Lab/manuscripts/Jessica Tank experiment 2012/DATA MARY SHOULD USE TODAY/temporal_data.FEB12.csv")
-
-### load temperature data
-tdata <- read.csv("./data/avgtemps.csv")
-head(tdata)
-temp.data <- ddply(tdata, .(Week, Tank), summarise, mean(Temperature)) 
-head(temp.data)
-names(temp.data) <- c('Week', 'Tank', 'wklyTemp')
-
-tank.means <- ddply(tdata, .(Tank), summarise, mean(Temperature)) 
-head(tank.means)
-names(tank.means) <- c("Tank", "TankTemp")
-
-## bring in data file with temperatures at each sampling time
-## MO on Oct 20: I'm not sure we need these... we can extract them from the datalogger IF we can be sure about the dates.
-#o.data <- read.csv("./data/oxygen_temp_temporal.csv")
-o.data2 <- read.csv("~/Dropbox/OConnor Lab/manuscripts/Jessica Tank experiment 2012/DATA MARY SHOULD USE TODAY/oxygen_temp_temporal2.csv")
-o.data <- o.data[,-(4:14)]
-o.data <- o.data[,-2]
-head(o.data)
-dim(o.data)
-data2 <- merge(data, o.data, by.x = c("week", "Tank"), by.y = c("week", "Tank"))
-data <- data2
-
-data3 <- merge(data, tank.means, by.x = "Tank", by.y = "Tank") #tank.means from temperature analysis file
-
-head(data3)
-data <- data3
-
 ### extract temps from datalogger data, and only use these. This should override the o.data as well as the temperature data code above. 
 temps <- read.csv("./data/dailytemps.csv")
 # rearrange data
 temps2 <- melt(temps, id = c("Hours", "Date", "Week"))
-names(temps2) <- c('time', 'date','Week','Tank', 'temp')  # next step: have to get rid of the X
+names(temps2) <- c('time', 'date','week','Tank', 'temp')  # next step: have to get rid of the X
 temps3 <- tidyr::separate(temps2, Tank, c("X", "Tank"), sep = 1)
 temps3 <- temps3[,-4]
 ## what temps do we need?
@@ -61,9 +31,18 @@ temps3 <- temps3[,-4]
 library(lubridate)
 temps3$date <- dmy(temps3$date)
 temps3 <- tidyr::separate(temps3, date, c("Year", "Month", "Date"), sep = "-")
-#now just calculate the weekly average
+temps.wk <- 
+  temps3 %>% 
+  group_by(Tank, week) %>%
+  summarize(mean(temp))
+
+names(temps.wk) <- c("Tank", "week", "temp.wk")
+
+data.t <- join(data, temps.wk, by = c("week", "Tank"))
 
 ## temperature at the time of measurement of oxygen for oxygen exchange corrections
+
+
 
 ### load libraries, define variables and add columns
 k <- 8.617342*10^-5  # eV/K
