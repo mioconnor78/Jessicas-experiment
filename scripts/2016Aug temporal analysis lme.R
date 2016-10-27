@@ -10,27 +10,30 @@ library(plyr)
 library(tidyverse) 
 library(broom)
 library(reshape2)
+library(lubridate)
+library(hms)
 
 ### set working directory and load data
 data <- read.csv("./data/temporal_dataFEB12.csv")
+temps <- read.csv("./data/dailytemps.csv")
 dim(data)
 head(data)
 tail(data)
 data <- data[-(241:255),]
 
-### extract temps from datalogger data, and only use these. This should override the o.data as well as the temperature data code above. 
-temps <- read.csv("./data/dailytemps.csv")
+### extract temps from datalogger data, and only use these temps.
 # rearrange data
 temps2 <- melt(temps, id = c("Hours", "Date", "Week"))
-names(temps2) <- c('time', 'date','week','Tank', 'temp')  # next step: have to get rid of the X
+names(temps2) <- c('time', 'date','week','Tank', 'temp')  
 temps3 <- tidyr::separate(temps2, Tank, c("X", "Tank"), sep = 1)
 temps3 <- temps3[,-4]
-## what temps do we need?
 
 ## average temp over each week for each tank
-library(lubridate)
-temps3$date <- dmy(temps3$date)
+temps3$date <- (dmy(temps3$date))
 temps3 <- tidyr::separate(temps3, date, c("Year", "Month", "Date"), sep = "-")
+temps3$Month <- as.numeric(temps3$Month)
+temps3$Date <- as.numeric(temps3$Date)
+
 temps.wk <- 
   temps3 %>% 
   group_by(Tank, week) %>%
@@ -41,8 +44,52 @@ names(temps.wk) <- c("Tank", "week", "temp.wk")
 data.t <- join(data, temps.wk, by = c("week", "Tank"))
 
 ## temperature at the time of measurement of oxygen for oxygen exchange corrections
+data.t$date <- (dmy(data.t$date))
+data.t <- tidyr::separate(data.t, dawn1time, c("d1Hour", "d1Min", "d1Sec"), sep = ":")
+data.t <- tidyr::separate(data.t, dusktime, c("dkHour", "dkMin", "dkSec"), sep = ":")
+data.t <- tidyr::separate(data.t, dawn2time, c("d2Hour", "d2Min", "d2Sec"), sep = ":")
+data.t <- tidyr::separate(data.t, date, c("Year", "Month", "Date"), sep = "-")
+
+temps3$time <- as.numeric(temps3$time)
+data.t$Month <- as.numeric(data.t$Month)
+data.t$Date <- as.numeric(data.t$Date)
 
 
+# messing with dates ------------------------------------------------------
+## blocked on this merge, not working, don't know why. 
+data.t2 <- data.t %>%
+  mutate(time = as.numeric(data.t$d1Hour)) 
+
+data.t2 <- data.t2 %>% 
+  unite(date_complete, Year, Month, Date, sep = "-") %>%
+  mutate(date_formatted = ymd(date_complete)) 
+
+data.t2$Tank <- as.character(data.t2$Tank)
+
+temps4 <- temps3 %>% 
+  unite(date_complete, Year, Month, Date, sep = "-") %>%
+  mutate(date_formatted = ymd(date_complete)) %>% 
+  filter(!is.na(date_formatted))
+
+str(temps4)
+str(data.t2)
+data.t3 <- left_join(data.t2, temps4, by = c("date_formatted", "time", "Tank"))
+
+names(data.t3)
+names(temps4)
+test <- temps4 %>% 
+  filter(date_complete == "2012-7-10") %>% 
+  filter(Tank == "25") %>%
+  filter(time == "4") %>% 
+  select(temp)
+
+
+test1 <- data.t3 %>% 
+  filter(date_complete.x == "2012-7-10") %>% 
+  filter(Tank == "25") %>% 
+  select(temp)
+
+identical(test1, test)
 
 ### load libraries, define variables and add columns
 k <- 8.617342*10^-5  # eV/K
