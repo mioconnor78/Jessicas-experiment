@@ -20,6 +20,7 @@ dim(data)
 head(data)
 tail(data)
 data <- data[-(241:255),]
+#View(data)
 
 ### extract temps from datalogger data, and only use these temps.
 # rearrange data
@@ -33,6 +34,7 @@ temps3$date <- (dmy(temps3$date))
 temps3 <- tidyr::separate(temps3, date, c("Year", "Month", "Date"), sep = "-")
 temps3$Month <- as.numeric(temps3$Month)
 temps3$Date <- as.numeric(temps3$Date)
+temps3$Year <- as.numeric(temps3$Year)
 
 temps.wk <- 
   temps3 %>% 
@@ -40,10 +42,10 @@ temps.wk <-
   summarize(mean(temp))
 
 names(temps.wk) <- c("Tank", "week", "temp.wk")
+data.t <- join(data, temps.wk, by = c("week", "Tank")) # add weekly temps to data file
 
-data.t <- join(data, temps.wk, by = c("week", "Tank"))
-
-## temperature at the time of measurement of oxygen for oxygen exchange corrections
+## temperature at the time of measurement of oxygen for oxygen exchange corrections. These temps are only needed for the abiotic corrections on oxygen flux. 
+## get dates and times so that I can pick the time I want from the temps3 file
 data.t$date <- (dmy(data.t$date))
 data.t <- tidyr::separate(data.t, dawn1time, c("d1Hour", "d1Min", "d1Sec"), sep = ":")
 data.t <- tidyr::separate(data.t, dusktime, c("dkHour", "dkMin", "dkSec"), sep = ":")
@@ -54,27 +56,45 @@ temps3$time <- as.numeric(temps3$time)
 data.t$Month <- as.numeric(data.t$Month)
 data.t$Date <- as.numeric(data.t$Date)
 
-
-# messing with dates ------------------------------------------------------
-## blocked on this merge, not working, don't know why. 
 data.t2 <- data.t %>%
-  mutate(time = as.numeric(data.t$d1Hour)) 
+  mutate(time = as.numeric(data.t$d1Hour)) # can swap this out for d2 and dusk hour.
+
+data.t2 <- data.t %>%  #I think this is overkill. I just need a column that is the temperature at d1, d2 and dk.
+  mutate(time.d1 = as.numeric(data.t$d1Hour)) %>%
+  mutate(time.d2 = as.numeric(data.t$d2Hour)) %>%
+  mutate(time.dk = as.numeric(data.t$dkHour))
 
 data.t2 <- data.t2 %>% 
   unite(date_complete, Year, Month, Date, sep = "-") %>%
   mutate(date_formatted = ymd(date_complete)) 
 
+## a little more cleaning
 data.t2$Tank <- as.character(data.t2$Tank)
 
+## add date column to temps3
 temps4 <- temps3 %>% 
   unite(date_complete, Year, Month, Date, sep = "-") %>%
   mutate(date_formatted = ymd(date_complete)) %>% 
   filter(!is.na(date_formatted))
 
-str(temps4)
-str(data.t2)
-data.t3 <- left_join(data.t2, temps4, by = c("date_formatted", "time", "Tank"))
+#str(temps4)
+#str(data.t2)
 
+## join temps4 and data by the date, time and tank
+data.t3 <- left_join(data.t2, temps4, by = c("date_formatted",  "Tank", "time.d1" = "time"), suffix = c(".x", ".d1"))
+data.t3$temp.d1 <- data.t3$temp
+
+data.t3 <- left_join(data.t3, temps4, by = c("date_formatted",  "Tank", "time.dk" = "time"), suffix = c(".x", ".dk"))
+
+data.t3 <- data.t3 %>%
+  mutate(d2.date = date_formatted + 1)
+
+data.t4 <- left_join(data.t3, temps4, by = c("d2.date" = "date_formatted", "Tank", "time.d2" = "time"), suffix = c(".x", ".d2"))
+
+data.t4$temp.d2 <- data.t3$temp
+### ok, I think data.t4 is what we're after. Just clean it up, and test it, then push it through the code below. can skip these tests.
+
+## test that we matched it up well. 
 names(data.t3)
 names(temps4)
 test <- temps4 %>% 
