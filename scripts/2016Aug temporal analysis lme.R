@@ -168,6 +168,12 @@ mod.coefs <- augment(modNPP2r, effect = "random")
 ## best averaged model: ## next challenge: figure out how to get coefs from the averaged model, given random effects. i'm not sure this is possible. for now just plotting model 2
 m.avg <- model.avg(modNPP5, modNPP2, modNPP1)
 summary(m.avg)
+mod.coefs <- augment(m.avg, effect = "random")
+pred.data <- predict(m.avg) # this is promising to get predicted values for plotting cheat below.
+
+### exploring ways to extract coefficients from an averaging object
+coeffs(m.avg)
+coefTable(m.avg)
 
 ### SOME BASIC PLOTS
 #data1 <- data[(data$NPP2 >= 0.5),] # three negative values and one very small value now, not sure what to do about them.
