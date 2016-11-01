@@ -11,6 +11,7 @@ library(broom)
 library(reshape2)
 library(lubridate)
 library(hms)
+library(zoo)
 
 ### set working directory and load data
 data <- read.csv("./data/temporal_dataFEB12.csv")
@@ -23,6 +24,16 @@ data$Tank <- as.character(data$Tank)
 #View(data)
 
 ### extract temps from datalogger data, and only use these temps.
+temps2 <- melt(temps, id = c("Hours", "Date", "Week"))
+names(temps2) <- c('time', 'date','week','Tank', 'temp')  
+temps3 <- tidyr::separate(temps2, Tank, c("X", "Tank"), sep = 1)
+temps3 <- temps3[,-4]
+temps3 <- tidyr::separate(temps3, date, c("Day", "Month", "Year"), sep = "/")
+
+
+## average temp over each week for each tank
+
+
 temps.wk <- 
   temps3 %>% 
   group_by(Tank, week) %>%
@@ -71,23 +82,26 @@ temps4 <- temps3 %>%
   mutate(date_formatted = ymd(date_complete)) %>% 
   filter(!is.na(date_formatted))
 
-## join temps4 and data by the date, time and tank
-data.t3 <- left_join(data.t2, temps4, by = c("date_formatted",  "Tank", "d1Hour" = "time"), suffix = c(".x", ".d1"))
-data.t3 <- dplyr::rename(data.t3, temp.d1= temp)
+temps4 <- temps4 %>% 
+  mutate(T4hrs = rollmean(temp, 4, align = "right", fill = "NA"))
 
-data.t3 <- left_join(data.t3, temps4, by = c("date_formatted",  "Tank", "dkHour" = "time"), suffix = c(".x", ".dk"))
-data.t3 <- dplyr::rename(data.t3, temp.dk = temp)
+## join temps4 and data by the date, time and tank
+data.t3 <- left_join(data.t2, temps4, by = c("date_formatted", "week", "Tank", "d1Hour" = "time")) #, suffix = c(".x", ".d1")
+data.t3 <- dplyr::rename(data.t3, temp.d1 = T4hrs)
+
+data.t3 <- left_join(data.t3, temps4, by = c("date_formatted", "week", "Tank", "dkHour" = "time")) #, suffix = c(".x", ".dk")
+data.t3 <- dplyr::rename(data.t3, temp.dk = T4hrs)
 
 data.t3 <- data.t3 %>%
   mutate(d2.date = date_formatted + 1)
 
-data.t4 <- left_join(data.t3, temps4, by = c("d2.date" = "date_formatted", "Tank", "d2Hour" = "time"), suffix = c(".x", ".d2"))
-data.t4 <- dplyr::rename(data.t4, temp.d2 = temp)
+data.t4 <- left_join(data.t3, temps4, by = c("d2.date" = "date_formatted", "week", "Tank", "d2Hour" = "time")) #, suffix = c(".x", ".d2")
+data.t4 <- dplyr::rename(data.t4, temp.d2 = T4hrs)
 
 
 ### Define temperature as inverse temperature
 data <- data.t4
-data$week <- data$week.x
+data <- dplyr::rename(data, week = week.x)
 k <- 8.617342*10^-5  # eV/K
 data$invTi <-  1/((data$temp.wk + 273)*k) # average temp of the tank each week
 data$invTT <-  1/((data$temp.Tmn + 273)*k) # average temp of the tank over all weeks
@@ -117,6 +131,9 @@ C.star(T) # yields the oxygen concentration expected at a given temperature (T i
 #calculate NPP and ER (hourly), in terms of umol O2 / l / hr, following yvon durochers 2010.
 # O2 has molar mass of 32g/mol. so 1 umol = 32 ug. so take ug/32
 data$NPP2 <- (((data$dusk - data$dawn1) - (C.star(data$temp.dk) - C.star(data$temp.d1)))*1000)/(32)  # oxygen produced umol / L /day, net all respiration. raw data is mg/L. Subtract o2 water/atm flux due to change in temperature 
+### Nov 1 2016 revisiting this calculation: 
+data$NPPn <- (( (data$dusk - C.star(data$temp.dk)) - (data$dawn1 - C.star(data$temp.d1))  )*1000)/(32)
+
 data$ER2 <- -(24/data$hours2)*(((data$dawn2 - data$dusk) - (C.star(data$temp.d2) - C.star(data$temp.dk)))*1000)/(32)  # amount of oxygen consumed per day via respiaration. negative to get the change in oxygen umol / L /day; oxygen used in the dark and daylight. MeanER can be greater than meanNPP, because NPP reflects ER already.
 data$GPP <- data$NPP2+(data$ER2/24)*data$hours1 # daily oxygen production (NPP2) + estimated daytime community respiration (daily R / 24 * hours daylight)
 data$NEM <- data$ER2/data$GPP  # following Yvon Durochers 2010. NEM > 1 means the system is respiring more than it's fixing per day. This does not need to be logged.
@@ -133,7 +150,7 @@ data <- data[data$week >= '4',]
 # center by within-tank temperature
 
 data1 <- data
-data1 <- data[(data$NPP2 >= 0.5),]
+data1 <- data[(data$NPP2 >= 0.05),]
 ## model with mean tank temperature (invTT) and the weekly deviation from that long-term average (invTi - invTT), with Tank as a random intercept effect.  
 modNPP0 <- lme(log(NPP2) ~ 1, random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")  
 modNPP1 <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")
@@ -153,7 +170,7 @@ mod.coefs <- augment(modNPP2r, effect = "random")
 #data1 <- data[(data$NPP2 >= 0.5),] # three negative values and one very small value now, not sure what to do about them.
 hist(data[(data$NPP2 >= 0.5),]$NPP2)
 hist(log(data$NPP2))
-hist((data$NPP2))
+hist((data1$NPP2))
 
 plot(log(data1$NPP2)~data1$Tank, pch = 19, col = data1$trophic.level)
 plot(log(data1$NPP2)~data1$week, pch = 19, col = data1$trophic.level)
