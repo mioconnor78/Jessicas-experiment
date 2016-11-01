@@ -3,7 +3,6 @@
 ### MO made a new file on Aug29 from June file when I decided to take week out as a fixed effect, and instead model autocorrelation. 
 
 ### load libraries
-#library(qpcR)
 library(nlme)
 library(MuMIn)
 library(plyr)
@@ -44,6 +43,15 @@ temps.wk <-
 names(temps.wk) <- c("Tank", "week", "temp.wk")
 data.t <- join(data, temps.wk, by = c("week", "Tank")) # add weekly temps to data file
 
+## average temp over each tank overall weeks
+temps.Tmn <- 
+  temps3 %>% 
+  group_by(Tank) %>%
+  summarize(mean(temp, na.rm = TRUE))
+
+names(temps.Tmn) <- c("Tank", "temp.Tmn")
+data.t <- join(data.t, temps.Tmn, by = c("Tank")) 
+
 ## temperature at the time of measurement of oxygen for oxygen exchange corrections. These temps are only needed for the abiotic corrections on oxygen flux. 
 ## get dates and times so that I can pick the time I want from the temps3 file
 data.t$date <- (dmy(data.t$date))
@@ -51,18 +59,18 @@ data.t <- tidyr::separate(data.t, dawn1time, c("d1Hour", "d1Min", "d1Sec"), sep 
 data.t <- tidyr::separate(data.t, dusktime, c("dkHour", "dkMin", "dkSec"), sep = ":")
 data.t <- tidyr::separate(data.t, dawn2time, c("d2Hour", "d2Min", "d2Sec"), sep = ":")
 data.t <- tidyr::separate(data.t, date, c("Year", "Month", "Date"), sep = "-")
+data.t <- select(data.t, -contains("Min"))
+data.t <- select(data.t, -contains("Sec"))
+data.t <- select(data.t, -contains("calc"))
 
 temps3$time <- as.numeric(temps3$time)
 data.t$Month <- as.numeric(data.t$Month)
 data.t$Date <- as.numeric(data.t$Date)
 
-data.t2 <- data.t %>%
-  mutate(time = as.numeric(data.t$d1Hour)) # can swap this out for d2 and dusk hour.
-
-data.t2 <- data.t %>%  #I think this is overkill. I just need a column that is the temperature at d1, d2 and dk.
-  mutate(time.d1 = as.numeric(data.t$d1Hour)) %>%
-  mutate(time.d2 = as.numeric(data.t$d2Hour)) %>%
-  mutate(time.dk = as.numeric(data.t$dkHour))
+data.t2 <- data.t %>%  
+  mutate(d1Hour = as.numeric(data.t$d1Hour)) %>% #time.d1
+  mutate(d2Hour = as.numeric(data.t$d2Hour)) %>% #time.d2
+  mutate(dkHour = as.numeric(data.t$dkHour)) #dkHour
 
 data.t2 <- data.t2 %>% 
   unite(date_complete, Year, Month, Date, sep = "-") %>%
@@ -81,17 +89,19 @@ temps4 <- temps3 %>%
 #str(data.t2)
 
 ## join temps4 and data by the date, time and tank
-data.t3 <- left_join(data.t2, temps4, by = c("date_formatted",  "Tank", "time.d1" = "time"), suffix = c(".x", ".d1"))
-data.t3$temp.d1 <- data.t3$temp
+data.t3 <- left_join(data.t2, temps4, by = c("date_formatted",  "Tank", "d1Hour" = "time"), suffix = c(".x", ".d1"))
+#data.t3$temp.d1 <- data.t3$temp
+data.t3 <- dplyr::rename(data.t3, temp.d1= temp)
 
-data.t3 <- left_join(data.t3, temps4, by = c("date_formatted",  "Tank", "time.dk" = "time"), suffix = c(".x", ".dk"))
+data.t3 <- left_join(data.t3, temps4, by = c("date_formatted",  "Tank", "dkHour" = "time"), suffix = c(".x", ".dk"))
+data.t3 <- dplyr::rename(data.t3, temp.dk = temp)
 
 data.t3 <- data.t3 %>%
   mutate(d2.date = date_formatted + 1)
 
-data.t4 <- left_join(data.t3, temps4, by = c("d2.date" = "date_formatted", "Tank", "time.d2" = "time"), suffix = c(".x", ".d2"))
+data.t4 <- left_join(data.t3, temps4, by = c("d2.date" = "date_formatted", "Tank", "d2Hour" = "time"), suffix = c(".x", ".d2"))
+data.t4 <- dplyr::rename(data.t4, temp.d2 = temp)
 
-data.t4$temp.d2 <- data.t3$temp
 ### ok, I think data.t4 is what we're after. Just clean it up, and test it, then push it through the code below. can skip these tests.
 
 ## test that we matched it up well. 
@@ -112,9 +122,11 @@ test1 <- data.t3 %>%
 identical(test1, test)
 
 ### load libraries, define variables and add columns
+data <- data.t4
+data$week <- data$week.x
 k <- 8.617342*10^-5  # eV/K
-data$invTi <-  1/((data$average.temp + 273)*k) # average temp of the week
-data$invTT <-  1/((data$TankTemp + 273)*k) # average temp of the tank over all weeks
+data$invTi <-  1/((data$temp.wk + 273)*k) # average temp of the tank each week
+data$invTT <-  1/((data$temp.Tmn + 273)*k) # average temp of the tank over all weeks
 data$invTi <- as.numeric(as.character(data$invTi))
 data$invTT <- as.numeric(as.character(data$invTT))
 
@@ -139,8 +151,8 @@ C.star(T) # yields the oxygen concentration expected at a given temperature (T i
 
 #calculate NPP and ER (hourly), in terms of umol O2 / l / hr, following yvon durochers 2010.
 # O2 has molar mass of 32g/mol. so 1 umol = 32 ug. so take ug/32
-data$NPP2 <- (((data$dusk - data$dawn1) - (C.star(data$temp.dusk) - C.star(data$temp.dawn1)))*1000)/(32)  # oxygen produced umol / L /day, net all respiration. raw data is mg/L. Subtract o2 water/atm flux due to change in temperature 
-data$ER2 <- -(24/data$hours2)*(((data$dawn2 - data$dusk) - (C.star(data$temp.dawn2) - C.star(data$temp.dusk)))*1000)/(32)  # amount of oxygen consumed per day via respiaration. negative to get the change in oxygen umol / L /day; oxygen used in the dark and daylight. MeanER can be greater than meanNPP, because NPP reflects ER already.
+data$NPP2 <- (((data$dusk - data$dawn1) - (C.star(data$temp.dk) - C.star(data$temp.d1)))*1000)/(32)  # oxygen produced umol / L /day, net all respiration. raw data is mg/L. Subtract o2 water/atm flux due to change in temperature 
+data$ER2 <- -(24/data$hours2)*(((data$dawn2 - data$dusk) - (C.star(data$temp.d2) - C.star(data$temp.dk)))*1000)/(32)  # amount of oxygen consumed per day via respiaration. negative to get the change in oxygen umol / L /day; oxygen used in the dark and daylight. MeanER can be greater than meanNPP, because NPP reflects ER already.
 data$GPP <- data$NPP2+(data$ER2/24)*data$hours1 # daily oxygen production (NPP2) + estimated daytime community respiration (daily R / 24 * hours daylight)
 data$NEM <- data$ER2/data$GPP  # following Yvon Durochers 2010. NEM > 1 means the system is respiring more than it's fixing per day. This does not need to be logged.
 data$NPP.mass <- data$NPP2 / (data$PP.biomass)  # NPP on ummol 02/L/day/ugCPP
@@ -175,6 +187,10 @@ intervals(modNPP7r, which = "fixed")
 ## alternatively (yes, this works): 
 mod.coefs <- augment(modNPP7r, effect = "random") # puts fitted values back in the original dataset.
 
+## new best model: [need to make sure this model is right]
+modNPP4r <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit)  
+mod.coefs <- augment(modNPP4r, effect = "random")
+
 ### SOME BASIC PLOTS
 #data1 <- data[(data$NPP2 >= 0.5),] # three negative values and one very small value now, not sure what to do about them.
 hist(data[(data$NPP2 >= 0.5),]$NPP2)
@@ -182,8 +198,8 @@ hist(log(data1$NPP2))
 
 plot(log(data1$NPP2)~data1$Tank, pch = 19, col = data1$trophic.level)
 plot(log(data1$NPP2)~data1$week, pch = 19, col = data1$trophic.level)
-plot(log(data1$NPP2)~I(data1$invTT-mean(data1$invTT)), pch = data1$Tank, col = data1$Tank, ylim = c(0,6))
-plot(log(data1$NPP2)~I(data1$invTi-(data1$invTT)), pch = data1$Tank, col = data1$Tank, ylim = c(0,6))
+plot(log(data1$NPP2)~I(data1$invTi-data1$invTT), pch = 19, col = data1$Tank, ylim = c(0,6))
+plot(log(data1$NPP2)~I(data1$invTi-data1$invTT), pch = 19, col = data1$Tank, ylim = c(0,6))
 abline(3.5435395, -0.6159088, lwd = 2, col = 1)
 plot(log(data1$NPP2)~data1$invTi, pch = data1$Tank, col = data1$Tank)
 
