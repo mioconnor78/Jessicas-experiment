@@ -19,22 +19,10 @@ dim(data)
 head(data)
 tail(data)
 data <- data[-(241:255),]
+data$Tank <- as.character(data$Tank)
 #View(data)
 
 ### extract temps from datalogger data, and only use these temps.
-# rearrange data
-temps2 <- melt(temps, id = c("Hours", "Date", "Week"))
-names(temps2) <- c('time', 'date','week','Tank', 'temp')  
-temps3 <- tidyr::separate(temps2, Tank, c("X", "Tank"), sep = 1)
-temps3 <- temps3[,-4]
-
-## average temp over each week for each tank
-temps3$date <- (dmy(temps3$date))
-temps3 <- tidyr::separate(temps3, date, c("Year", "Month", "Date"), sep = "-")
-temps3$Month <- as.numeric(temps3$Month)
-temps3$Date <- as.numeric(temps3$Date)
-temps3$Year <- as.numeric(temps3$Year)
-
 temps.wk <- 
   temps3 %>% 
   group_by(Tank, week) %>%
@@ -43,7 +31,7 @@ temps.wk <-
 names(temps.wk) <- c("Tank", "week", "temp.wk")
 data.t <- join(data, temps.wk, by = c("week", "Tank")) # add weekly temps to data file
 
-## average temp over each tank overall weeks
+## average temp over each tank overall weeks. 
 temps.Tmn <- 
   temps3 %>% 
   group_by(Tank) %>%
@@ -76,8 +64,6 @@ data.t2 <- data.t2 %>%
   unite(date_complete, Year, Month, Date, sep = "-") %>%
   mutate(date_formatted = ymd(date_complete)) 
 
-## a little more cleaning
-data.t2$Tank <- as.character(data.t2$Tank)
 
 ## add date column to temps3
 temps4 <- temps3 %>% 
@@ -85,12 +71,8 @@ temps4 <- temps3 %>%
   mutate(date_formatted = ymd(date_complete)) %>% 
   filter(!is.na(date_formatted))
 
-#str(temps4)
-#str(data.t2)
-
 ## join temps4 and data by the date, time and tank
 data.t3 <- left_join(data.t2, temps4, by = c("date_formatted",  "Tank", "d1Hour" = "time"), suffix = c(".x", ".d1"))
-#data.t3$temp.d1 <- data.t3$temp
 data.t3 <- dplyr::rename(data.t3, temp.d1= temp)
 
 data.t3 <- left_join(data.t3, temps4, by = c("date_formatted",  "Tank", "dkHour" = "time"), suffix = c(".x", ".dk"))
@@ -102,26 +84,8 @@ data.t3 <- data.t3 %>%
 data.t4 <- left_join(data.t3, temps4, by = c("d2.date" = "date_formatted", "Tank", "d2Hour" = "time"), suffix = c(".x", ".d2"))
 data.t4 <- dplyr::rename(data.t4, temp.d2 = temp)
 
-### ok, I think data.t4 is what we're after. Just clean it up, and test it, then push it through the code below. can skip these tests.
 
-## test that we matched it up well. 
-names(data.t3)
-names(temps4)
-test <- temps4 %>% 
-  filter(date_complete == "2012-7-10") %>% 
-  filter(Tank == "25") %>%
-  filter(time == "4") %>% 
-  select(temp)
-
-
-test1 <- data.t3 %>% 
-  filter(date_complete.x == "2012-7-10") %>% 
-  filter(Tank == "25") %>% 
-  select(temp)
-
-identical(test1, test)
-
-### load libraries, define variables and add columns
+### Define temperature as inverse temperature
 data <- data.t4
 data$week <- data$week.x
 k <- 8.617342*10^-5  # eV/K
@@ -130,7 +94,7 @@ data$invTT <-  1/((data$temp.Tmn + 273)*k) # average temp of the tank over all w
 data$invTi <- as.numeric(as.character(data$invTi))
 data$invTT <- as.numeric(as.character(data$invTT))
 
-## some plots for the two temperature terms:
+## some plots to visualize for the two temperature terms:
 plot((data$invTi - data$invTT) ~ data$week)
 plot((data$invTi - data$invTT) ~ data$invTT)
 plot((data$invTi) ~ data$invTT)
@@ -141,7 +105,8 @@ data$PP.biomass <- (data$chla*55) #chla (ug/L)* 55 C in PP / 1 chla = ugPPC/L
 data$ZP.carbon1 <- ifelse(data$trophic.level=='P',  0, data$zoo.ug.carbon.liter) # for adding
 data$total.carbon <- data$PP.biomass + data$ZP.carbon1 #I'm assuming 0 for ZP in P treatments here.
 
-### estimating NPP and ER from the raw data: 
+### Estimating NPP and ER from the raw data: 
+
 ## correct of water-air oxygen flux
 ### adjusting for effects of temperature on physical exchange
 C.star <- function(T) exp(7.7117 - 1.31403*log(T+45.93)) - 0.035
@@ -181,20 +146,14 @@ modNPP7 <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random =
 model.sel(modNPP0, modNPP2, modNPP4,modNPP1, modNPP5, modNPP6, modNPP7)
 
 ## Best model: create fitted values to use later for plotting
-modNPP7r <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit) 
-intervals(modNPP7r, which = "fixed")
-#predw <- predict(modNPP7, level = 0:1)
-## alternatively (yes, this works): 
-mod.coefs <- augment(modNPP7r, effect = "random") # puts fitted values back in the original dataset.
-
-## new best model: [need to make sure this model is right]
-modNPP4r <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit)  
-mod.coefs <- augment(modNPP4r, effect = "random")
+modNPP2r <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit)  
+mod.coefs <- augment(modNPP2r, effect = "random")
 
 ### SOME BASIC PLOTS
 #data1 <- data[(data$NPP2 >= 0.5),] # three negative values and one very small value now, not sure what to do about them.
 hist(data[(data$NPP2 >= 0.5),]$NPP2)
-hist(log(data1$NPP2))
+hist(log(data$NPP2))
+hist((data$NPP2))
 
 plot(log(data1$NPP2)~data1$Tank, pch = 19, col = data1$trophic.level)
 plot(log(data1$NPP2)~data1$week, pch = 19, col = data1$trophic.level)
