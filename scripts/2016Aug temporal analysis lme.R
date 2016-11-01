@@ -23,6 +23,8 @@ data <- data[-(241:255),]
 data$Tank <- as.character(data$Tank)
 #View(data)
 
+# process temperature data ------------------------------------------------
+
 ### extract temps from datalogger data, and only use these temps.
 temps2 <- melt(temps, id = c("Hours", "Date", "Week"))
 names(temps2) <- c('time', 'date','week','Tank', 'temp')  
@@ -30,10 +32,7 @@ temps3 <- tidyr::separate(temps2, Tank, c("X", "Tank"), sep = 1)
 temps3 <- temps3[,-4]
 temps3 <- tidyr::separate(temps3, date, c("Day", "Month", "Year"), sep = "/")
 
-
 ## average temp over each week for each tank
-
-
 temps.wk <- 
   temps3 %>% 
   group_by(Tank, week) %>%
@@ -42,7 +41,7 @@ temps.wk <-
 names(temps.wk) <- c("Tank", "week", "temp.wk")
 data.t <- join(data, temps.wk, by = c("week", "Tank")) # add weekly temps to data file
 
-## average temp over each tank overall weeks. 
+## average temp over each tank over all weeks. 
 temps.Tmn <- 
   temps3 %>% 
   group_by(Tank) %>%
@@ -85,7 +84,7 @@ temps4 <- temps3 %>%
 temps4 <- temps4 %>% 
   mutate(T4hrs = rollmean(temp, 4, align = "right", fill = "NA"))
 
-## join temps4 and data by the date, time and tank
+## join temps4 and data by the date, time and tank for each oxygen sampling time (hour)
 data.t3 <- left_join(data.t2, temps4, by = c("date_formatted", "week", "Tank", "d1Hour" = "time")) #, suffix = c(".x", ".d1")
 data.t3 <- dplyr::rename(data.t3, temp.d1 = T4hrs)
 
@@ -131,9 +130,6 @@ C.star(T) # yields the oxygen concentration expected at a given temperature (T i
 #calculate NPP and ER (hourly), in terms of umol O2 / l / hr, following yvon durochers 2010.
 # O2 has molar mass of 32g/mol. so 1 umol = 32 ug. so take ug/32
 data$NPP2 <- (((data$dusk - data$dawn1) - (C.star(data$temp.dk) - C.star(data$temp.d1)))*1000)/(32)  # oxygen produced umol / L /day, net all respiration. raw data is mg/L. Subtract o2 water/atm flux due to change in temperature 
-### Nov 1 2016 revisiting this calculation: 
-data$NPPn <- (( (data$dusk - C.star(data$temp.dk)) - (data$dawn1 - C.star(data$temp.d1))  )*1000)/(32)
-
 data$ER2 <- -(24/data$hours2)*(((data$dawn2 - data$dusk) - (C.star(data$temp.d2) - C.star(data$temp.dk)))*1000)/(32)  # amount of oxygen consumed per day via respiaration. negative to get the change in oxygen umol / L /day; oxygen used in the dark and daylight. MeanER can be greater than meanNPP, because NPP reflects ER already.
 data$GPP <- data$NPP2+(data$ER2/24)*data$hours1 # daily oxygen production (NPP2) + estimated daytime community respiration (daily R / 24 * hours daylight)
 data$NEM <- data$ER2/data$GPP  # following Yvon Durochers 2010. NEM > 1 means the system is respiring more than it's fixing per day. This does not need to be logged.
@@ -141,9 +137,12 @@ data$NPP.mass <- data$NPP2 / (data$PP.biomass)  # NPP on ummol 02/L/day/ugCPP
 data$ER.mass <- data$ER2/(data$total.carbon) # ER on ummol 02/L/day/ugTPP
 
 data <- data[data$week >= '4',]
-
-
 ### data prep complete
+
+
+
+
+# analysis begins ---------------------------------------------------------
 
 ### ANALYSIS
 ## trying the method suggested by Van de pol and Wright 2009
