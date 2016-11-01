@@ -78,7 +78,7 @@ data.t2 <- data.t2 %>%
 
 ## add date column to temps3
 temps4 <- temps3 %>% 
-  unite(date_complete, Year, Month, Date, sep = "-") %>%
+  unite(date_complete, Year, Month, Day, sep = "-") %>%
   mutate(date_formatted = ymd(date_complete)) %>% 
   filter(!is.na(date_formatted))
 
@@ -95,7 +95,7 @@ data.t3 <- dplyr::rename(data.t3, temp.dk = T4hrs)
 data.t3 <- data.t3 %>%
   mutate(d2.date = date_formatted + 1)
 
-data.t4 <- left_join(data.t3, temps4, by = c("d2.date" = "date_formatted", "week", "Tank", "d2Hour" = "time")) #, suffix = c(".x", ".d2")
+data.t4 <- left_join(data.t3, temps4, by = c("d2.date" = "date_formatted", "Tank", "d2Hour" = "time")) #, suffix = c(".x", ".d2")
 data.t4 <- dplyr::rename(data.t4, temp.d2 = T4hrs)
 
 
@@ -166,6 +166,10 @@ model.sel(modNPP0, modNPP2, modNPP4,modNPP1, modNPP5, modNPP6, modNPP7)
 modNPP2r <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit)  
 mod.coefs <- augment(modNPP2r, effect = "random")
 
+## best averaged model: ## next challenge: figure out how to get coefs from the averaged model, given random effects. i'm not sure this is possible. for now just plotting model 2
+m.avg <- model.avg(modNPP5, modNPP2, modNPP1)
+summary(m.avg)
+
 ### SOME BASIC PLOTS
 #data1 <- data[(data$NPP2 >= 0.5),] # three negative values and one very small value now, not sure what to do about them.
 hist(data[(data$NPP2 >= 0.5),]$NPP2)
@@ -206,6 +210,9 @@ NPP.plot +
 # i thought i needed to include coefficients from all terms here, but this just isn't working
 z <- 0.5 #invTi - invTT for each tank; i'm not sure if this should be the average devation? # ok if we make z = 0 the line is close. ideally, we set z as a function to estimate the mean deviation from the average for each tank, and then use that in the formula. come back to this.
 #z <- function(Ti) { (Ti - mean(Ti))}
+
+## Nov 1 - this one needs to be redone for model 2:
+
 NPP.func2 <- function(x, Ti) { (fixef(modNPP7r)[1] - fixef(modNPP7r)[3]*mean(mod.coefs$invTT) - fixef(modNPP7r)[4]*(z)*mean(mod.coefs$invTT)) + (fixef(modNPP7r)[3] + fixef(modNPP7r)[4]*(z))*x }
 
 yvals <- NPP.func2(mod.coefs$invTT)
@@ -233,11 +240,12 @@ NPP.plot +
 
 ggsave("NPPplot.png", device = "png")
 
+
 ################################################
 ## Does mass-specific NPP vary with temperature?  
 ################################################
 ### NPP in umol/L/day per ugC
-data1 <- data[(data$NPP2 >= 0.5),]
+data1 <- data[(data$NPP2 >= 0.05),]
 
 ## model with mean tank temperature (invTT) and the weekly deviation from that long-term average (invTi - invTT), with Tank as a random intercept effect.  
 modNPPm0 <- lme(log(NPP.mass) ~ 1, random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML") 
@@ -251,9 +259,9 @@ modNPPm7 <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), ran
 model.sel(modNPPm0, modNPPm2, modNPPm4, modNPPm1, modNPPm5, modNPPm6, modNPPm7)
 
 ## Best model: create fitted values to use later for plotting
-modNPPm6r <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit) 
-intervals(modNPPm6r, which = "fixed") 
-mod.coefs <- augment(modNPPm6r, effect = "random") # puts fitted values back in the original dataset.
+modNPPm5r <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit) 
+intervals(modNPPm5r, which = "fixed") 
+mod.coefs <- augment(modNPPm5r, effect = "random") # puts fitted values back in the original dataset.
 
 ## figures  
 ### NPP in umol/L/day per ugC
