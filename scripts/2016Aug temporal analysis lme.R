@@ -61,6 +61,10 @@ data.t <- select(data.t, -contains("Min"))
 data.t <- select(data.t, -contains("Sec"))
 data.t <- select(data.t, -contains("calc"))
 
+
+temps3$Year <- as.numeric(temps3$Year)
+temps3$Month <- as.numeric(temps3$Month)
+temps3$Day <- as.numeric(temps3$Day)
 temps3$time <- as.numeric(temps3$time)
 data.t$Month <- as.numeric(data.t$Month)
 data.t$Date <- as.numeric(data.t$Date)
@@ -74,12 +78,13 @@ data.t2 <- data.t2 %>%
   unite(date_complete, Year, Month, Date, sep = "-") %>%
   mutate(date_formatted = ymd(date_complete)) 
 
-
 ## add date column to temps3
+temps3$Year <- rep(2012, length(temps3[,1]))
 temps4 <- temps3 %>% 
   unite(date_complete, Year, Month, Day, sep = "-") %>%
   mutate(date_formatted = ymd(date_complete)) %>% 
   filter(!is.na(date_formatted))
+head(temps4)
 
 temps4 <- temps4 %>% 
   mutate(T4hrs = rollmean(temp, 4, align = "right", fill = "NA"))
@@ -177,7 +182,7 @@ coefTable(m.avg)
 
 ### SOME BASIC PLOTS
 #data1 <- data[(data$NPP2 >= 0.5),] # three negative values and one very small value now, not sure what to do about them.
-hist(data[(data$NPP2 >= 0.5),]$NPP2)
+hist(data[(data$NPP2 >= 0.05),]$NPP2)
 hist(log(data$NPP2))
 hist((data1$NPP2))
 
