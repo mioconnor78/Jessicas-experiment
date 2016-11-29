@@ -154,7 +154,7 @@ data <- data[data$week >= '4',]
 # center by within-tank temperature
 
 data1 <- data
-data1 <- data[(data$NPP2 >= 0.05),]
+data1 <- data[(data$NPP2 >= 0.01),]
 ## model with mean tank temperature (invTT) and the weekly deviation from that long-term average (invTi - invTT), with Tank as a random intercept effect.  
 modNPP0 <- lme(log(NPP2) ~ 1, random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")  
 modNPP1 <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")

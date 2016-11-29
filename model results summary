@@ -1,0 +1,136 @@
+NPP0
+
+> model.sel(modNPP0, modNPP2, modNPP4,modNPP1, modNPP5, modNPP6, modNPP7)
+Model selection table 
+        (Int)  inT-iTT iTT-men(iTT) trp.lvl
+modNPP5 3.293 -0.01895      -1.3160       +
+modNPP2 3.448 -0.50640      -0.8222       +
+modNPP1 3.624 -0.49460      -0.6501        
+modNPP4 3.399 -0.50390      -1.2870       +
+modNPP7 3.623 -0.48840      -0.5689        
+modNPP6 3.399 -0.49780      -1.1800       +
+modNPP0 3.526                              
+        I(iTT-men(iTT)):trp.lvl I(inT-iTT):trp.lvl
+modNPP5                       +                  +
+modNPP2                                           
+modNPP1                                           
+modNPP4                       +                   
+modNPP7                                           
+modNPP6                       +                   
+modNPP0                                           
+        inT-iTT):I(iTT-men(iTT) df   logLik  AICc delta weight
+modNPP5                         11 -189.767 403.3  0.00  0.346
+modNPP2                          7 -194.335 403.4  0.10  0.329
+modNPP1                          5 -197.276 404.9  1.64  0.152
+modNPP4                          9 -193.521 406.2  2.93  0.080
+modNPP7                 -0.4311  6 -197.167 406.9  3.58  0.058
+modNPP6                 -0.5208 10 -193.357 408.2  4.88  0.030
+modNPP0                          3 -202.749 411.6  8.35  0.005
+Models ranked by AICc(x) 
+Random terms (all models): 
+‘1 | Tank’
+> m.avg <- model.avg(modNPP5, modNPP2, modNPP1)
+> summary(m.avg)
+
+Call:
+model.avg(object = modNPP5, modNPP2, modNPP1)
+
+Component model call: 
+lme.formula(fixed = <3 unique values>, data = data1, random 
+     = ~1 | Tank, method = ML, na.action = na.omit)
+
+Component models: 
+      df  logLik   AICc delta weight
+12345 11 -189.77 403.29  0.00   0.42
+123    7 -194.34 403.40  0.10   0.40
+12     5 -197.28 404.94  1.64   0.18
+
+Term codes: 
+                    I(invTi - invTT) 
+                                   1 
+              I(invTT - mean(invTT)) 
+                                   2 
+                       trophic.level 
+                                   3 
+      I(invTi - invTT):trophic.level 
+                                   4 
+I(invTT - mean(invTT)):trophic.level 
+                                   5 
+
+Model-averaged coefficients:  
+(full average) 
+                                        Estimate Std. Error
+(Intercept)                              3.41538    0.17642
+I(invTi - invTT)                        -0.30027    0.38840
+trophic.levelPZ                          0.25128    0.24670
+trophic.levelPZN                         0.34802    0.23783
+I(invTT - mean(invTT))                  -0.99699    0.45751
+I(invTi - invTT):trophic.levelPZ        -0.62535    0.82930
+I(invTi - invTT):trophic.levelPZN       -0.09078    0.36634
+I(invTT - mean(invTT)):trophic.levelPZ   0.20568    0.46987
+I(invTT - mean(invTT)):trophic.levelPZN  0.35578    0.60143
+                                        Adjusted SE z value
+(Intercept)                                 0.17730  19.263
+I(invTi - invTT)                            0.39068   0.769
+trophic.levelPZ                             0.25226   0.996
+trophic.levelPZN                            0.24402   1.426
+I(invTT - mean(invTT))                      0.47256   2.110
+I(invTi - invTT):trophic.levelPZ            0.83095   0.753
+I(invTi - invTT):trophic.levelPZN           0.36952   0.246
+I(invTT - mean(invTT)):trophic.levelPZ      0.48828   0.421
+I(invTT - mean(invTT)):trophic.levelPZN     0.61801   0.576
+                                        Pr(>|z|)    
+(Intercept)                               <2e-16 ***
+I(invTi - invTT)                          0.4421    
+trophic.levelPZ                           0.3192    
+trophic.levelPZN                          0.1538    
+I(invTT - mean(invTT))                    0.0349 *  
+I(invTi - invTT):trophic.levelPZ          0.4517    
+I(invTi - invTT):trophic.levelPZN         0.8059    
+I(invTT - mean(invTT)):trophic.levelPZ    0.6736    
+I(invTT - mean(invTT)):trophic.levelPZN   0.5648    
+ 
+(conditional average) 
+                                        Estimate Std. Error
+(Intercept)                               3.4154     0.1764
+I(invTi - invTT)                         -0.3003     0.3884
+trophic.levelPZ                           0.3080     0.2390
+trophic.levelPZN                          0.4266     0.1893
+I(invTT - mean(invTT))                   -0.9970     0.4575
+I(invTi - invTT):trophic.levelPZ         -1.4945     0.5871
+I(invTi - invTT):trophic.levelPZN        -0.2169     0.5416
+I(invTT - mean(invTT)):trophic.levelPZ    0.4915     0.6222
+I(invTT - mean(invTT)):trophic.levelPZN   0.8502     0.6663
+                                        Adjusted SE z value
+(Intercept)                                  0.1773  19.263
+I(invTi - invTT)                             0.3907   0.769
+trophic.levelPZ                              0.2460   1.252
+trophic.levelPZN                             0.1987   2.147
+I(invTT - mean(invTT))                       0.4726   2.110
+I(invTi - invTT):trophic.levelPZ             0.5927   2.521
+I(invTi - invTT):trophic.levelPZN            0.5468   0.397
+I(invTT - mean(invTT)):trophic.levelPZ       0.6552   0.750
+I(invTT - mean(invTT)):trophic.levelPZN      0.7017   1.212
+                                        Pr(>|z|)    
+(Intercept)                               <2e-16 ***
+I(invTi - invTT)                          0.4421    
+trophic.levelPZ                           0.2106    
+trophic.levelPZN                          0.0318 *  
+I(invTT - mean(invTT))                    0.0349 *  
+I(invTi - invTT):trophic.levelPZ          0.0117 *  
+I(invTi - invTT):trophic.levelPZN         0.6915    
+I(invTT - mean(invTT)):trophic.levelPZ    0.4531    
+I(invTT - mean(invTT)):trophic.levelPZN   0.2256    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Relative variable importance: 
+                     I(invTi - invTT) I(invTT - mean(invTT))
+Importance:          1.00             1.00                  
+N containing models:    3                3                  
+                     trophic.level I(invTi - invTT):trophic.level
+Importance:          0.82          0.42                          
+N containing models:    2             1                          
+                     I(invTT - mean(invTT)):trophic.level
+Importance:          0.42                                
+N containing models:    1  
