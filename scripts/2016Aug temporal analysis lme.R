@@ -194,11 +194,12 @@ plot(log(data1$NPP2)~I(data1$invTi-data1$invTT), pch = 19, col = data1$Tank, yli
 abline(3.5435395, -0.6159088, lwd = 2, col = 1)
 plot(log(data1$NPP2)~data1$invTi, pch = data1$Tank, col = data1$Tank)
 
-### WITHIN AND AMONG GROUP PLOTS
+#### WITHIN AND AMONG GROUP PLOTS
 ### plotting within- and among-group regressions and model outputs
 
 NPP.plot <- ggplot(data = data1, aes(x = invTi, y = log(NPP2))) + 
   theme_bw() +
+  theme(legend.position = "none") +
   geom_point(aes(group = Tank, color = trophic.level)) +
   xlab("Temperature 1/kTi") +
   ylab("ln(NPPi)")
@@ -206,7 +207,10 @@ NPP.plot <- ggplot(data = data1, aes(x = invTi, y = log(NPP2))) +
 ## PLOT 1: Individual regression lines fitted within and among groups
 NPP.plot +
   geom_smooth(method = "lm", se = FALSE, aes(group = Tank, color = trophic.level)) +
-  geom_smooth(method = "lm", se = FALSE, formula = y ~ x, color = 'black')
+  geom_smooth(method = "lm", se = FALSE, aes(group = trophic.level), color = "gray3") 
+ # geom_smooth(method = "lm", se = FALSE, formula = y ~ x, color = 'black')
+
+ggsave("NPPplot.png", device = "png", width = 5, height = 3)
 
 ## PLOT 2: Raw data and fitted lines from the model. Added the predictions of the model to the original dataset, then fit lines to those using linear regressions
 NPP.plot +
@@ -251,7 +255,7 @@ NPP.plot +
   geom_text(label = "B2i = -0.62", x = 40.0, y = 4.5) + 
   geom_abline(slope = (fixef(modNPP7r)[3] + fixef(modNPP7r)[4]*(z)), intercept = (fixef(modNPP7r)[1] - fixef(modNPP7r)[3]*mean(mod.coefs$invTT) - fixef(modNPP7r)[4]*(z)*mean(mod.coefs$invTT)), colour = "red") # this plots the model coefs, use it to check that the above method worked (and it did). this red line should be exactly on top of the black line.
 
-ggsave("NPPplot.png", device = "png")
+ggsave("NPPplot.png", device = "png", width = 4, height = 3)
 
 
 ################################################
@@ -364,6 +368,9 @@ summary(modER2r)
 intervals(modER2r, which = "fixed")
 mod.coefs <- augment(modER2r, effect = "random") 
 
+m.avg <- model.avg(modER2, modER4)
+summary(m.avg)
+
 ### SOME BASIC PLOTS
 ## figures 
 plot(log(data$ER2)~data$Tank, pch = 19, col = data$trophic.level)
@@ -377,13 +384,16 @@ abline((3.88-0.04), (-0.43), lwd = 2, col = 3)
 ### plotting within- and among-group regressions and model outputs
 ER.plot <- ggplot(data = data1, aes(x = invTi, y = log(ER2))) + 
   theme_bw() +
+  theme(legend.position = "none") +
   geom_point(aes(group = Tank, color = trophic.level)) +
   xlab("Temperature 1/kTi") +
   ylab("ln(ERi)")
 
 ER.plot +
   geom_smooth(method = "lm", se = FALSE, aes(group = Tank, color = trophic.level), alpha = 0.23) +
-  geom_smooth(method = "lm", se = FALSE, aes(group = trophic.level), formula = y ~ x, color = 'black')
+  geom_smooth(method = "lm", se = FALSE, aes(group = trophic.level), color = "gray3")
+
+ggsave("ERplot.png", device = "png", width = 5, height = 4)
 
 ER.funcP <- function(x) { (fixef(modER2r)[1] - fixef(modER2r)[3]*mean(mod.coefs$invTT)) + (fixef(modER2r)[3])*x } # for trophic level 1
 yvalsP <- ER.funcP(mod.coefs$invTT)
@@ -415,7 +425,7 @@ ggsave("ERplot.png", device = "png")
 
 
 
-
+####
 ##################################################
 ## Does mass specific ER vary with temperature? 
 ##################################################
@@ -423,6 +433,9 @@ ggsave("ERplot.png", device = "png")
 data1 <- data[(data$ER2 >= 0),]
 hist(data1$ER.mass)
 hist(log(data1$ER.mass))
+
+# ER mass -----------------------------------------------------------------
+
 
 plot(log(data$ER.mass)~data$Tank, pch = 19, col = data$trophic.level)
 plot(log(data$ER.mass)~data$week, pch = 19, col = data$trophic.level)
@@ -499,6 +512,7 @@ ERm.plot +
   
 ##### BIOMASS RESULTS #####
 
+# PP biomass --------------------------------------------------------------
 #### PP BIOMASS ###
 ## Does total PP biomass vary with temperature and FCL?   
 ## figures 
@@ -536,6 +550,7 @@ mod.coefs <- augment(modPP6r, effect = "random")
 
 PP.plot <- ggplot(data = data1, aes(x = invTi, y = log(PP.biomass))) + 
   theme_bw() +
+  theme(legend.position = "FALSE") +
   geom_point(aes(group = Tank, color = trophic.level)) +
   xlab("Temperature 1/kTi") +
   ylab("ln(PPi)")
@@ -543,7 +558,9 @@ PP.plot <- ggplot(data = data1, aes(x = invTi, y = log(PP.biomass))) +
 ## PLOT 1: Individual regression lines fitted within and among groups
 PP.plot +
   geom_smooth(method = "lm", se = FALSE, aes(group = Tank, color = trophic.level)) +
-  geom_smooth(method = "lm", se = FALSE, formula = y ~ x, color = 'black')
+  geom_smooth(method = "lm", se = FALSE, aes(group = trophic.level), color = 'black')
+
+ggsave("PPplot.png", device = "png", height = 3, width = 5)
 
 ## PLOT 2: Use fitted lines from the model. 
 PP.plot +
