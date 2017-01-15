@@ -167,11 +167,12 @@ modNPP7 <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random =
 model.sel(modNPP0, modNPP2, modNPP4,modNPP1, modNPP5, modNPP6, modNPP7)
 
 ## Best model: create fitted values to use later for plotting
-modNPP5r <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit)  
+modNPP5r <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*trophic.level + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit)  
 mod.coefs <- augment(modNPP5r, effect = "random")
 
 ## best averaged model: ## next challenge: figure out how to get coefs from the averaged model, given random effects. i'm not sure this is possible. 
 ## don't think it's possible. So, plot the fixed effect coefs for averaged models (need to pencil this out; leave off within group lines?)
+## approach on 1/15/17 is to use best model
 m.avg <- model.avg(modNPP5, modNPP2, modNPP1)
 summary(m.avg)
 pred.data <- as.data.frame(predict(m.avg, se.fit = FALSE)) # this is promising to get predicted values for plotting cheat below.
@@ -214,9 +215,9 @@ ggsave("NPPplot.png", device = "png", width = 5, height = 3)
 
 ## PLOT 2: Raw data and fitted lines from the model. Added the predictions of the model to the original dataset, then fit lines to those using linear regressions
 NPP.plot +
-  geom_smooth(data = data.NPP, aes(x = invTi, y = pred.data, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
+  geom_smooth(data = mod.coefs, aes(x = invTi, y = pred.data, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
   geom_smooth(data = mod.coefs, aes(x = invTT, y = pred.data), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black') +
-  geom_point(data = data.NPP, aes(x = invTi, y = pred.data))
+  geom_point(data = mod.coefs, aes(x = invTi, y = pred.data))
 
 
 ## PLOT 3: Now try to plot the model results directly, as lines. Following van de pol and wright, we can plot all this on one temperature axis, with one slope for between group change, and another for within group change. So, we just have to figure out what are those coefficients...
