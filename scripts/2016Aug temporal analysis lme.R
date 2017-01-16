@@ -169,6 +169,7 @@ model.sel(modNPP0, modNPP2, modNPP4,modNPP1, modNPP5, modNPP6, modNPP7)
 ## Best model: create fitted values to use later for plotting
 modNPP5r <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*trophic.level + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit)  
 mod.coefs <- augment(modNPP5r, effect = "random")
+## come back to get confints, might need qpCR
 
 ## best averaged model: ## next challenge: figure out how to get coefs from the averaged model, given random effects. i'm not sure this is possible. 
 ## don't think it's possible. So, plot the fixed effect coefs for averaged models (need to pencil this out; leave off within group lines?)
@@ -198,10 +199,10 @@ plot(log(data1$NPP2)~data1$invTi, pch = data1$Tank, col = data1$Tank)
 #### WITHIN AND AMONG GROUP PLOTS
 ### plotting within- and among-group regressions and model outputs
 
-NPP.plot <- ggplot(data = data1, aes(x = invTi, y = log(NPP2))) + 
+NPP.plot <- ggplot(data = data1, aes(x = invTi, y = log(NPP2), ymin = -2)) + 
   theme_bw() +
   theme(legend.position = "none") +
-  geom_point(aes(group = Tank, color = trophic.level)) +
+  geom_point(aes(group = Tank, shape = trophic.level), alpha = 1/2, size = 2) + #color = trophic.level
   xlab("Temperature 1/kTi") +
   ylab("ln(NPPi)")
 
@@ -214,49 +215,29 @@ NPP.plot +
 ggsave("NPPplot.png", device = "png", width = 5, height = 3)
 
 ## PLOT 2: Raw data and fitted lines from the model. Added the predictions of the model to the original dataset, then fit lines to those using linear regressions
+## ok now that there are trophic group effects, we need to make different slopes: 
+NPP.funcP <- function(x) { (fixef(modNPP5r)[1] - fixef(modNPP5r)[5]*mean(mod.coefs$invTT)) + fixef(modNPP5r)[5]*x}
+yvalsP <- NPP.funcP(mod.coefs$invTT)
+
+NPP.funcPZ <- function(x) { (fixef(modNPP5r)[1] + fixef(modNPP5r)[3] - fixef(modNPP5r)[5]*mean(mod.coefs$invTT) - fixef(modNPP5r)[8]*mean(mod.coefs$invTT)) + (fixef(modNPP5r)[5] + fixef(modNPP5r)[8])*x}
+yvalsPZ <- NPP.funcPZ(mod.coefs$invTT)
+
+NPP.funcPZN <- function(x) { (fixef(modNPP5r)[1] + fixef(modNPP5r)[4] - fixef(modNPP5r)[5]*mean(mod.coefs$invTT) - fixef(modNPP5r)[9]*mean(mod.coefs$invTT)) + (fixef(modNPP5r)[5] + fixef(modNPP5r)[9])*x}
+yvalsPZN <- NPP.funcPZN(mod.coefs$invTT)
+
+
 NPP.plot +
-  geom_smooth(data = mod.coefs, aes(x = invTi, y = pred.data, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
-  geom_smooth(data = mod.coefs, aes(x = invTT, y = pred.data), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black') +
-  geom_point(data = mod.coefs, aes(x = invTi, y = pred.data))
-
-
-## PLOT 3: Now try to plot the model results directly, as lines. Following van de pol and wright, we can plot all this on one temperature axis, with one slope for between group change, and another for within group change. So, we just have to figure out what are those coefficients...
-# B0 = intercept varies within group (fixed + random)
-# B1 = effect of temperature within groups (fixed) reflects main and interactive effect with the among-groups term. I'll plot it with the interaction term in the within group slopes
-# B2 = the among groups term
-
-# i thought i needed to include coefficients from all terms here, but this just isn't working
-z <- 0.5 #invTi - invTT for each tank; i'm not sure if this should be the average devation? # ok if we make z = 0 the line is close. ideally, we set z as a function to estimate the mean deviation from the average for each tank, and then use that in the formula. come back to this.
-#z <- function(Ti) { (Ti - mean(Ti))}
-
-## Nov 1 - this one needs to be redone for model 2:
-
-NPP.func2 <- function(x, Ti) { (fixef(modNPP7r)[1] - fixef(modNPP7r)[3]*mean(mod.coefs$invTT) - fixef(modNPP7r)[4]*(z)*mean(mod.coefs$invTT)) + (fixef(modNPP7r)[3] + fixef(modNPP7r)[4]*(z))*x }
-
-yvals <- NPP.func2(mod.coefs$invTT)
-
-## some attempts to write the z function; didn't get this working
-z <- function (Ti) {
-  diffs <- Ti - mean(Ti)
-  return(data.frame(diffs))
-}
-
-devs <- data1 %>%
-  group_by(Tank) %>%
-  do(devs = z(.$invTi)) 
-
-devs[[2]]
-
-## this plot works if z = 0 or is small.
-NPP.plot +
-  #geom_smooth(data = mod.coefs, aes(x = (invTi), y = log(NPP2), group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE, lwd = 0.75) +
-  geom_smooth(data = mod.coefs, aes(x = invTi, y = (.fitted), group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
-  geom_ribbon(aes(x = (mod.coefs$invTT), y = yvals, ymin = yvals - 0.3, ymax = yvals + 0.3), fill = "grey70", alpha = 0.6) +
-  geom_line(aes(x = (mod.coefs$invTT), y = yvals), lwd = 2) +
-  geom_text(label = "B2i = -0.62", x = 40.0, y = 4.5) + 
-  geom_abline(slope = (fixef(modNPP7r)[3] + fixef(modNPP7r)[4]*(z)), intercept = (fixef(modNPP7r)[1] - fixef(modNPP7r)[3]*mean(mod.coefs$invTT) - fixef(modNPP7r)[4]*(z)*mean(mod.coefs$invTT)), colour = "red") # this plots the model coefs, use it to check that the above method worked (and it did). this red line should be exactly on top of the black line.
-
-ggsave("NPPplot.png", device = "png", width = 4, height = 3)
+  #geom_smooth(data = mod.coefs, aes(x = invTi, y = yvalsP, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
+  geom_smooth(method = "lm", se = FALSE, aes(group = Tank, color = trophic.level), alpha = 0.23, size = .8) +
+  geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+  geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 2, size = 1.5) +
+  geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 4, size = 1.5) +
+  geom_text(label = "Y.P = -1.32x + 54.96", x = 38.9, y = -1) +
+  geom_text(label = "Y.PZ = -0.82x + 36.12", x = 38.9, y = -1.5) +
+  geom_text(label = "Y.PZN = -0.46x + 22.03", x = 38.9, y = -2)
+  #geom_point(data = mod.coefs, aes(x = invTi, y = pred.data))
+  
+ggsave("NPPplot.png", device = "png", width = 5, height = 3)
 
 
 ################################################
@@ -383,10 +364,10 @@ abline((3.88-0.04), (-0.43), lwd = 2, col = 3)
 
 ### WITHIN AND AMONG GROUP PLOTS
 ### plotting within- and among-group regressions and model outputs
-ER.plot <- ggplot(data = data1, aes(x = invTi, y = log(ER2))) + 
+ER.plot <- ggplot(data = mod.coefs, aes(x = invTi, y = log(ER2))) + 
   theme_bw() +
   theme(legend.position = "none") +
-  geom_point(aes(group = Tank, color = trophic.level)) +
+  geom_point(aes(group = Tank, shape = trophic.level), alpha = 1/2, size = 2) +
   xlab("Temperature 1/kTi") +
   ylab("ln(ERi)")
 
@@ -399,29 +380,24 @@ ggsave("ERplot.png", device = "png", width = 5, height = 4)
 ER.funcP <- function(x) { (fixef(modER2r)[1] - fixef(modER2r)[3]*mean(mod.coefs$invTT)) + (fixef(modER2r)[3])*x } # for trophic level 1
 yvalsP <- ER.funcP(mod.coefs$invTT)
 
-ER.funcPZ <- function(x) { (fixef(modER2r)[1] + fixef(modER2r)[4] - fixef(modER2r)[3]*mean(mod.coefs$invTT)) + (fixef(modER2r)[3])*x } # for trophic level 1
+ER.funcPZ <- function(x) { (fixef(modER2r)[1] + fixef(modER2r)[4] - fixef(modER2r)[3]*mean(mod.coefs$invTT)) + (fixef(modER2r)[3])*x } # for trophic level 2
 yvalsPZ <- ER.funcPZ(mod.coefs$invTT)
 
-ER.funcPZN <- function(x) { (fixef(modER2r)[1] + fixef(modER2r)[5] - fixef(modER2r)[3]*mean(mod.coefs$invTT)) + (fixef(modER2r)[3])*x } # for trophic level 1
+ER.funcPZN <- function(x) { (fixef(modER2r)[1] + fixef(modER2r)[5] - fixef(modER2r)[3]*mean(mod.coefs$invTT)) + (fixef(modER2r)[3])*x } # for trophic level 3
 yvalsPZN <- ER.funcPZN(mod.coefs$invTT)
 
 ER.plot +
-  geom_smooth(data = mod.coefs, aes(x = invTi, y = (.fitted), group = interaction(Tank, trophic.level), color = trophic.level), method = "lm", se = FALSE) +
-  geom_ribbon(aes(x = (mod.coefs$invTT), y = yvalsP, ymin = yvalsP - 0.3, ymax = yvalsP + 0.3), fill = "grey70", alpha = 0.6) +
-  geom_line(aes(x = (mod.coefs$invTT), y = yvalsP), lwd = 2, color = "pink") +
-  geom_ribbon(aes(x = (mod.coefs$invTT), y = yvalsPZ, ymin = yvalsPZ - 0.3, ymax = yvalsPZ + 0.3), fill = "grey70", alpha = 0.6) +
-  geom_line(aes(x = (mod.coefs$invTT), y = yvalsPZ), lwd = 2, color = "seagreen") +
-  geom_ribbon(aes(x = (mod.coefs$invTT), y = yvalsPZN, ymin = yvalsPZN - 0.3, ymax = yvalsPZN + 0.3), fill = "grey70", alpha = 0.6) +
-  geom_line(aes(x = (mod.coefs$invTT), y = yvalsPZN), lwd = 2, color = "blue")
+  geom_smooth(method = "lm", se = FALSE, aes(group = Tank, color = trophic.level), alpha = 0.23, size = .8) +
+  geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+  geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 2, size = 1.5) +
+  geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 4, size = 1.5) +
+  geom_text(label = "Y.P = -0.69x + 31.30", x = 38.87, y = 3.25) +
+  geom_text(label = "Y.PZ = -0.69x + 31.79", x = 38.87, y = 3) +
+  geom_text(label = "Y.PZN = -0.69x + 31.49", x = 38.87, y = 2.75)
+#geom_point(data = mod.coefs, aes(x = invTi, y = pred.data))
   
-ggsave("ERplot.png", device = "png")
+ggsave("ERplot.png", device = "png", width = 5, height = 3)
 
-  
-## an alternative approach that I'm not using now: 
-    #geom_ribbon(aes(x = (mod.coefs$invTT), y = yvals, ymin = yvals - 0.3, ymax = yvals + 0.3), fill = "grey70", alpha = 0.6) +
-  geom_abline(slope = fixef(modER2r)[3], intercept = (fixef(modER2r)[1])- fixef(modER2r)[3]*(mean(mod.coefs$invTT))) +
-  geom_abline(slope = fixef(modER2r)[3], intercept = (fixef(modER2r)[1] + fixef(modER2r)[4] - fixef(modER2r)[3]*mean(mod.coefs$invTT))) +
-  geom_abline(slope = fixef(modER2r)[3], intercept = (fixef(modER2r)[1] + fixef(modER2r)[5] - fixef(modER2r)[3]*mean(mod.coefs$invTT)))
   
 
 
