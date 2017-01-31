@@ -591,6 +591,19 @@ ggsave("PPplot.png", device = "png", width = 5, height = 3)
 
 
 
+#### community size plots
+
+CS.plot <- ggplot(data = data, aes(x = invTi, y = log(size+1), colour = factor(trophic.level))) + 
+  theme_bw() +
+  geom_point()
+
+
+
+
+
+
+
+
 
 ## Does zooplankton carbon vary with temperature?  ### leaving this for now. 
 ## figures 
