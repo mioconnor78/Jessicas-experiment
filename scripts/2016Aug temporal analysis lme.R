@@ -396,7 +396,7 @@ abline((3.88-0.04), (-0.43), lwd = 2, col = 3)
 
 ### WITHIN AND AMONG GROUP PLOTS
 ### plotting within- and among-group regressions and model outputs
-ER.plot <- ggplot(data = mod.coefs, aes(x = invTi, y = log(ER2))) + 
+ER.plot <- ggplot(data = mod.coefs, aes(x = invTi, y = log(ER2), min = 0)) + 
   theme_bw() +
   theme(legend.position = "none") +
   geom_point(aes(group = Tank, shape = trophic.level), alpha = 1/2, size = 2) +
@@ -423,9 +423,9 @@ ER.plot +
   geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
   geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 2, size = 1.5) +
   geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 4, size = 1.5) +
-  geom_text(label = "Y.P = -0.69x + 31.30", x = 38.87, y = 3.25) +
-  geom_text(label = "Y.PZ = -0.69x + 31.79", x = 38.87, y = 3) +
-  geom_text(label = "Y.PZN = -0.69x + 31.49", x = 38.87, y = 2.75)
+  geom_text(label = "Y.P = -0.69x + 31.30", x = 38.87, y = 1.75) +
+  geom_text(label = "Y.PZ = -0.69x + 31.79", x = 38.87, y = 1) +
+  geom_text(label = "Y.PZN = -0.69x + 31.49", x = 38.87, y = .25)
 #geom_point(data = mod.coefs, aes(x = invTi, y = pred.data))
   
 ggsave("ERplot.png", device = "png", width = 5, height = 3)
@@ -557,7 +557,7 @@ mod.coefs <- augment(modPP6r, effect = "random")
 ### WITHIN AND AMONG GROUP PLOTS
 ### plotting within- and among-group regressions and model outputs
 
-PP.plot <- ggplot(data = data, aes(x = invTi, y = log(PP.biomass))) + 
+PP.plot <- ggplot(data = data, aes(x = invTi, y = log(PP.biomass), min = 0)) + 
   theme_bw() +
   theme(legend.position = "FALSE") +
   geom_point(aes(group = Tank, shape = trophic.level), alpha = 1/2, size = 2) +
@@ -612,9 +612,9 @@ PP.plot +
   geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
   geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsZP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 2, size = 1.5) +
   geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 4, size = 1.5) +
-  geom_text(label = "Y.P = 1.68x - 59.75", x = 39.9, y = 3) +
-  geom_text(label = "Y.PZ = 4.07x - 155.09", x = 39.9, y = 2.5) +
-  geom_text(label = "Y.PZN = 2.13x -78.10", x = 39.9, y = 2)
+  geom_text(label = "Y.P = 1.68x - 59.75", x = 39.9, y = 2) +
+  geom_text(label = "Y.PZ = 4.07x - 155.09", x = 39.9, y = 1.5) +
+  geom_text(label = "Y.PZN = 2.13x -78.10", x = 39.9, y = 1)
 #geom_point(data = mod.coefs, aes(x = invTi, y = pred.data))
 
 ggsave("PPplot.png", device = "png", width = 5, height = 3)
