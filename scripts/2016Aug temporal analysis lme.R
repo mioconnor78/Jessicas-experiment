@@ -171,6 +171,31 @@ modNPP5r <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*trophic.level + I(invTT - mean(
 mod.coefs <- augment(modNPP5r, effect = "random")
 ## come back to get confints, might need qpCR
 
+## Patrick's figure idea: dplyr
+NPPmod = mod.coefs %>% 
+  gather(key = "EF", value = "Rate", NPP2, ER2, PP.biomass) %>%
+  group_by(Tank, trophic.level, EF) %>% 
+  do(fitTank = lm(log(Rate) ~ invTi, data = .)) %>%
+  tidy(., fitTank) %>%
+  filter(term == 'invTi') %>%
+  select(trophic.level, estimate) %>%
+  mutate(level = "Tank")
+
+xtanks <- data.frame(trophic.level = c("P", "PZ", "PZN"), estimate = c(-1.31564, -0.8241136, -0.4654028, fixef(modER2r)[3], fixef(modER2r)[3], fixef(modER2r)[3], 1.681596, 4.070138, 2.135455), Tank = "all", level = "treatment", EF = rep(c("NPP2", "ER2", "PP.biomass"), each = 3))
+
+bind_rows(NPPmod, xtanks) -> data3
+
+plot1 <- ggplot(data3, aes(x = trophic.level, y = estimate, color = trophic.level, size = level, pch = level)) +
+  geom_point() +
+  facet_grid(~EF) +
+  theme_bw()
+
+ggsave("plot1.png", device = "png", width = 5, height = 3)
+
+#scales = "free" #in facet
+
+plot(NPPmod.coef$trophic.level, NPPmod.coef$estimate)
+
 ## best averaged model: ## next challenge: figure out how to get coefs from the averaged model, given random effects. i'm not sure this is possible. 
 ## don't think it's possible. So, plot the fixed effect coefs for averaged models (need to pencil this out; leave off within group lines?)
 ## approach on 1/15/17 is to use best model
@@ -350,7 +375,7 @@ model.sel(modER0, modER1, modER2, modER4, modER5, modER6, modER7)
 modER2r<-lme(log(ER2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level, random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit) 
 summary(modER2r)
 intervals(modER2r, which = "fixed")
-mod.coefs <- augment(modER2r, effect = "random") 
+mod.coefsER <- augment(modER2r, effect = "random") 
 
 m.avg <- model.avg(modER2, modER4)
 summary(m.avg)
