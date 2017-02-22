@@ -171,6 +171,47 @@ modNPP5r <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*trophic.level + I(invTT - mean(
 mod.coefs <- augment(modNPP5r, effect = "random")
 ## come back to get confints, might need qpCR
 
+
+# BACKTRANSFORMED FIGURES -------------------------------------------------
+NPP.BT <- ggplot(data = mod.coefs, aes(x = invTT, y = NPP2, ymin = -2)) + 
+  theme_bw() +
+  theme(legend.position = "none") +
+  geom_point(aes(group = Tank, shape = trophic.level), alpha = 1/2, size = 2) + #color = trophic.level
+  xlab("Temperature") +
+  ylab("NPPi")
+
+NPP.BT
+
+#y = m*x + b
+#y = exp(b)*x^m
+
+NPP.funcP <- function(x) { (fixef(modNPP5r)[1] - fixef(modNPP5r)[5]*mean(mod.coefs$invTT)) + fixef(modNPP5r)[5]*x}
+
+NPP.btP <- function(x) { exp(fixef(modNPP5r)[1] - fixef(modNPP5r)[5]*mean(x)) * exp(x)^(fixef(modNPP5r)[5])}
+yvalsP <- NPP.btP(mod.coefs$invTT)
+
+NPP.funcPZ <- function(x) { (fixef(modNPP5r)[1] + fixef(modNPP5r)[3] - fixef(modNPP5r)[5]*mean(mod.coefs$invTT) - fixef(modNPP5r)[8]*mean(mod.coefs$invTT)) + (fixef(modNPP5r)[5] + fixef(modNPP5r)[8])*x}
+yvalsPZ <- NPP.funcPZ(mod.coefs$invTT)
+
+NPP.btPZ <- function(x) { exp(fixef(modNPP5r)[1] + fixef(modNPP5r)[3] - fixef(modNPP5r)[5]*mean(mod.coefs$invTT) - fixef(modNPP5r)[8]*mean(mod.coefs$invTT)) * exp(x)^(fixef(modNPP5r)[5] + fixef(modNPP5r)[8]) }
+yvalsPZ <- NPP.btPZ(mod.coefs$invTT)
+
+NPP.funcPZN <- function(x) { (fixef(modNPP5r)[1] + fixef(modNPP5r)[4] - fixef(modNPP5r)[5]*mean(mod.coefs$invTT) - fixef(modNPP5r)[9]*mean(mod.coefs$invTT)) + (fixef(modNPP5r)[5] + fixef(modNPP5r)[9])*x}
+yvalsPZN <- NPP.funcPZN(mod.coefs$invTT)
+
+NPP.btPZN <- function(x) { exp(fixef(modNPP5r)[1] + fixef(modNPP5r)[4] - fixef(modNPP5r)[5]*mean(mod.coefs$invTT) - fixef(modNPP5r)[9]*mean(mod.coefs$invTT)) * exp(x)^(fixef(modNPP5r)[5] + fixef(modNPP5r)[9]) }
+yvalsPZN <- NPP.btPZN(mod.coefs$invTT)
+
+NPP.BT +
+geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsP), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) + #
+  geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPZ), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'grey80', size = 1.5) +
+  geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPZN), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'grey60', size = 1.5)
+
+ggsave("figure2Aalt2.png", device = "png", width = 5, height = 3)
+
+# FIGURE 2D ---------------------------------------------------------------
+
+## 
 ## Patrick's figure idea: dplyr
 NPPmod = mod.coefs %>% 
   gather(key = "EF", value = "Rate", NPP2, ER2, PP.biomass) %>%
