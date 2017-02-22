@@ -209,6 +209,35 @@ geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsP), method = loess, se = F
 
 ggsave("figure2Aalt2.png", device = "png", width = 5, height = 3)
 
+
+
+ER.BT <- ggplot(data = mod.coefsER, aes(x = invTT, y = ER2)) + 
+  theme_bw() +
+  theme(legend.position = "none") +
+  #geom_point(aes(group = Tank, shape = trophic.level), alpha = 1/2, size = 2) + #color = trophic.level
+  xlab("Temperature") +
+  ylab("ERi")
+
+ER.BT
+
+ER.btP <- function(x) { exp(fixef(modER2r)[1] - fixef(modER2r)[3]*mean(x)) * exp(x)^(fixef(modER2r)[3]) } # for trophic level 1
+yvalsP <- ER.btP(mod.coefsER$invTT)
+
+ER.btPZ <- function(x) { exp(fixef(modER2r)[1] + fixef(modER2r)[4] - fixef(modER2r)[3]*mean(x)) * exp(x)^(fixef(modER2r)[3]) } # for trophic level 2
+yvalsPZ <- ER.btPZ(mod.coefsER$invTT)
+
+ER.btPZN <- function(x) { exp(fixef(modER2r)[1] + fixef(modER2r)[5] - fixef(modER2r)[3]*mean(x)) * exp(x)^(fixef(modER2r)[3]) } # for trophic level 3
+yvalsPZN <- ER.btPZN(mod.coefsER$invTT)
+
+
+ER.BT +
+  geom_smooth(data = mod.coefsER, aes(x = invTT, y = yvalsP), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+geom_smooth(data = mod.coefsER, aes(x = invTT, y = yvalsPZ), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'grey80', size = 1.5) +
+  geom_smooth(data = mod.coefsER, aes(x = invTT, y = yvalsPZN), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'grey60', size = 1.5)
+
+ggsave("figure2Balt2.png", device = "png", width = 5, height = 3)
+
+
 # FIGURE 2D ---------------------------------------------------------------
 
 ## 
