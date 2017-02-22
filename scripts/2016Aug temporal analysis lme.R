@@ -185,12 +185,17 @@ xtanks <- data.frame(trophic.level = c("P", "PZ", "PZN"), estimate = c(-1.31564,
 
 bind_rows(NPPmod, xtanks) -> data3
 
-plot1 <- ggplot(data3, aes(x = trophic.level, y = estimate, color = trophic.level, size = level, pch = level)) +
+plot1 <- ggplot(data3, aes(x = trophic.level, y = estimate, shape = level)) +
+  ylab("Activation Energy Ea") +
+  xlab("Food Chain Length") +
   geom_point() +
+  geom_point(data = subset(data3, level == "treatment"), size = 3) +
+  guides(shape=guide_legend(title=NULL)) +
+  scale_shape_discrete(breaks = c("Tank", "treatment"), labels = c("Within Ecosystem", "Across Ecosystems")) +
   facet_grid(~EF) +
   theme_bw()
-
-ggsave("plot1.png", device = "png", width = 5, height = 3)
+plot1
+ggsave("figure1D.png", device = "png", width = 5, height = 3)
 
 #scales = "free" #in facet
 
