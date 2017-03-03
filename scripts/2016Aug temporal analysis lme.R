@@ -251,19 +251,20 @@ NPPmod = mod.coefs %>%
   select(trophic.level, estimate) %>%
   mutate(level = "Tank")
 
-xtanks <- data.frame(trophic.level = c("P", "PZ", "PZN"), estimate = c(-1.31564, -0.8241136, -0.4654028, fixef(modER2r)[3], fixef(modER2r)[3], fixef(modER2r)[3], 1.681596, 4.070138, 2.135455), Tank = "all", level = "treatment", EF = rep(c("NPP2", "ER2", "PP.biomass"), each = 3))
+xtanks <- data.frame(trophic.level = c("P", "PZ", "PZN"), estimate = c(-1.31564, -0.8241136, -0.4654028, fixef(modER2r)[3], fixef(modER2r)[3], fixef(modER2r)[3], 1.281337, 3.669879, 1.735196), Tank = "all", level = "treatment", EF = rep(c("NPP2", "ER2", "PP.biomass"), each = 3))
 
 bind_rows(NPPmod, xtanks) -> data3
 
 plot1 <- ggplot(data3, aes(x = trophic.level, y = estimate, shape = level)) +
-  ylab("Activation Energy Ea") +
+  scale_y_continuous(name ="Activation Energy (Ea)", labels=c("-4","-2","0", "2", "4"), limits = c(-4, 4.2)) +
   xlab("Food Chain Length") +
-  geom_point() +
-  geom_point(data = subset(data3, level == "treatment"), size = 3) +
+  geom_point(size = 3, color = "gray50") +
+  geom_point(data = subset(data3, level == "treatment"), size = 4) +
   guides(shape=guide_legend(title=NULL)) +
   scale_shape_discrete(breaks = c("Tank", "treatment"), labels = c("Within Ecosystem", "Across Ecosystems")) +
   facet_grid(~EF) +
-  theme_bw()
+  theme_bw() +
+  theme(legend.position="top")
 plot1
 ggsave("figure1D.png", device = "png", width = 5, height = 3)
 
@@ -648,7 +649,9 @@ PP.plot +
 
 ## PLOT 3: Plot lines from model
 # PP coefs
-PP.PP.func <- function(x) { (fixef(modPP6r)[1] - fixef(modPP6r)[3]*mean(data$invTT) - fixef(modPP6r)[6]*z*mean(mod.coefs$invTT)) + (fixef(modPP6r)[3] + fixef(modPP6r)[6]*z)*x } #x = invTT # slope = -2.47
+z <- mean(mod.coefs$invTi - mod.coefs$invTT)
+z
+PP.PP.func <- function(x) { (fixef(modPP6r)[1] - fixef(modPP6r)[3]*mean(mod.coefs$invTT) - fixef(modPP6r)[6]*z*mean(mod.coefs$invTT)) + (fixef(modPP6r)[3] + fixef(modPP6r)[6]*z)*x } #x = invTT # slope = -2.47
 # use this function to compute yvals for plotting.
 yvalsPP <- PP.PP.func(mod.coefs$invTT)
 
@@ -661,7 +664,7 @@ yvalsZP <- PP.ZP.func(mod.coefs$invTT)
 PP.PZN.func <- function(x) { (fixef(modPP6r)[1] - fixef(modPP6r)[3]*mean(data$invTT) - fixef(modPP6r)[6]*z*mean(mod.coefs$invTT) + fixef(modPP6r)[5] - fixef(modPP6r)[8]*mean(mod.coefs$invTT)) + (fixef(modPP6r)[3] + fixef(modPP6r)[6]*z + fixef(modPP6r)[8])*x } #x = invTT, #slope = -2.38
 yvalsPZN <- PP.PZN.func(mod.coefs$invTT)
 
-z <- 0.5 #invTi - invTT for each tank; 
+#z <- 0.5 #invTi - invTT for each tank, approximate 
 
 ## this is good, it has an attempt at confidence intervals. but they're not quite the right intervals. so the next plot below has none.
 PP.plot +
