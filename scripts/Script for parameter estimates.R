@@ -107,17 +107,25 @@ summary(modCS6r)
 #                                      Number of Groups: 18 
 #
 
-# PP coefs
-z <- 0.5 #invTi - invTT for each tank;
+# CS coefs
+z <- mean(mod.coefs$invTi - mod.coefs$invTT)
 
-CS.PP.func <- function(x) { (fixef(modCS6r)[1] - fixef(modCS6r)[3]*mean(data$invTT) - fixef(modCS6r)[5]*z*mean(mod.coefs$invTT)) + (fixef(modCS6r)[3] + fixef(modCS6r)[5]*z)*x } #x = invTT # slope = -2.47
+CS.func <- function(x) { (fixef(modCS6r)[1] - fixef(modCS6r)[3]*mean(mod.coefs$invTT) - fixef(modCS6r)[5]*z*mean(mod.coefs$invTT)) + (fixef(modCS6r)[3] + fixef(modCS6r)[5]*z)*x } #x = invTT # slope = -2.47
 # use this function to compute yvals for plotting.
-yvalsPZ <- CS.PP.func(mod.coefs$invTT)
+yvalsPZ <- CS.func(mod.coefs$invTT)
+
+#for table 2
+int <- fixef(modCS6r)[1] - fixef(modCS6r)[3]*mean(mod.coefs$invTT) - fixef(modCS6r)[5]*z*mean(mod.coefs$invTT)
+slope <- fixef(modCS6r)[3] + fixef(modCS6r)[5]*z
 
 # ZP coefs
-CS.ZP.func <- function(x) { (fixef(modCS6r)[1] - fixef(modCS6r)[3]*mean(data$invTT) - fixef(modCS6r)[5]*z*mean(mod.coefs$invTT) + fixef(modCS6r)[4] - fixef(modCS6r)[6]*mean(mod.coefs$invTT)) + (fixef(modCS6r)[3] + fixef(modCS6r)[5]*z + fixef(modCS6r)[6])*x } #x = invTT #slope = -3.98
+CS.ZP.func <- function(x) { (fixef(modCS6r)[1] - fixef(modCS6r)[3]*mean(mod.coefs$invTT) - fixef(modCS6r)[5]*z*mean(mod.coefs$invTT) + fixef(modCS6r)[4] - fixef(modCS6r)[6]*mean(mod.coefs$invTT)) + (fixef(modCS6r)[3] + fixef(modCS6r)[5]*z + fixef(modCS6r)[6])*x } #x = invTT #slope = -3.98
 # use this function to compute yvals for plotting.
 yvalsPZN <- CS.ZP.func(mod.coefs$invTT)
+
+#for table 2
+int <- (fixef(modCS6r)[1] - fixef(modCS6r)[3]*mean(mod.coefs$invTT) - fixef(modCS6r)[5]*z*mean(mod.coefs$invTT) + fixef(modCS6r)[4] - fixef(modCS6r)[6]*mean(mod.coefs$invTT))
+slope <- (fixef(modCS6r)[3] + fixef(modCS6r)[5]*z + fixef(modCS6r)[6])
 
 
 CS1 <-ggplot(data = data, aes(x = average.temp, y = log(size), ymin = 2)) + 
