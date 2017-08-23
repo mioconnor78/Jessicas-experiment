@@ -185,10 +185,19 @@ NPP.BT
 #y = m*x + b
 #y = exp(b)*x^m
 
+intervals(modNPP5r, which = "fixed")[1] -> ints
+ints[[1]][1,1]
+b <- mean(mod.coefs$invTT)
+
 NPP.funcP <- function(x) { (fixef(modNPP5r)[1] - fixef(modNPP5r)[5]*mean(mod.coefs$invTT)) + fixef(modNPP5r)[5]*x}
 
-NPP.btP <- function(x) { exp(fixef(modNPP5r)[1] - fixef(modNPP5r)[5]*mean(x)) * exp(x)^(fixef(modNPP5r)[5])}
-yvalsP <- NPP.btP(mod.coefs$invTT)
+#NPP.btP <- function(x) { exp(fixef(modNPP5r)[1] - fixef(modNPP5r)[5]*mean(x)) * exp(x)^(fixef(modNPP5r)[5])}
+yvalsP <- NPP.funcP(mod.coefs$invTT)
+
+#NPP.btPlow <- function(x) { exp(ints[[1]][1,1] - ints[[1]][5,1]*mean(x)) * exp(x)^(ints[[1]][5,1])}
+#yvalsPl <- NPP.btPlow(mod.coefs$invTT)
+#NPP.btPhi <- function(x) { exp(ints[[1]][1,3] - ints[[1]][5,3]*mean(x)) * exp(x)^(ints[[1]][5,3])}
+#yvalsPh <- NPP.btPhi(mod.coefs$invTT)
 
 NPP.funcPZ <- function(x) { (fixef(modNPP5r)[1] + fixef(modNPP5r)[3] - fixef(modNPP5r)[5]*mean(mod.coefs$invTT) - fixef(modNPP5r)[8]*mean(mod.coefs$invTT)) + (fixef(modNPP5r)[5] + fixef(modNPP5r)[8])*x}
 yvalsPZ <- NPP.funcPZ(mod.coefs$invTT)
@@ -203,9 +212,18 @@ NPP.btPZN <- function(x) { exp(fixef(modNPP5r)[1] + fixef(modNPP5r)[4] - fixef(m
 yvalsPZN <- NPP.btPZN(mod.coefs$invTT)
 
 NPP.BT +
-geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsP), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) + #
+geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsP), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) + 
+ # geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPl), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'grey60', size = 1.5) +
+ # geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPh), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'grey60', size = 1.5) # not sure if this is right.
   geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPZ), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'grey80', size = 1.5) +
-  geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPZN), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'grey60', size = 1.5)
+  geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPZN), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'grey60', size = 1.5) +
+  
+#  geom_segment(aes(x = min(invTT), xend = max(invTT), y = exp(intervals(modNPP5r, which = "fixed")[[1]][1,1]), yend = exp(intervals(modNPP5r, which = "fixed")[[1]][1,3])), linetype=1, color = "gray40")
+# trying to plot the curves with CIs. For the fixefs we can get these CIs from intervals (below). then, I suppose to plot them I'd make a different line - is it just the line defined by the parameters at the lower edge of their CI, and another line above?
+#thinking through this: we log transoformed the data, then fit a model to estimate temperature effects. I want to describe this temperature effect (slope parameter) and our confidence in it. Confidence will come from the confidence intervals on the fixed effect (for P, this is just the centered temp effect), but for the PZ level, it's that term + the base term... with which uncertainty?
+
+intervals(modNPP5r, which = "fixed")[1] -> ints
+ints[[1]][1,1]
 
 ggsave("figure2Aalt2.png", device = "png", width = 5, height = 3)
 
