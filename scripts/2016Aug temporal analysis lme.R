@@ -1,6 +1,7 @@
 ### Garzke et al temperature experiment
 ### this is the current working code file
 ### MO made a new file on Aug29 from June file when I decided to take week out as a fixed effect, and instead model autocorrelation. 
+### cleaning up the code now August 2017
 
 ### load libraries
 library(MuMIn)
@@ -12,6 +13,8 @@ library(reshape2)
 library(lubridate)
 library(hms)
 library(zoo)
+
+## first set of code (to line 152) is processing
 
 ### set working directory and load data
 data <- read.csv("./data/temporal_dataFEB12.csv")
@@ -144,18 +147,34 @@ data$ER.mass <- data$ER2/(data$total.carbon) # ER on ummol 02/L/day/ugTPP
 data <- data[data$week >= '4',]
 ### data prep complete
 
+### SOME BASIC PLOTS
+#data1 <- data[(data$NPP2 >= 0.5),] # three negative values and one very small value now, not sure what to do about them.
+hist(data[(data$NPP2 >= 0.05),]$NPP2)
+hist(log(data$NPP2))
+hist((data1$NPP2))
+
+plot(log(data1$NPP2)~data1$Tank, pch = 19, col = data1$trophic.level)
+plot(log(data1$NPP2)~data1$week, pch = 19, col = data1$trophic.level)
+plot(log(data1$NPP2)~I(data1$invTi-data1$invTT), pch = 19, col = data1$Tank, ylim = c(0,6))
+plot(log(data1$NPP2)~I(data1$invTi-data1$invTT), pch = 19, col = data1$Tank, ylim = c(0,6))
+abline(3.5435395, -0.6159088, lwd = 2, col = 1)
+plot(log(data1$NPP2)~data1$invTi, pch = data1$Tank, col = data1$Tank)
 
 
 
 # analysis begins ---------------------------------------------------------
 
-### ANALYSIS
+### ANALYSES
 ## trying the method suggested by Van de pol and Wright 2009
-# center by within-tank temperature
-
-data1 <- data
-data1 <- data[(data$NPP2 >= 0.01),]
+## center by within-tank temperature
 ## model with mean tank temperature (invTT) and the weekly deviation from that long-term average (invTi - invTT), with Tank as a random intercept effect.  
+
+# ANALYSES FOR FIGURE 2 ---------------------------------------------------
+data1 <- data
+data1 <- data[(data$NPP2 >= 0.001),] #remove 18 negative values 
+
+# NPP candidate model set -------------------------------------------------
+
 modNPP0 <- lme(log(NPP2) ~ 1, random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")  
 modNPP1 <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")
 modNPP2 <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)  
@@ -171,162 +190,22 @@ modNPP5r <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*trophic.level + I(invTT - mean(
 mod.coefs <- augment(modNPP5r, effect = "random")
 ## come back to get confints, might need qpCR
 
+# FIGURE 2A: NPP ----------------------------------------------------------
 
-# BACKTRANSFORMED FIGURES -------------------------------------------------
-NPP.BT <- ggplot(data = mod.coefs, aes(x = invTT, y = NPP2, ymin = -2)) + 
-  theme_bw() +
-  theme(legend.position = "none") +
-  geom_point(aes(group = Tank, shape = trophic.level), alpha = 1/2, size = 2) + #color = trophic.level
-  xlab("Temperature") +
-  ylab("NPPi")
-
-NPP.BT
-
-#y = m*x + b
-#y = exp(b)*x^m
-
-intervals(modNPP5r, which = "fixed")[1] -> ints
-ints[[1]][1,1]
-b <- mean(mod.coefs$invTT)
-
-NPP.funcP <- function(x) { (fixef(modNPP5r)[1] - fixef(modNPP5r)[5]*mean(mod.coefs$invTT)) + fixef(modNPP5r)[5]*x}
-
-#NPP.btP <- function(x) { exp(fixef(modNPP5r)[1] - fixef(modNPP5r)[5]*mean(x)) * exp(x)^(fixef(modNPP5r)[5])}
-yvalsP <- NPP.funcP(mod.coefs$invTT)
-
-#NPP.btPlow <- function(x) { exp(ints[[1]][1,1] - ints[[1]][5,1]*mean(x)) * exp(x)^(ints[[1]][5,1])}
-#yvalsPl <- NPP.btPlow(mod.coefs$invTT)
-#NPP.btPhi <- function(x) { exp(ints[[1]][1,3] - ints[[1]][5,3]*mean(x)) * exp(x)^(ints[[1]][5,3])}
-#yvalsPh <- NPP.btPhi(mod.coefs$invTT)
-
-NPP.funcPZ <- function(x) { (fixef(modNPP5r)[1] + fixef(modNPP5r)[3] - fixef(modNPP5r)[5]*mean(mod.coefs$invTT) - fixef(modNPP5r)[8]*mean(mod.coefs$invTT)) + (fixef(modNPP5r)[5] + fixef(modNPP5r)[8])*x}
-yvalsPZ <- NPP.funcPZ(mod.coefs$invTT)
-
-NPP.btPZ <- function(x) { exp(fixef(modNPP5r)[1] + fixef(modNPP5r)[3] - fixef(modNPP5r)[5]*mean(mod.coefs$invTT) - fixef(modNPP5r)[8]*mean(mod.coefs$invTT)) * exp(x)^(fixef(modNPP5r)[5] + fixef(modNPP5r)[8]) }
-yvalsPZ <- NPP.btPZ(mod.coefs$invTT)
-
-NPP.funcPZN <- function(x) { (fixef(modNPP5r)[1] + fixef(modNPP5r)[4] - fixef(modNPP5r)[5]*mean(mod.coefs$invTT) - fixef(modNPP5r)[9]*mean(mod.coefs$invTT)) + (fixef(modNPP5r)[5] + fixef(modNPP5r)[9])*x}
-yvalsPZN <- NPP.funcPZN(mod.coefs$invTT)
-
-NPP.btPZN <- function(x) { exp(fixef(modNPP5r)[1] + fixef(modNPP5r)[4] - fixef(modNPP5r)[5]*mean(mod.coefs$invTT) - fixef(modNPP5r)[9]*mean(mod.coefs$invTT)) * exp(x)^(fixef(modNPP5r)[5] + fixef(modNPP5r)[9]) }
-yvalsPZN <- NPP.btPZN(mod.coefs$invTT)
-
-NPP.BT +
-geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsP), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) + 
- # geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPl), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'grey60', size = 1.5) +
- # geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPh), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'grey60', size = 1.5) # not sure if this is right.
-  geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPZ), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'grey80', size = 1.5) +
-  geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPZN), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'grey60', size = 1.5) +
-  
-#  geom_segment(aes(x = min(invTT), xend = max(invTT), y = exp(intervals(modNPP5r, which = "fixed")[[1]][1,1]), yend = exp(intervals(modNPP5r, which = "fixed")[[1]][1,3])), linetype=1, color = "gray40")
-# trying to plot the curves with CIs. For the fixefs we can get these CIs from intervals (below). then, I suppose to plot them I'd make a different line - is it just the line defined by the parameters at the lower edge of their CI, and another line above?
-#thinking through this: we log transoformed the data, then fit a model to estimate temperature effects. I want to describe this temperature effect (slope parameter) and our confidence in it. Confidence will come from the confidence intervals on the fixed effect (for P, this is just the centered temp effect), but for the PZ level, it's that term + the base term... with which uncertainty?
-
-intervals(modNPP5r, which = "fixed")[1] -> ints
-ints[[1]][1,1]
-
-ggsave("figure2Aalt2.png", device = "png", width = 5, height = 3)
-
-
-
-ER.BT <- ggplot(data = mod.coefsER, aes(x = invTT, y = ER2)) + 
-  theme_bw() +
-  theme(legend.position = "none") +
-  #geom_point(aes(group = Tank, shape = trophic.level), alpha = 1/2, size = 2) + #color = trophic.level
-  xlab("Temperature") +
-  ylab("ERi")
-
-ER.BT
-
-ER.btP <- function(x) { exp(fixef(modER2r)[1] - fixef(modER2r)[3]*mean(x)) * exp(x)^(fixef(modER2r)[3]) } # for trophic level 1
-yvalsP <- ER.btP(mod.coefsER$invTT)
-
-ER.btPZ <- function(x) { exp(fixef(modER2r)[1] + fixef(modER2r)[4] - fixef(modER2r)[3]*mean(x)) * exp(x)^(fixef(modER2r)[3]) } # for trophic level 2
-yvalsPZ <- ER.btPZ(mod.coefsER$invTT)
-
-ER.btPZN <- function(x) { exp(fixef(modER2r)[1] + fixef(modER2r)[5] - fixef(modER2r)[3]*mean(x)) * exp(x)^(fixef(modER2r)[3]) } # for trophic level 3
-yvalsPZN <- ER.btPZN(mod.coefsER$invTT)
-
-
-ER.BT +
-  geom_smooth(data = mod.coefsER, aes(x = invTT, y = yvalsP), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
-geom_smooth(data = mod.coefsER, aes(x = invTT, y = yvalsPZ), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'grey80', size = 1.5) +
-  geom_smooth(data = mod.coefsER, aes(x = invTT, y = yvalsPZN), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'grey60', size = 1.5)
-
-ggsave("figure2Balt2.png", device = "png", width = 5, height = 3)
-
-
-# FIGURE 2D ---------------------------------------------------------------
-
-## 
-## Patrick's figure idea: dplyr
-NPPmod = mod.coefs %>% 
-  gather(key = "EF", value = "Rate", NPP2, ER2, PP.biomass) %>%
-  group_by(Tank, trophic.level, EF) %>% 
-  do(fitTank = lm(log(Rate) ~ invTi, data = .)) %>%
-  tidy(., fitTank) %>%
-  filter(term == 'invTi') %>%
-  select(trophic.level, estimate) %>%
-  mutate(level = "Tank")
-
-xtanks <- data.frame(trophic.level = c("P", "PZ", "PZN"), estimate = c(-1.31564, -0.8241136, -0.4654028, fixef(modER2r)[3], fixef(modER2r)[3], fixef(modER2r)[3], 1.281337, 3.669879, 1.735196), Tank = "all", level = "treatment", EF = rep(c("NPP2", "ER2", "PP.biomass"), each = 3))
-
-bind_rows(NPPmod, xtanks) -> data3
-
-plot1 <- ggplot(data3, aes(x = trophic.level, y = estimate, shape = level)) +
-  scale_y_continuous(name ="Activation Energy (Ea)", labels=c("-4","-2","0", "2", "4"), limits = c(-4, 4.2)) +
-  xlab("Food Chain Length") +
-  geom_point(size = 3, color = "gray50") +
-  geom_point(data = subset(data3, level == "treatment"), size = 4) +
-  guides(shape=guide_legend(title=NULL)) +
-  scale_shape_discrete(breaks = c("Tank", "treatment"), labels = c("Within Ecosystem", "Across Ecosystems")) +
-  facet_grid(~EF) +
-  theme_bw() +
-  theme(legend.position="top")
-plot1
-ggsave("figure1D.png", device = "png", width = 5, height = 3)
-
-#scales = "free" #in facet
-
-plot(NPPmod.coef$trophic.level, NPPmod.coef$estimate)
-
-## best averaged model: ## next challenge: figure out how to get coefs from the averaged model, given random effects. i'm not sure this is possible. 
-## don't think it's possible. So, plot the fixed effect coefs for averaged models (need to pencil this out; leave off within group lines?)
-## approach on 1/15/17 is to use best model
-m.avg <- model.avg(modNPP5, modNPP2, modNPP1)
-summary(m.avg)
-pred.data <- as.data.frame(predict(m.avg, se.fit = FALSE)) # this is promising to get predicted values for plotting cheat below.
-data.NPP <- cbind(data1, pred.data)
-
-### exploring ways to extract coefficients from an averaging object
-coeffs(m.avg)
-coefTable(m.avg)
-
-### SOME BASIC PLOTS
-#data1 <- data[(data$NPP2 >= 0.5),] # three negative values and one very small value now, not sure what to do about them.
-hist(data[(data$NPP2 >= 0.05),]$NPP2)
-hist(log(data$NPP2))
-hist((data1$NPP2))
-
-plot(log(data1$NPP2)~data1$Tank, pch = 19, col = data1$trophic.level)
-plot(log(data1$NPP2)~data1$week, pch = 19, col = data1$trophic.level)
-plot(log(data1$NPP2)~I(data1$invTi-data1$invTT), pch = 19, col = data1$Tank, ylim = c(0,6))
-plot(log(data1$NPP2)~I(data1$invTi-data1$invTT), pch = 19, col = data1$Tank, ylim = c(0,6))
-abline(3.5435395, -0.6159088, lwd = 2, col = 1)
-plot(log(data1$NPP2)~data1$invTi, pch = data1$Tank, col = data1$Tank)
-
-#### WITHIN AND AMONG GROUP PLOTS
 ### plotting within- and among-group regressions and model outputs
 
-NPP.plot <- ggplot(data = data1, aes(x = invTi, y = log(NPP2), ymin = -2)) + 
+NPP.plot <- ggplot(data = data1, aes(x = invTi, y = log(NPP2), ymin = -2, ymax = 6)) + 
   theme_bw() +
   theme(legend.position = "none") +
-  geom_point(aes(group = Tank, shape = trophic.level), alpha = 1/2, size = 2) + #color = trophic.level
+  facet_grid(.~trophic.level) + ## this sets it up as facets
+  geom_point(aes(group = Tank, color = Tank, shape = as.factor(week)),  alpha = 1/2, size = 2) + 
+  scale_colour_grey(start = 0, end = .8) + #color = trophic.level, 
   xlab("Temperature 1/kTi") +
   ylab("ln(NPPi)")
 
+NPP.plot
+ggsave("NPPplot.png", device = "png", width = 7, height = 3) # save for appendix
 
-# NPP.PLOT ----------------------------------------------------------------
 
 ## NPP.PLOT 1: Individual regression lines fitted within and among groups
 NPP.plot +
@@ -336,17 +215,31 @@ NPP.plot +
 ggsave("NPPplot.png", device = "png", width = 5, height = 3)
 
 ## PLOT 2: Raw data and fitted lines from the model. Added the predictions of the model to the original dataset, then fit lines to those using linear regressions
-## ok now that there are trophic group effects, we need to make different slopes: 
 NPP.funcP <- function(x) { (fixef(modNPP5r)[1] - fixef(modNPP5r)[5]*mean(mod.coefs$invTT)) + fixef(modNPP5r)[5]*x}
-yvalsP <- NPP.funcP(mod.coefs$invTT)
+yvalsP <- NPP.funcP(mod.coefs[(mod.coefs$trophic.level=="P"),]$invTT)
 
 NPP.funcPZ <- function(x) { (fixef(modNPP5r)[1] + fixef(modNPP5r)[3] - fixef(modNPP5r)[5]*mean(mod.coefs$invTT) - fixef(modNPP5r)[8]*mean(mod.coefs$invTT)) + (fixef(modNPP5r)[5] + fixef(modNPP5r)[8])*x}
-yvalsPZ <- NPP.funcPZ(mod.coefs$invTT)
+yvalsPZ <- NPP.funcPZ(mod.coefs[(mod.coefs$trophic.level=="PZ"),]$invTT)
 
 NPP.funcPZN <- function(x) { (fixef(modNPP5r)[1] + fixef(modNPP5r)[4] - fixef(modNPP5r)[5]*mean(mod.coefs$invTT) - fixef(modNPP5r)[9]*mean(mod.coefs$invTT)) + (fixef(modNPP5r)[5] + fixef(modNPP5r)[9])*x}
-yvalsPZN <- NPP.funcPZN(mod.coefs$invTT)
+yvalsPZN <- NPP.funcPZN(mod.coefs[(mod.coefs$trophic.level=="PZN"),]$invTT)
+
+## this code for faceted figure
+Fig2A <- 
+NPP.plot +
+  geom_smooth(method = "lm", se = FALSE, aes(group = Tank), color = "gray40", alpha = 0.23, size = .8) +
+  geom_smooth(data = subset(mod.coefs, trophic.level == "P"), aes(x = invTT, y = yvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+  geom_smooth(data = subset(mod.coefs, trophic.level == "PZ"), aes(x = invTT, y = yvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+  geom_smooth(data = subset(mod.coefs, trophic.level == "PZN"), aes(x = invTT, y = yvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) 
+  #geom_text(label = "Y.P = -1.32x + 54.96", x = 38.9, y = -1) +
+  #geom_text(label = "Y.PZ = -0.82x + 36.12", x = 38.9, y = -1.5) +
+  #geom_text(label = "Y.PZN = -0.46x + 22.03", x = 38.9, y = -2)
+#geom_point(data = mod.coefs, aes(x = invTi, y = pred.data))
+
+ggsave("Fig2A-C.png", device = "png", width = 7, height = 3)
 
 
+## this code for non-faceted
 NPP.plot +
   #geom_smooth(data = mod.coefs, aes(x = invTi, y = yvalsP, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
   geom_smooth(method = "lm", se = FALSE, aes(group = Tank, color = trophic.level), alpha = 0.23, size = .8) +
@@ -356,102 +249,15 @@ NPP.plot +
   geom_text(label = "Y.P = -1.32x + 54.96", x = 38.9, y = -1) +
   geom_text(label = "Y.PZ = -0.82x + 36.12", x = 38.9, y = -1.5) +
   geom_text(label = "Y.PZN = -0.46x + 22.03", x = 38.9, y = -2)
-  #geom_point(data = mod.coefs, aes(x = invTi, y = pred.data))
-  
+#geom_point(data = mod.coefs, aes(x = invTi, y = pred.data))
+
 ggsave("NPPplot.png", device = "png", width = 5, height = 3)
 
 
-################################################
-## Does mass-specific NPP vary with temperature?  
-################################################
-### NPP in umol/L/day per ugC
-data1 <- data[(data$NPP2 >= 0.05),]
+# ER candidate model set --------------------------------------------------
 
-## model with mean tank temperature (invTT) and the weekly deviation from that long-term average (invTi - invTT), with Tank as a random intercept effect.  
-modNPPm0 <- lme(log(NPP.mass) ~ 1, random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML") 
-modNPPm1 <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")
-modNPPm2 <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)  
-modNPPm4 <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
-modNPPm5 <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT)*trophic.level + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
-modNPPm6 <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
-modNPPm7 <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
-
-model.sel(modNPPm0, modNPPm2, modNPPm4, modNPPm1, modNPPm5, modNPPm6, modNPPm7)
-
-## Best model: create fitted values to use later for plotting
-modNPPm5r <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit) 
-intervals(modNPPm5r, which = "fixed") 
-mod.coefs <- augment(modNPPm5r, effect = "random") # puts fitted values back in the original dataset.
-
-## figures  
-### NPP in umol/L/day per ugC
-hist(data1$NPP.mass)
-hist(log(data1$NPP.mass))
-# hist(log(data$NPP.mass+.001)) # no reason to add a number, there are no -inf values.
-
-plot(log(data$NPP.mass)~data$Tank, pch = 19, col = data$trophic.level)
-plot(log(data$NPP.mass)~data$week, pch = 19, col = data$trophic.level)
-plot(log(data1$NPP.mass)~I(data1$invTT-mean(data1$invTT)), pch = 19, col = data1$trophic.level)
-plot(log(data1$NPP.mass)~I(data1$invT-(data1$invTT)), pch = 19, col = data1$trophic.level)
-abline(-2.62, -1.83, lwd = 2, col = 1)
-abline((-2.62+1.53), (-1.83-1.40), lwd = 2, col = 2)
-abline((-2.62+0.13), (-1.83-0.05), lwd = 2, col = 3)
-
-
-### WITHIN AND AMONG GROUP PLOTS
-### plotting within- and among-group regressions and model outputs
-
-NPPm.plot <- ggplot(data = data1, aes(x = invTi, y = log(NPP.mass))) + 
-  theme_bw() +
-  geom_point(aes(shape = trophic.level), colour = 312) +
-  xlab("Temperature 1/kTi") +
-  ylab("ln(NPPmi)")
-
-## PLOT 1: Individual regression lines fitted within and among groups
-NPPm.plot +
-  geom_smooth(method = "lm", se = FALSE, aes(group = Tank, color = trophic.level)) +
-  geom_smooth(method = "lm", se = FALSE, formula = y ~ x, color = 'black')
-
-## PLOT 2: Fit lines to fitted data from the model [close here - go get the coefficients as estimated for NPP, and write them out here with a z value. should plot up well.]
-NPPm.plot +
-  geom_smooth(data = mod.coefs, aes(x = invTi, y = .fitted, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
-  geom_smooth(data = mod.coefs, aes(x = invTT, y = .fitted), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black')
-
-## PLOT 3: Plot lines from model
-z <- 0.5 #invTi - invTT for each tank; 
-
-# PP coefs
-NPPmPP.func <- function(x) { (fixef(modNPPm6r)[1] - fixef(modNPPm6r)[3]*mean(data1$invTT) - fixef(modNPPm6r)[6]*z*mean(mod.coefs$invTT)) + (fixef(modNPPm6r)[3] + fixef(modNPPm6r)[6]*z)*x } #x = invTT # slope = -2.47
-# use this function to compute yvals for plotting.
-yvalsPP <- NPPmPP.func(mod.coefs$invTT)
-
-# ZP coefs
-NPPmZP.func <- function(x) { (fixef(modNPPm6r)[1] - fixef(modNPPm6r)[3]*mean(data1$invTT) - fixef(modNPPm6r)[6]*z*mean(mod.coefs$invTT) + fixef(modNPPm6r)[4] - fixef(modNPPm6r)[7]*mean(mod.coefs$invTT)) + (fixef(modNPPm6r)[3] + fixef(modNPPm6r)[6]*z + fixef(modNPPm6r)[7])*x } #x = invTT #slope = -3.98
-# use this function to compute yvals for plotting.
-yvalsZP <- NPPmZP.func(mod.coefs$invTT)
-
-# PZN coefs
-NPPmPZN.func <- function(x) { (fixef(modNPPm6r)[1] - fixef(modNPPm6r)[3]*mean(data1$invTT) - fixef(modNPPm6r)[6]*z*mean(mod.coefs$invTT) + fixef(modNPPm6r)[5] - fixef(modNPPm6r)[8]*mean(mod.coefs$invTT)) + (fixef(modNPPm6r)[3] + fixef(modNPPm6r)[6]*z + fixef(modNPPm6r)[8])*x } #x = invTT, #slope = -2.38
-yvalsPZN <- NPPmPZN.func(mod.coefs$invTT)
-
-NPPm.plot +
-  geom_smooth(data = mod.coefs, aes(x = invTi, y = (.fitted), group = Tank, colour = trophic.level), size = 0.5, method = "lm", se = FALSE, inherit.aes = FALSE) +
-  scale_colour_manual(values = c("#999999","#666666","#000000")) +
-  #geom_ribbon(aes(x = (mod.coefs$invTT), y = yvalsPP, ymin = yvalsPP - 0.3, ymax = yvalsPP + 0.3), fill = "grey70", alpha = 0.6) +
-  geom_line(aes(x = (mod.coefs$invTT), y = yvalsPP), lwd = 2, color = "#999999") +
-  #geom_ribbon(aes(x = (mod.coefs$invTT), y = yvalsZP, ymin = yvalsZP - 0.3, ymax = yvalsZP + 0.3), fill = "grey70", alpha = 0.6) +
-  geom_line(aes(x = (mod.coefs$invTT), y = yvalsZP), lwd = 2, color = "#666666") +
-  #geom_ribbon(aes(x = (mod.coefs$invTT), y = yvalsPZN, ymin = yvalsPZN - 0.3, ymax = yvalsPZN + 0.3), fill = "grey70", alpha = 0.6) +
-  geom_line(aes(x = (mod.coefs$invTT), y = yvalsPZN), lwd = 2, color = "#000000") +
-
-ggsave("NPPmplot.png", device = "png")
-
-
-######################################
-## Does ER vary with temperature?  
-#####################################
 hist(data$ER2)
-data1 <- data[(data$ER2 >= 0),]
+data1 <- data[(data$ER2 >= 0),] #no values removed
 hist(log(data1$ER2))
 
 #analysis
@@ -483,43 +289,51 @@ abline(4.27, -0.43, lwd = 2, col = 1)
 abline((4.27+0.35), (-0.43), lwd = 2, col = 2)
 abline((3.88-0.04), (-0.43), lwd = 2, col = 3)
 
+
+# Fig 2 D-E: ER ------------------------------------------------------------
+
 ### WITHIN AND AMONG GROUP PLOTS
 ### plotting within- and among-group regressions and model outputs
 ER.plot <- ggplot(data = mod.coefs, aes(x = invTi, y = log(ER2), min = 0)) + 
   theme_bw() +
   theme(legend.position = "none") +
-  geom_point(aes(group = Tank, shape = trophic.level), alpha = 1/2, size = 2) +
+  facet_grid(.~trophic.level) + ## this sets it up as facets
+  geom_point(aes(group = Tank, color = Tank, shape = as.factor(week)),  alpha = 1/2, size = 2) + 
+  scale_colour_grey(start = 0, end = .8) +
   xlab("Temperature 1/kTi") +
   ylab("ln(ERi)")
 
+ER.plot
+ggsave("ERplot.png", device = "png", width = 7, height = 3) # save for appendix
+
+## ER.PLOT 1: Individual regression lines fitted within and among groups
 ER.plot +
   geom_smooth(method = "lm", se = FALSE, aes(group = Tank, color = trophic.level), alpha = 0.23) +
   geom_smooth(method = "lm", se = FALSE, aes(group = trophic.level), color = "gray3")
-
 ggsave("ERplot.png", device = "png", width = 5, height = 4)
 
+## PLOT 2: Raw data and fitted lines from the model. Added the predictions of the model to the original dataset, then fit lines to those using linear regressions
+mod.coefs <- mod.coefsER
 ER.funcP <- function(x) { (fixef(modER2r)[1] - fixef(modER2r)[3]*mean(mod.coefs$invTT)) + (fixef(modER2r)[3])*x } # for trophic level 1
-yvalsP <- ER.funcP(mod.coefs$invTT)
+yvalsP <- ER.funcP(mod.coefs[(mod.coefs$trophic.level=="P"),]$invTT)
 
 ER.funcPZ <- function(x) { (fixef(modER2r)[1] + fixef(modER2r)[4] - fixef(modER2r)[3]*mean(mod.coefs$invTT)) + (fixef(modER2r)[3])*x } # for trophic level 2
-yvalsPZ <- ER.funcPZ(mod.coefs$invTT)
+yvalsPZ <- ER.funcPZ(mod.coefs[(mod.coefs$trophic.level=="PZ"),]$invTT)
 
 ER.funcPZN <- function(x) { (fixef(modER2r)[1] + fixef(modER2r)[5] - fixef(modER2r)[3]*mean(mod.coefs$invTT)) + (fixef(modER2r)[3])*x } # for trophic level 3
-yvalsPZN <- ER.funcPZN(mod.coefs$invTT)
+yvalsPZN <- ER.funcPZN(mod.coefs[(mod.coefs$trophic.level=="PZN"),]$invTT)
 
+Fig2D <- 
 ER.plot +
-  geom_smooth(method = "lm", se = FALSE, aes(group = Tank, color = trophic.level), alpha = 0.23, size = .8) +
-  geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
-  geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 2, size = 1.5) +
-  geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 4, size = 1.5) +
-  geom_text(label = "Y.P = -0.69x + 31.30", x = 38.87, y = 1.75) +
-  geom_text(label = "Y.PZ = -0.69x + 31.79", x = 38.87, y = 1) +
-  geom_text(label = "Y.PZN = -0.69x + 31.49", x = 38.87, y = .25)
-#geom_point(data = mod.coefs, aes(x = invTi, y = pred.data))
-  
-ggsave("ERplot.png", device = "png", width = 5, height = 3)
+  geom_smooth(method = "lm", se = FALSE, aes(group = Tank), color = "gray40", alpha = 0.23, size = .8) +
+  geom_smooth(data = subset(mod.coefs, trophic.level == "P"), aes(x = invTT, y = yvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+  geom_smooth(data = subset(mod.coefs, trophic.level == "PZ"), aes(x = invTT, y = yvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) +
+  geom_smooth(data = subset(mod.coefs, trophic.level == "PZN"), aes(x = invTT, y = yvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) +
+  #geom_text(label = "Y.P = -0.69x + 31.30", x = 38.87, y = 1.75) +
+  #geom_text(label = "Y.PZ = -0.69x + 31.79", x = 38.87, y = 1) +
+  #geom_text(label = "Y.PZN = -0.69x + 31.49", x = 38.87, y = .25)
 
-  
+ggsave("Fig2D-F.png", device = "png", width = 7, height = 3)
 
 
 
@@ -795,3 +609,222 @@ modTC4r <- lme(log(total.carbon)~1+I(invT-mean(invT))*trophic.level, random = ~I
 summary(modTC4r)
 
 
+
+################################################
+## Does mass-specific NPP vary with temperature?  
+################################################
+### NPP in umol/L/day per ugC
+data1 <- data[(data$NPP2 >= 0.05),]
+
+## model with mean tank temperature (invTT) and the weekly deviation from that long-term average (invTi - invTT), with Tank as a random intercept effect.  
+modNPPm0 <- lme(log(NPP.mass) ~ 1, random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML") 
+modNPPm1 <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")
+modNPPm2 <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)  
+modNPPm4 <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+modNPPm5 <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT)*trophic.level + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+modNPPm6 <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+modNPPm7 <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+
+model.sel(modNPPm0, modNPPm2, modNPPm4, modNPPm1, modNPPm5, modNPPm6, modNPPm7)
+
+## Best model: create fitted values to use later for plotting
+modNPPm5r <- lme(log(NPP.mass) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit) 
+intervals(modNPPm5r, which = "fixed") 
+mod.coefs <- augment(modNPPm5r, effect = "random") # puts fitted values back in the original dataset.
+
+## figures  
+### NPP in umol/L/day per ugC
+hist(data1$NPP.mass)
+hist(log(data1$NPP.mass))
+# hist(log(data$NPP.mass+.001)) # no reason to add a number, there are no -inf values.
+
+plot(log(data$NPP.mass)~data$Tank, pch = 19, col = data$trophic.level)
+plot(log(data$NPP.mass)~data$week, pch = 19, col = data$trophic.level)
+plot(log(data1$NPP.mass)~I(data1$invTT-mean(data1$invTT)), pch = 19, col = data1$trophic.level)
+plot(log(data1$NPP.mass)~I(data1$invT-(data1$invTT)), pch = 19, col = data1$trophic.level)
+abline(-2.62, -1.83, lwd = 2, col = 1)
+abline((-2.62+1.53), (-1.83-1.40), lwd = 2, col = 2)
+abline((-2.62+0.13), (-1.83-0.05), lwd = 2, col = 3)
+
+
+### WITHIN AND AMONG GROUP PLOTS
+### plotting within- and among-group regressions and model outputs
+
+NPPm.plot <- ggplot(data = data1, aes(x = invTi, y = log(NPP.mass))) + 
+  theme_bw() +
+  geom_point(aes(shape = trophic.level), colour = 312) +
+  xlab("Temperature 1/kTi") +
+  ylab("ln(NPPmi)")
+
+## PLOT 1: Individual regression lines fitted within and among groups
+NPPm.plot +
+  geom_smooth(method = "lm", se = FALSE, aes(group = Tank, color = trophic.level)) +
+  geom_smooth(method = "lm", se = FALSE, formula = y ~ x, color = 'black')
+
+## PLOT 2: Fit lines to fitted data from the model [close here - go get the coefficients as estimated for NPP, and write them out here with a z value. should plot up well.]
+NPPm.plot +
+  geom_smooth(data = mod.coefs, aes(x = invTi, y = .fitted, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
+  geom_smooth(data = mod.coefs, aes(x = invTT, y = .fitted), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black')
+
+## PLOT 3: Plot lines from model
+z <- 0.5 #invTi - invTT for each tank; 
+
+# PP coefs
+NPPmPP.func <- function(x) { (fixef(modNPPm6r)[1] - fixef(modNPPm6r)[3]*mean(data1$invTT) - fixef(modNPPm6r)[6]*z*mean(mod.coefs$invTT)) + (fixef(modNPPm6r)[3] + fixef(modNPPm6r)[6]*z)*x } #x = invTT # slope = -2.47
+# use this function to compute yvals for plotting.
+yvalsPP <- NPPmPP.func(mod.coefs$invTT)
+
+# ZP coefs
+NPPmZP.func <- function(x) { (fixef(modNPPm6r)[1] - fixef(modNPPm6r)[3]*mean(data1$invTT) - fixef(modNPPm6r)[6]*z*mean(mod.coefs$invTT) + fixef(modNPPm6r)[4] - fixef(modNPPm6r)[7]*mean(mod.coefs$invTT)) + (fixef(modNPPm6r)[3] + fixef(modNPPm6r)[6]*z + fixef(modNPPm6r)[7])*x } #x = invTT #slope = -3.98
+# use this function to compute yvals for plotting.
+yvalsZP <- NPPmZP.func(mod.coefs$invTT)
+
+# PZN coefs
+NPPmPZN.func <- function(x) { (fixef(modNPPm6r)[1] - fixef(modNPPm6r)[3]*mean(data1$invTT) - fixef(modNPPm6r)[6]*z*mean(mod.coefs$invTT) + fixef(modNPPm6r)[5] - fixef(modNPPm6r)[8]*mean(mod.coefs$invTT)) + (fixef(modNPPm6r)[3] + fixef(modNPPm6r)[6]*z + fixef(modNPPm6r)[8])*x } #x = invTT, #slope = -2.38
+yvalsPZN <- NPPmPZN.func(mod.coefs$invTT)
+
+NPPm.plot +
+  geom_smooth(data = mod.coefs, aes(x = invTi, y = (.fitted), group = Tank, colour = trophic.level), size = 0.5, method = "lm", se = FALSE, inherit.aes = FALSE) +
+  scale_colour_manual(values = c("#999999","#666666","#000000")) +
+  #geom_ribbon(aes(x = (mod.coefs$invTT), y = yvalsPP, ymin = yvalsPP - 0.3, ymax = yvalsPP + 0.3), fill = "grey70", alpha = 0.6) +
+  geom_line(aes(x = (mod.coefs$invTT), y = yvalsPP), lwd = 2, color = "#999999") +
+  #geom_ribbon(aes(x = (mod.coefs$invTT), y = yvalsZP, ymin = yvalsZP - 0.3, ymax = yvalsZP + 0.3), fill = "grey70", alpha = 0.6) +
+  geom_line(aes(x = (mod.coefs$invTT), y = yvalsZP), lwd = 2, color = "#666666") +
+  #geom_ribbon(aes(x = (mod.coefs$invTT), y = yvalsPZN, ymin = yvalsPZN - 0.3, ymax = yvalsPZN + 0.3), fill = "grey70", alpha = 0.6) +
+  geom_line(aes(x = (mod.coefs$invTT), y = yvalsPZN), lwd = 2, color = "#000000") +
+  
+  ggsave("NPPmplot.png", device = "png")
+
+
+
+
+
+# BACKTRANSFORMED FIGURES -------------------------------------------------
+NPP.BT <- ggplot(data = mod.coefs, aes(x = invTT, y = NPP2, ymin = -2)) + 
+  theme_bw() +
+  theme(legend.position = "none") +
+  geom_point(aes(group = Tank, shape = trophic.level), alpha = 1/2, size = 2) + #color = trophic.level
+  xlab("Temperature") +
+  ylab("NPPi")
+
+NPP.BT
+
+#y = m*x + b
+#y = exp(b)*x^m
+
+intervals(modNPP5r, which = "fixed")[1] -> ints
+ints[[1]][1,1]
+b <- mean(mod.coefs$invTT)
+
+NPP.funcP <- function(x) { (fixef(modNPP5r)[1] - fixef(modNPP5r)[5]*mean(mod.coefs$invTT)) + fixef(modNPP5r)[5]*x}
+
+#NPP.btP <- function(x) { exp(fixef(modNPP5r)[1] - fixef(modNPP5r)[5]*mean(x)) * exp(x)^(fixef(modNPP5r)[5])}
+yvalsP <- NPP.funcP(mod.coefs$invTT)
+
+#NPP.btPlow <- function(x) { exp(ints[[1]][1,1] - ints[[1]][5,1]*mean(x)) * exp(x)^(ints[[1]][5,1])}
+#yvalsPl <- NPP.btPlow(mod.coefs$invTT)
+#NPP.btPhi <- function(x) { exp(ints[[1]][1,3] - ints[[1]][5,3]*mean(x)) * exp(x)^(ints[[1]][5,3])}
+#yvalsPh <- NPP.btPhi(mod.coefs$invTT)
+
+NPP.funcPZ <- function(x) { (fixef(modNPP5r)[1] + fixef(modNPP5r)[3] - fixef(modNPP5r)[5]*mean(mod.coefs$invTT) - fixef(modNPP5r)[8]*mean(mod.coefs$invTT)) + (fixef(modNPP5r)[5] + fixef(modNPP5r)[8])*x}
+yvalsPZ <- NPP.funcPZ(mod.coefs$invTT)
+
+NPP.btPZ <- function(x) { exp(fixef(modNPP5r)[1] + fixef(modNPP5r)[3] - fixef(modNPP5r)[5]*mean(mod.coefs$invTT) - fixef(modNPP5r)[8]*mean(mod.coefs$invTT)) * exp(x)^(fixef(modNPP5r)[5] + fixef(modNPP5r)[8]) }
+yvalsPZ <- NPP.btPZ(mod.coefs$invTT)
+
+NPP.funcPZN <- function(x) { (fixef(modNPP5r)[1] + fixef(modNPP5r)[4] - fixef(modNPP5r)[5]*mean(mod.coefs$invTT) - fixef(modNPP5r)[9]*mean(mod.coefs$invTT)) + (fixef(modNPP5r)[5] + fixef(modNPP5r)[9])*x}
+yvalsPZN <- NPP.funcPZN(mod.coefs$invTT)
+
+NPP.btPZN <- function(x) { exp(fixef(modNPP5r)[1] + fixef(modNPP5r)[4] - fixef(modNPP5r)[5]*mean(mod.coefs$invTT) - fixef(modNPP5r)[9]*mean(mod.coefs$invTT)) * exp(x)^(fixef(modNPP5r)[5] + fixef(modNPP5r)[9]) }
+yvalsPZN <- NPP.btPZN(mod.coefs$invTT)
+
+NPP.BT +
+  geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsP), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) + 
+  # geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPl), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'grey60', size = 1.5) +
+  # geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPh), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'grey60', size = 1.5) # not sure if this is right.
+  geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPZ), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'grey80', size = 1.5) +
+  geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPZN), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'grey60', size = 1.5) +
+  
+  #  geom_segment(aes(x = min(invTT), xend = max(invTT), y = exp(intervals(modNPP5r, which = "fixed")[[1]][1,1]), yend = exp(intervals(modNPP5r, which = "fixed")[[1]][1,3])), linetype=1, color = "gray40")
+  # trying to plot the curves with CIs. For the fixefs we can get these CIs from intervals (below). then, I suppose to plot them I'd make a different line - is it just the line defined by the parameters at the lower edge of their CI, and another line above?
+  #thinking through this: we log transoformed the data, then fit a model to estimate temperature effects. I want to describe this temperature effect (slope parameter) and our confidence in it. Confidence will come from the confidence intervals on the fixed effect (for P, this is just the centered temp effect), but for the PZ level, it's that term + the base term... with which uncertainty?
+  
+  intervals(modNPP5r, which = "fixed")[1] -> ints
+ints[[1]][1,1]
+
+ggsave("figure2Aalt2.png", device = "png", width = 5, height = 3)
+
+
+
+ER.BT <- ggplot(data = mod.coefsER, aes(x = invTT, y = ER2)) + 
+  theme_bw() +
+  theme(legend.position = "none") +
+  #geom_point(aes(group = Tank, shape = trophic.level), alpha = 1/2, size = 2) + #color = trophic.level
+  xlab("Temperature") +
+  ylab("ERi")
+
+ER.BT
+
+ER.btP <- function(x) { exp(fixef(modER2r)[1] - fixef(modER2r)[3]*mean(x)) * exp(x)^(fixef(modER2r)[3]) } # for trophic level 1
+yvalsP <- ER.btP(mod.coefsER$invTT)
+
+ER.btPZ <- function(x) { exp(fixef(modER2r)[1] + fixef(modER2r)[4] - fixef(modER2r)[3]*mean(x)) * exp(x)^(fixef(modER2r)[3]) } # for trophic level 2
+yvalsPZ <- ER.btPZ(mod.coefsER$invTT)
+
+ER.btPZN <- function(x) { exp(fixef(modER2r)[1] + fixef(modER2r)[5] - fixef(modER2r)[3]*mean(x)) * exp(x)^(fixef(modER2r)[3]) } # for trophic level 3
+yvalsPZN <- ER.btPZN(mod.coefsER$invTT)
+
+
+ER.BT +
+  geom_smooth(data = mod.coefsER, aes(x = invTT, y = yvalsP), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+  geom_smooth(data = mod.coefsER, aes(x = invTT, y = yvalsPZ), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'grey80', size = 1.5) +
+  geom_smooth(data = mod.coefsER, aes(x = invTT, y = yvalsPZN), method = loess, se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'grey60', size = 1.5)
+
+ggsave("figure2Balt2.png", device = "png", width = 5, height = 3)
+
+
+# FIGURE 2D ---------------------------------------------------------------
+
+## 
+## Patrick's figure idea: dplyr
+NPPmod = mod.coefs %>% 
+  gather(key = "EF", value = "Rate", NPP2, ER2, PP.biomass) %>%
+  group_by(Tank, trophic.level, EF) %>% 
+  do(fitTank = lm(log(Rate) ~ invTi, data = .)) %>%
+  tidy(., fitTank) %>%
+  filter(term == 'invTi') %>%
+  select(trophic.level, estimate) %>%
+  mutate(level = "Tank")
+
+xtanks <- data.frame(trophic.level = c("P", "PZ", "PZN"), estimate = c(-1.31564, -0.8241136, -0.4654028, fixef(modER2r)[3], fixef(modER2r)[3], fixef(modER2r)[3], 1.281337, 3.669879, 1.735196), Tank = "all", level = "treatment", EF = rep(c("NPP2", "ER2", "PP.biomass"), each = 3))
+
+bind_rows(NPPmod, xtanks) -> data3
+
+plot1 <- ggplot(data3, aes(x = trophic.level, y = estimate, shape = level)) +
+  scale_y_continuous(name ="Activation Energy (Ea)", labels=c("-4","-2","0", "2", "4"), limits = c(-4, 4.2)) +
+  xlab("Food Chain Length") +
+  geom_point(size = 3, color = "gray50") +
+  geom_point(data = subset(data3, level == "treatment"), size = 4) +
+  guides(shape=guide_legend(title=NULL)) +
+  scale_shape_discrete(breaks = c("Tank", "treatment"), labels = c("Within Ecosystem", "Across Ecosystems")) +
+  facet_grid(~EF) +
+  theme_bw() +
+  theme(legend.position="top")
+plot1
+ggsave("figure1D.png", device = "png", width = 5, height = 3)
+
+#scales = "free" #in facet
+
+plot(NPPmod.coef$trophic.level, NPPmod.coef$estimate)
+
+## best averaged model: ## next challenge: figure out how to get coefs from the averaged model, given random effects. i'm not sure this is possible. 
+## don't think it's possible. So, plot the fixed effect coefs for averaged models (need to pencil this out; leave off within group lines?)
+## approach on 1/15/17 is to use best model
+m.avg <- model.avg(modNPP5, modNPP2, modNPP1)
+summary(m.avg)
+pred.data <- as.data.frame(predict(m.avg, se.fit = FALSE)) # this is promising to get predicted values for plotting cheat below.
+data.NPP <- cbind(data1, pred.data)
+
+### exploring ways to extract coefficients from an averaging object
+coeffs(m.avg)
+coefTable(m.avg)
