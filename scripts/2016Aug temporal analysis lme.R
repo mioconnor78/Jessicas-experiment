@@ -36,22 +36,26 @@ temps3 <- temps3[,-4]
 temps3 <- tidyr::separate(temps3, date, c("Day", "Month", "Year"), sep = "/")
 
 ## average temp over each week for each tank
-temps.wk <- 
-  temps3 %>% 
-  group_by(Tank, week) %>%
-  summarize(mean(temp))
+temps.wk <- temps3 %>% 
+  group_by(week, Tank) %>%
+  summarise(mean(as.numeric(temp), na.rm = TRUE)) %>%
+  arrange(as.integer(Tank))
 
-names(temps.wk) <- c("Tank", "week", "temp.wk")
-data.t <- join(data, temps.wk, by = c("week", "Tank")) # add weekly temps to data file
+names(temps.wk) <- c("week","Tank", "temp.wk")
+temps.wk <- temps.wk[!is.na(temps.wk$week),]
+temps.wk$week <- as.integer(temps.wk$week)
+temps.wk$Tank <- as.character(temps.wk$Tank)
+data.t <- left_join(data, temps.wk, by = c("week", "Tank")) # add weekly temps to data file
 
 ## average temp over each tank over all weeks. 
 temps.Tmn <- 
   temps3 %>% 
   group_by(Tank) %>%
-  summarize(mean(temp, na.rm = TRUE))
+  summarise(., avg = mean(temp, na.rm = TRUE)) %>%
+  arrange(as.numeric(Tank))
 
 names(temps.Tmn) <- c("Tank", "temp.Tmn")
-data.t <- join(data.t, temps.Tmn, by = c("Tank")) 
+data.t <- left_join(data.t, temps.Tmn, by = c("Tank")) 
 
 ## temperature at the time of measurement of oxygen for oxygen exchange corrections. These temps are only needed for the abiotic corrections on oxygen flux. 
 ## get dates and times so that I can pick the time I want from the temps3 file
@@ -225,6 +229,8 @@ NPP.funcPZN <- function(x) { (fixef(modNPP5r)[1] + fixef(modNPP5r)[4] - fixef(mo
 yvalsPZN <- NPP.funcPZN(mod.coefs[(mod.coefs$trophic.level=="PZN"),]$invTT)
 
 ## this code for faceted figure
+
+
 Fig2A <- 
 NPP.plot +
   geom_smooth(method = "lm", se = FALSE, aes(group = Tank), color = "gray40", alpha = 0.23, size = .8) +
