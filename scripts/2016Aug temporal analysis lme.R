@@ -201,6 +201,7 @@ NPP.plot <- ggplot(data = data1, aes(x = invTi, y = log(NPP2), ymin = -2, ymax =
   theme_bw() +
   theme(legend.position = "none") +
   theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
+  theme(strip.background = element_rect(colour="white", fill="white")) +
   facet_grid(.~trophic.level) + ## this sets it up as facets
   geom_point(aes(group = Tank, color = Tank, shape = as.factor(week)),  alpha = 1/2, size = 2) + 
   scale_colour_grey(start = 0, end = .8) + #color = trophic.level, 
@@ -302,12 +303,16 @@ abline((3.88-0.04), (-0.43), lwd = 2, col = 3)
 ER.plot <- ggplot(data = mod.coefsER, aes(x = invTi, y = log(ER2), min = 0)) + 
   theme_bw() +
   theme(legend.position = "none") +
+  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
+  theme(strip.background = element_blank(),
+    strip.text.x = element_blank()) +
   facet_grid(.~trophic.level) + ## this sets it up as facets
   geom_point(aes(group = Tank, color = Tank, shape = as.factor(week)),  alpha = 1/2, size = 2) + 
   scale_colour_grey(start = 0, end = .8) +
+  scale_x_continuous(sec.axis = sec_axis(~(1/(.*k))-273)) +  
   xlab("") + #xlab("Temperature 1/kTi") +
   ylab("ln(ERi)")
-
+  
 ER.plot
 ggsave("ERplot.png", device = "png", width = 7, height = 3) # save for appendix
 
@@ -382,9 +387,14 @@ mod.coefs <- augment(modPP6r, effect = "random")
 PP.plot <- ggplot(data = data, aes(x = invTi, y = log(PP.biomass), min = 0)) + 
   theme_bw() +
   theme(legend.position = "none") +
+  theme(legend.position = "none") +
+  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
+  theme(strip.background = element_blank(),
+        strip.text.x = element_blank()) +
   facet_grid(.~trophic.level) + ## this sets it up as facets
   geom_point(aes(group = Tank, color = Tank, shape = as.factor(week)),  alpha = 1/2, size = 2) + 
   scale_colour_grey(start = 0, end = .8) +
+  scale_x_continuous(sec.axis = sec_axis(~(1/(.*k))-273)) + 
   theme(legend.position = "FALSE") +
   geom_point(aes(group = Tank, shape = trophic.level), alpha = 1/2, size = 2) +
   xlab("Temperature 1/kTi") +
@@ -505,12 +515,15 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
   }
 }
 
-multiplot(Fig2A, Fig2D, Fig2G, cols = 1)
+Figure2 <- multiplot(Fig2A, Fig2D, Fig2G, cols = 1)
 Fig2A
 Fig2D
 Fig2G
+ggsave("Figure2.png", plot = Figure2, width = 7, height = 7)
 
-
+png('Figure2.png')
+multiplot(Fig2A, Fig2D, Fig2G, cols = 1)
+dev.off()
 
 
 #### community size plots
