@@ -109,9 +109,22 @@ data.t3 <- data.t3 %>%
 data.t4 <- left_join(data.t3, temps4, by = c("d2.date" = "date_formatted", "Tank", "d2Hour" = "time")) #, suffix = c(".x", ".d2")
 data.t4 <- dplyr::rename(data.t4, temp.d2 = T4hrs)
 
+## create a column for tank rank within trophic trt
+names(data.t4)
+data.t5 <- as.tibble(data.t4) %>%
+  group_by(Tank, trophic.level) %>%
+  summarise(., mean.temp = mean(temp.wk)) %>%
+  arrange(trophic.level, mean.temp) %>%
+  select(-mean.temp) 
+  
+data.t5$Tankn <- rep(c(1:10), 3)
 
+head(data.t5) 
+
+data.t6 <- left_join(data.t4, data.t5, by = c("Tank", "trophic.level")) # add weekly temps to data file
+  
 ### Define temperature as inverse temperature
-data <- data.t4
+data <- data.t6
 data <- dplyr::rename(data, week = week.x)
 k <- 8.617342*10^-5  # eV/K
 data$invTi <-  1/((data$temp.wk + 273)*k) # average temp of the tank each week
@@ -194,17 +207,53 @@ modNPP5r <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*trophic.level + I(invTT - mean(
 mod.coefsN <- augment(modNPP5r, effect = "random")
 ## come back to get confints, might need qpCR
 
+## or, what if we use an averaged model: 
+m.avgN <- model.avg(modNPP5, modNPP2, modNPP1)
+confint(m.avgN)
+
+# diagonals of vcov are variances
+vcov(m.avgN)
+# so intercept variance is:
+vcov(m.avgN)[1,1]
+
+## following equation 4 in main text:
+pars <-  c("B0", "B1", "B2", "B3", "B4", "B5", "B6")
+
+
+# B0 parameter for intercept for PP
+P.int0 <- coefficients(m.avgN)[1]
+P.int0v <- vcov(m.avgN)[1,1]
+# B2 parameter for intercept for PP
+P.int2 <- coefficients(m.avgN)[5]
+P.int2v <- vcov(m.avgN)[5,5]
+# composite intercept parameter, B0 + B2*mean(T)
+P.intI <- (coefficients(m.avgN)[1] - coefficients(m.avgN)[5]*mean(mod.coefsN$invTT))
+#P.intIv <- sqrt((P.int0v^2) + (P.int2v^2)) # pooled variance
+require(graphics)
+df <- 162-8-1
+t.stat <- qt(0.975, df = df) #calculates critical t-value for the threshold (first value) and df (= n - p - 1)
+P.intL <- P.intI - t.stat * sqrt((P.int0v) + (P.int2v)*(mean(mod.coefsN$invTT)^2) + 2*mean(mod.coefsN$invTT)*vcov(m.avgN)[1,5])
+P.intU <- P.intI + t.stat * sqrt((P.int0v) + (P.int2v)*(mean(mod.coefsN$invTT)^2) + 2*mean(mod.coefsN$invTT)*vcov(m.avgN)[1,5])
+
+# B2 parameter for slope for PP
+P.s1 <- coefficients(m.avgN)[5]
+P.s1v <- vcov(m.avgN)[5,5]
+P.sL <- P.s1 - t.stat * (sqrt(P.s1v))  #running into trouble here because my this estimate of the 95% CI for one parameter is not agreeing with the model output...
+P.sU <- P.s1 + 1.96*(sqrt(P.s1v) / sqrt(length(data1[,2])))
+
 # FIGURE 2: 
 ### plotting within- and among-group regressions and model outputs
 
 NPP.plot <- ggplot(data = data1, aes(x = invTi, y = log(NPP2), ymin = -2, ymax = 6)) + 
   theme_bw() +
-  theme(legend.position = "none") +
+  theme(legend.position = c(0.9, 0.14)) + 
   theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
   theme(strip.background = element_rect(colour="white", fill="white")) +
   facet_grid(.~trophic.level) + ## this sets it up as facets
-  geom_point(aes(group = Tank, color = Tank, shape = as.factor(week)),  alpha = 1/2, size = 2) + 
-  scale_colour_grey(start = 0, end = .8) + #color = trophic.level, 
+  geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(week), alpha = Tankn), size = 2) + 
+  scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
+  scale_alpha("Tankn", guide = "none") +
+  scale_shape(name = "Week", guide = guide_legend(ncol = 2)) +
   xlab("") + #xlab("Temperature 1/kTi") +
   ylab("ln(NPPi)")
 
@@ -219,7 +268,7 @@ NPP.plot +
 # geom_smooth(method = "lm", se = FALSE, formula = y ~ x, color = 'black')
 ggsave("NPPplot.png", device = "png", width = 5, height = 3)
 
-## PLOT 2: Raw data and fitted lines from the model. Added the predictions of the model to the original dataset, then fit lines to those using linear regressions
+## PLOT 2: Raw data and fitted lines from the best model. Added the predictions of the model to the original dataset (mod.coefsN), then fit lines to those using linear regressions
 NPP.funcP <- function(x) { (fixef(modNPP5r)[1] - fixef(modNPP5r)[5]*mean(mod.coefsN$invTT)) + fixef(modNPP5r)[5]*x}
 NvalsP <- NPP.funcP(mod.coefsN[(mod.coefsN$trophic.level=="P"),]$invTT)
 
@@ -232,14 +281,32 @@ NvalsPZN <- NPP.funcPZN(mod.coefsN[(mod.coefsN$trophic.level=="PZN"),]$invTT)
 mod.coefsN$Tank <- as.factor(mod.coefsN$Tank)
 
 
-# Figure 2A ---------------------------------------------------------------
+## PLOT 2A: Raw data and fitted lines from the averaged model. Added the predictions of the model to the original dataset (mod.coefsN), then fit lines to those using linear regressions
+NPP.funcP <- function(x) {(coefficients(m.avgN)[1] - coefficients(m.avgN)[5]*mean(mod.coefsN$invTT)) + coefficients(m.avgN)[5]*x}
+NvalsP <- NPP.funcP(mod.coefsN[(mod.coefsN$trophic.level=="P"),]$invTT)
 
+NPP.funcPZ <- function(x) { (fixef(modNPP5r)[1] + fixef(modNPP5r)[3] - fixef(modNPP5r)[5]*mean(mod.coefsN$invTT) - fixef(modNPP5r)[8]*mean(mod.coefsN$invTT)) + (fixef(modNPP5r)[5] + fixef(modNPP5r)[8])*x}
+NvalsPZ <- NPP.funcPZ(mod.coefsN[(mod.coefsN$trophic.level=="PZ"),]$invTT)
+
+NPP.funcPZN <- function(x) { (fixef(modNPP5r)[1] + fixef(modNPP5r)[4] - fixef(modNPP5r)[5]*mean(mod.coefsN$invTT) - fixef(modNPP5r)[9]*mean(mod.coefsN$invTT)) + (fixef(modNPP5r)[5] + fixef(modNPP5r)[9])*x}
+NvalsPZN <- NPP.funcPZN(mod.coefsN[(mod.coefsN$trophic.level=="PZN"),]$invTT)
+
+mod.coefsN$Tank <- as.factor(mod.coefsN$Tank)
+
+
+
+
+# Figure 2A ---------------------------------------------------------------
+# the within-group lines here are lms fitted to the actual data; I think these should be the modeled data too...
+# the among-group lines are model fits based on the best model (so this could be model averaged coefficients too)
 Fig2A <- 
   NPP.plot + 
-  geom_smooth(method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = invTi, y = log(NPP2), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) + 
+  geom_smooth(data = subset(mod.coefsN), method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = invTi, y = .fitted, group = Tank),  size = .8, color = alpha("steelblue", 0.5)) + 
   geom_smooth(data = subset(mod.coefsN, trophic.level == "P"), aes(x = invTT, y = NvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
-  geom_smooth(data = subset(mod.coefsN, trophic.level == "PZ"), aes(x = invTT, y = NvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
-  geom_smooth(data = subset(mod.coefsN, trophic.level == "PZN"), aes(x = invTT, y = NvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) 
+ geom_smooth(data = subset(mod.coefsN, trophic.level == "PZ"), aes(x = invTT, y = NvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+  geom_smooth(data = subset(mod.coefsN, trophic.level == "PZN"), aes(x = invTT, y = NvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+
+
 
 ggsave("Fig2A-C.png", device = "png", width = 7, height = 3)
 
