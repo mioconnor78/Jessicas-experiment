@@ -211,23 +211,35 @@ mod.coefsN <- augment(modNPP5r, effect = "random")
 m.avgN <- model.avg(modNPP5, modNPP2, modNPP1)
 confint(m.avgN)
 
-# diagonals of vcov are variances
-vcov(m.avgN)
-# so intercept variance is:
-vcov(m.avgN)[1,1]
+## calculating confidence intervals for activation energies.
+
+vcov(m.avgN) # diagonals of vcov are variances
+vcov(m.avgN)[1,1] # intercept variance is:
 
 ## following equation 4 in main text:
 pars <-  c("B0", "B1", "B2", "B3", "B4", "B5", "B6")
 
+## the among group lines are generally described by: [though check this...]
+#  int = ln(b0) + ln(Miα) = β0 + β4(TL) + β5(TL) + β6(TL)
+#  slope = EB = β1 + β2 + β3 + β5 + β6
 
-# B0 parameter for intercept for PP
-P.int0 <- coefficients(m.avgN)[1]
+TL <- 0
+int <- P.B0 + P.B4*TL + P.B5*TL + P.B6*TL
+# so slope = 
+Sl <- 
+  
+# int estimates for intercept for PP
+P.B0 <- coefficients(m.avgN)[1]
 P.int0v <- vcov(m.avgN)[1,1]
+P.B4 <- coefficients(m.avgN)[3] #B/c PP
+P.B5 <- coefficients(m.avgN)[8]
+P.B6 <- 0 # not in model
+
 # B2 parameter for intercept for PP
 P.int2 <- coefficients(m.avgN)[5]
 P.int2v <- vcov(m.avgN)[5,5]
 # composite intercept parameter, B0 + B2*mean(T)
-P.intI <- (coefficients(m.avgN)[1] - coefficients(m.avgN)[5]*mean(mod.coefsN$invTT))
+P.intI <- (coefficients(m.avgN)[1]) # - coefficients(m.avgN)[5]*mean(mod.coefsN$invTT))
 #P.intIv <- sqrt((P.int0v^2) + (P.int2v^2)) # pooled variance
 require(graphics)
 df <- 162-8-1
@@ -238,8 +250,14 @@ P.intU <- P.intI + t.stat * sqrt((P.int0v) + (P.int2v)*(mean(mod.coefsN$invTT)^2
 # B2 parameter for slope for PP
 P.s1 <- coefficients(m.avgN)[5]
 P.s1v <- vcov(m.avgN)[5,5]
-P.sL <- P.s1 - t.stat * (sqrt(P.s1v))  #running into trouble here because my this estimate of the 95% CI for one parameter is not agreeing with the model output...
-P.sU <- P.s1 + 1.96*(sqrt(P.s1v) / sqrt(length(data1[,2])))
+P.sL <- P.s1 - t.stat * (sqrt(P.s1v))  #running into trouble here because my this estimate of the 95% CI for one parameter is not agreeing with the model output. but they are close, and after reading about these (i.e., here) I'm going to chalk the differences up to different esimation methods by the algorithm than by my formula.
+confint(m.avgN)[5,]
+confint(m.avgN, Full = F)[5,] # no difference between F and T
+confint.default(m.avgN)[5,] # based on asymtotic normality... much closer to my by-hand estimate
+P.sU <- as.numeric(coefficients(m.avgN)[5]) + t.stat * (sqrt(vcov(m.avgN)[5,5]))
+
+## leaving off here... seems like formula to estimate confindence intervals (e.g., Figueirias et al) are not matching the R output for single parameters, and i don't konw why. could it have something to do with the hierarchical model? check that, carefully.
+
 
 # FIGURE 2: 
 ### plotting within- and among-group regressions and model outputs
