@@ -198,7 +198,7 @@ modNPPF <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*
 
 modNPPF <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
 modNPP4 <- lm(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modNPP3 <- lm(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
+#modNPP3 <- lm(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
 modNPP2.3 <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
 modNPP2.2 <- lm(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT), data=data1, na.action=na.omit)
 modNPP2 <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level, data=data1, na.action=na.omit)
@@ -208,13 +208,7 @@ modNPP1 <- lm(log(NPP2) ~ 1 + I(invTi - invTT), data=data1, na.action=na.omit)
 modNPP0.5 <- lm(log(NPP2) ~ 1 + trophic.level, data=data1, na.action=na.omit)
 modNPP0 <- lm(log(NPP2) ~ 1, data=data1, na.action=na.omit)
 
-model.sel(modNPP0, modNPP0.5, modNPP1, modNPP1.2, modNPP1.3, modNPP2, modNPP2.2, modNPP2.3, modNPP3, modNPP4, modNPPF)
-
-
-## Best model: create fitted values to use later for plotting
-modNPP5r <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*trophic.level + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit)  
-mod.coefsN <- augment(modNPP5r, effect = "random")
-## come back to get confints, might need qpCR
+model.sel(modNPP0, modNPP0.5, modNPP1, modNPP1.2, modNPP1.3, modNPP2, modNPP2.2, modNPP2.3, modNPP4, modNPPF)
 
 ## or, what if we use an averaged model: 
 m.avgN <- model.avg(modNPP4, modNPP1.2)
@@ -296,10 +290,6 @@ NvalsPZ <- NPP.funcPZ(data1[(data1$trophic.level=="PZ"),]$invTT)
 NPP.funcPZN <- function(x) { I3 + Sl3*x }
 NvalsPZN <- NPP.funcPZN(data1[(data1$trophic.level=="PZN"),]$invTT)
 
-#mod.coefsN$Tank <- as.factor(mod.coefsN$Tank)
-
-
-
 
 # Figure 2A ---------------------------------------------------------------
 # the within-group lines here are lms fitted to the actual data; I think these should be the modeled data too...
@@ -311,106 +301,127 @@ Fig2A <-
  geom_smooth(data = subset(data1, trophic.level == "PZ"), aes(x = invTT, y = NvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
   geom_smooth(data = subset(data1, trophic.level == "PZN"), aes(x = invTT, y = NvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) 
 
-
-
 ggsave("Fig2A-C.png", device = "png", width = 7, height = 3)
 
 
-
-## this code for non-faceted
-NPP.plot +
-  #geom_smooth(data = mod.coefs, aes(x = invTi, y = yvalsP, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
-  geom_smooth(method = "lm", se = FALSE, aes(group = Tank, color = trophic.level), alpha = 0.23, size = .8) +
-  geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
-  geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 2, size = 1.5) +
-  geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 4, size = 1.5) +
-  geom_text(label = "Y.P = -1.32x + 54.96", x = 38.9, y = -1) +
-  geom_text(label = "Y.PZ = -0.82x + 36.12", x = 38.9, y = -1.5) +
-  geom_text(label = "Y.PZN = -0.46x + 22.03", x = 38.9, y = -2)
-#geom_point(data = mod.coefs, aes(x = invTi, y = pred.data))
-
-ggsave("NPPplot.png", device = "png", width = 5, height = 3)
 
 
 # ER candidate model set --------------------------------------------------
 
 hist(data$ER2)
 data2 <- data[(data$ER2 >= 0),] #no values removed
+data2 <- data[!is.na(data$ER2),]
 hist(log(data2$ER2))
 
 #analysis
-modER0<-lme(log(ER2) ~ 1, random = ~ 1 | Tank, data=data2, na.action=na.omit, method="ML")  
-modER1<-lme(log(ER2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data2, na.action=na.omit, method="ML") 
-modER2<-lme(log(ER2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level, random = ~ 1 | Tank, data=data2, method="ML", na.action=na.omit) 
-modER4<-lme(log(ER2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data2, method="ML", na.action=na.omit) 
-modER5 <- lme(log(ER2) ~ 1 + I(invTi - invTT)*trophic.level + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data2, method="ML", na.action=na.omit)
-modER6 <- lme(log(ER2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data2, method="ML", na.action=na.omit) 
-modER7 <- lme(log(ER2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data2, method="ML", na.action=na.omit) 
+### might just ax the random int...or test for it: 
+modERF <- lme(log(ER2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data2, method="ML", na.action=na.omit) 
+modERa <- lm(log(ER2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data2, na.action=na.omit) #don't need random effect
+## proceed without random effect
+modERF <- lm(log(ER2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data2, na.action=na.omit)
+modER4 <- lm(log(ER2) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), data=data2, na.action=na.omit)
+#modER3 <- lm(log(ER2) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data2, na.action=na.omit)
+modER2.3 <- lm(log(ER2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), data=data2, na.action=na.omit)
+modER2.2 <- lm(log(ER2) ~ 1 + trophic.level*I(invTi - invTT), data=data2, na.action=na.omit)
+modER2 <- lm(log(ER2) ~ 1 + I(invTi - invTT) + trophic.level, data=data2, na.action=na.omit)
+modER1.3 <- lm(log(ER2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), data=data2, na.action=na.omit)
+modER1.2 <- lm(log(ER2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), data=data2, na.action=na.omit)
+modER1 <- lm(log(ER2) ~ 1 + I(invTi - invTT), data=data2, na.action=na.omit)
+modER0.5 <- lm(log(ER2) ~ 1 + trophic.level, data=data2, na.action=na.omit)
+modER0 <- lm(log(ER2) ~ 1, data=data2, na.action=na.omit)
 
-model.sel(modER0, modER1, modER2, modER4, modER5, modER6, modER7)
+model.sel(modER0, modER0.5, modER1, modER1.2, modER1.3, modER2, modER2.2, modER2.3, modER4, modERF)
 
-## Best model: create fitted values to use later for plotting 
-modER2r<-lme(log(ER2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level, random = ~ 1 | Tank, data=data2, method="REML", na.action=na.omit) 
-summary(modER2r)
-intervals(modER2r, which = "fixed")
-mod.coefsER <- augment(modER2r, effect = "random") 
+## calculating confidence intervals for activation energies.
+modER <- modER2.3
+vcov(modER) # diagonals of vcov are variances
+vcov(modER)[1,1] # intercept variance is:
 
-m.avg <- model.avg(modER2, modER4)
-summary(m.avg)
+df <- length(data2$ER2)-(length(coef(modER))+1)-1
+t.stat <- qt(0.975, df = df) #calculates critical t-value for the threshold (first value) and df (= n - p - 1)
 
-### SOME BASIC PLOTS
-## figures 
-plot(log(data$ER2)~data$Tank, pch = 19, col = data$trophic.level)
-plot(log(data$ER2)~data$week, pch = 19, col = data$trophic.level)
-plot(log(data1$ER2)~I(data1$invTT-mean(data1$invTT)), pch = 19, col = data1$trophic.level, ylim = c(0,6))
-abline(4.27, -0.43, lwd = 2, col = 1)
-abline((4.27+0.35), (-0.43), lwd = 2, col = 2)
-abline((3.88-0.04), (-0.43), lwd = 2, col = 3)
+# slope for ER.PP: 
+SlER1 <- coefficients(modER)[5]
+SlER1.l <- confint(modER)[5,1]
+SlER1.u <- confint(modER)[5,2]
+SlER1.l2 <- SlER1 - t.stat * sqrt(vcov(modER)[5,5])
+
+# slope for ER.ZP: 
+SlER2 <- coefficients(modER)[5] + coefficients(modER)[6]
+SlER2.l <- SlER2 - t.stat * sqrt(vcov(modER)[5,5] + vcov(modER)[6,6] + 2*vcov(modER)[6,5])
+SlER2.u <- SlER2 + t.stat * sqrt(vcov(modER)[5,5] + vcov(modER)[6,6] + 2*vcov(modER)[6,5])
+
+# slope for ER.PZN: 
+SlER3 <- coefficients(modER)[5] + coefficients(modER)[7]
+SlER3.l <- SlER3 - t.stat * sqrt(vcov(modER)[5,5] + vcov(modER)[7,7] + 2*vcov(modER)[7,5])
+SlER3.u <- SlER3 + t.stat * sqrt(vcov(modER)[5,5] + vcov(modER)[7,7] + 2*vcov(modER)[7,5])
+
+slopesER <- (cbind(c(SlER1, SlER2, SlER3), c(SlER1.l, SlER2.l, SlER3.l), c(SlER1.u, SlER2.u, SlER3.u)))
+rownames(slopesER) <- c("P", "PZ", "PZN")
+colnames(slopesER) <- c("S", "l", "u")
+
+# ints for ER.PP: 
+IER1 <- coefficients(modER)[1] - coefficients(modER)[5]*mean(data2$invTT)
+IER1.l <- confint(modER)[1,1]
+IER1.u <- confint(modER)[1,2]
+IER1.l2 <- IER1 - t.stat * sqrt(vcov(modER)[1,1])
+
+# ints for ER.ZP: modER includes all int terms, but we leave out the invTi term for among group lines; ints here are at mean(invTT) 
+IER2 <- coefficients(modER)[1] + coefficients(modER)[3] - coefficients(modER)[5]*mean(data2$invTT) - coefficients(modER)[6]*mean(data2$invTT)
+#IER2.l <- IER2 - t.stat * sqrt(vcov(modER)[1,1] + vcov(modER)[3,3] + 2*vcov(modER)[3,1] + vcov(modER)[5,5]*(mean(data2$invTT)^2) + vcov(modER)[6,6]*(mean(data2$invTT)^2)) 
+#IER2.u <- IER2 + t.stat * sqrt(vcov(modER)[1,1] + vcov(modER)[3,3] + 2*vcov(modER)[3,1])
+
+# ints for ER.PZN: 
+IER3 <- coefficients(modER)[1] + coefficients(modER)[4] - coefficients(modER)[5]*mean(data2$invTT) - coefficients(modER)[7]*mean(data2$invTT)
+IER3.l <- IER3 - t.stat * sqrt(vcov(modER)[1,1] + vcov(modER)[4,4] + 2*vcov(modER)[4,1]) 
+IER3.u <- IER3 + t.stat * sqrt(vcov(modER)[1,1] + vcov(modER)[4,4] + 2*vcov(modER)[4,1])
+
+slopesER <- (cbind(c(SlER1, SlER2, SlER3), c(SlER1.l, SlER2.l, SlER3.l), c(SlER1.u, SlER2.u, SlER3.u)))
+rownames(slopesER) <- c("P", "PZ", "PZN")
+colnames(slopesER) <- c("S", "l", "u")
 
 
 # Fig 2 D-E: ER ------------------------------------------------------------
 
 ### WITHIN AND AMONG GROUP PLOTS
 ### plotting within- and among-group regressions and model outputs
-ER.plot <- ggplot(data = mod.coefsER, aes(x = invTi, y = log(ER2), min = 0)) + 
+ER.plot <- ggplot(data = data2, aes(x = invTi, y = log(ER2), min = 0)) + 
   theme_bw() +
   theme(legend.position = "none") +
   theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
-  theme(strip.background = element_blank(),
-    strip.text.x = element_blank()) +
+  theme(strip.background = element_blank(), strip.text.x = element_blank()) +
   facet_grid(.~trophic.level) + ## this sets it up as facets
-  geom_point(aes(group = Tank, color = Tank, shape = as.factor(week)),  alpha = 1/2, size = 2) + 
-  scale_colour_grey(start = 0, end = .8) +
-  scale_x_continuous(sec.axis = sec_axis(~(1/(.*k))-273)) +  
+  geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(week), alpha = Tankn), size = 2) + 
+  scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
+  scale_alpha("Tankn", guide = "none") +
+  scale_shape(name = "Week", guide = guide_legend(ncol = 2)) +
   xlab("") + #xlab("Temperature 1/kTi") +
   ylab("ln(ERi)")
-  
+
 ER.plot
 ggsave("ERplot.png", device = "png", width = 7, height = 3) # save for appendix
 
-## ER.PLOT 1: Individual regression lines fitted within and among groups
-ER.plot +
-  geom_smooth(method = "lm", se = FALSE, aes(group = Tank, color = trophic.level), alpha = 0.23) +
-  geom_smooth(method = "lm", se = FALSE, aes(group = trophic.level), color = "gray3")
-ggsave("ERplot.png", device = "png", width = 5, height = 4)
-
 ## PLOT 2: Raw data and fitted lines from the model. Added the predictions of the model to the original dataset, then fit lines to those using linear regressions
-ER.funcP <- function(x) { (fixef(modER2r)[1] - fixef(modER2r)[3]*mean(mod.coefsER$invTT)) + (fixef(modER2r)[3])*x } # for trophic level 1
-RvalsP <- ER.funcP(mod.coefsER[(mod.coefsER$trophic.level=="P"),]$invTT)
+ER.funcP <- function(x) {IER1 + SlER1*x} # for trophic level 1
+x <- data2[(data2$trophic.level=="P"),]$invTT
+RvalsP <- ER.funcP(x)
 
-ER.funcPZ <- function(x) { (fixef(modER2r)[1] + fixef(modER2r)[4] - fixef(modER2r)[3]*mean(mod.coefsER$invTT)) + (fixef(modER2r)[3])*x } # for trophic level 2
-RvalsPZ <- ER.funcPZ(mod.coefsER[(mod.coefsER$trophic.level=="PZ"),]$invTT)
+ER.funcPZ <- function(x) { IER2 + SlER2*x } # for trophic level 2
+x <- data2[(data2$trophic.level=="PZ"),]$invTT
+RvalsPZ <- ER.funcPZ(x)
 
-ER.funcPZN <- function(x) { (fixef(modER2r)[1] + fixef(modER2r)[5] - fixef(modER2r)[3]*mean(mod.coefsER$invTT)) + (fixef(modER2r)[3])*x } # for trophic level 3
-RvalsPZN <- ER.funcPZN(mod.coefsER[(mod.coefsER$trophic.level=="PZN"),]$invTT)
+ER.funcPZN <- function(x) { IER3 + SlER3*x } # for trophic level 3
+x <- data2[(data2$trophic.level=="PZN"),]$invTT
+RvalsPZN <- ER.funcPZN(x)
+
 
 Fig2D <- 
 ER.plot +
   geom_smooth(method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = invTi, y = log(ER2), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) +
   #geom_smooth(method = "lm", se = FALSE, aes(group = Tank), color = "gray40", alpha = 0.23, size = .8) +
-  geom_smooth(data = subset(mod.coefsER, trophic.level == "P"), aes(x = invTT, y = RvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
-  geom_smooth(data = subset(mod.coefsER, trophic.level == "PZ"), aes(x = invTT, y = RvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) +
-  geom_smooth(data = subset(mod.coefsER, trophic.level == "PZN"), aes(x = invTT, y = RvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) 
+  geom_smooth(data = data2[(data2$trophic.level=="P"),], aes(x = invTT, y = RvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+  geom_smooth(data = subset(data2, trophic.level == "PZ"), aes(x = invTT, y = RvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) +
+  geom_smooth(data = subset(data2, trophic.level == "PZN"), aes(x = invTT, y = RvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) 
 
   #geom_text(label = "Y.P = -0.69x + 31.30", x = 38.87, y = 1.75) +
   #geom_text(label = "Y.PZ = -0.69x + 31.79", x = 38.87, y = 1) +
@@ -428,30 +439,72 @@ ggsave("Fig2D-F.png", device = "png", width = 7, height = 3)
 hist(data$PP.biomass)
 hist(log(data$PP.biomass))
 
-plot(log(data$PP.biomass)~data$Tank, pch = 19, col = data$trophic.level)
-plot(log(data$PP.biomass)~data$week, pch = 19, col = data$trophic.level)
-plot(log(data$PP.biomass)~I(data$invTT-mean(data$invTT)), pch = 19, col = data$trophic.level)
-
-abline(6.11, 0.87, col = 1, lwd = 2)
-abline((6.11 -1.23), (.87 + 1.47), col = 2, lwd = 2)
-abline((6.11 - 0.01), (0.87 + 0.25), col = 3, lwd = 2)
-
 #analysis
-modPP0 <- lme(log(PP.biomass) ~ 1, random = ~ 1 | Tank, data=data, na.action=na.omit, method="ML")  
-modPP1 <- lme(log(PP.biomass) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, na.action=na.omit, method="ML") 
-modPP2 <- lme(log(PP.biomass) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
-modPP4<-lme(log(PP.biomass) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
-modPP5 <- lme(log(PP.biomass) ~ 1 + I(invTi - invTT)*trophic.level + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
-modPP6 <- lme(log(PP.biomass) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
-modPP7 <- lme(log(PP.biomass) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
+### might just ax the random int...or test for it: 
+modPBF <- lme(log(PP.biomass) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
+modPBa <- lm(log(PP.biomass) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data, na.action=na.omit) #don't need random effect
+## proceed without random effect...
+modPBF <- lm(log(PP.biomass) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data, na.action=na.omit)
+modPB4 <- lm(log(PP.biomass) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), data=data, na.action=na.omit)
+#modPB3 <- lm(log(PP.biomass) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data, na.action=na.omit)
+modPB2.3 <- lm(log(PP.biomass) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), data=data, na.action=na.omit)
+modPB2.2 <- lm(log(PP.biomass) ~ 1 + trophic.level*I(invTi - invTT), data=data, na.action=na.omit)
+modPB2 <- lm(log(PP.biomass) ~ 1 + I(invTi - invTT) + trophic.level, data=data, na.action=na.omit)
+modPB1.3 <- lm(log(PP.biomass) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), data=data, na.action=na.omit)
+modPB1.2 <- lm(log(PP.biomass) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), data=data, na.action=na.omit)
+modPB1 <- lm(log(PP.biomass) ~ 1 + I(invTi - invTT), data=data, na.action=na.omit)
+modPB0.5 <- lm(log(PP.biomass) ~ 1 + trophic.level, data=data, na.action=na.omit)
+modPB0 <- lm(log(PP.biomass) ~ 1, data=data, na.action=na.omit)
 
-model.sel(modPP0, modPP1, modPP2, modPP4, modPP5, modPP6, modPP7) 
+model.sel(modPB0, modPB0.5, modPB1, modPB1.2, modPB1.3, modPB2, modPB2.2, modPB2.3, modPB4, modPBF)
 
-## Best model: create fitted values to use later for plotting  
-modPP6r <- lme(log(PP.biomass) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data, method="REML", na.action=na.omit) 
-summary(modPP6r)
-intervals(modPP6r, which = "fixed")
-mod.coefs <- augment(modPP6r, effect = "random") 
+## calculating confidence intPBvals for activation enPBgies.
+modPB <- modPBF
+vcov(modPB) # diagonals of vcov are variances
+vcov(modPB)[1,1] # intPBcept variance is:
+
+df <- length(data$PP.biomass)-(length(coef(modPB))+1)-1
+t.stat <- qt(0.975, df = df) #calculates critical t-value for the threshold (first value) and df (= n - p - 1)
+
+# slope for PB.PP: 
+SlPB1 <- coefficients(modPB)[5]
+SlPB1.l <- confint(modPB)[5,1]
+SlPB1.u <- confint(modPB)[5,2]
+SlPB1.l2 <- SlPB1 - t.stat * sqrt(vcov(modPB)[5,5])
+
+# slope for PB.ZP: 
+SlPB2 <- coefficients(modPB)[5] + coefficients(modPB)[8]
+SlPB2.l <- SlPB2 - t.stat * sqrt(vcov(modPB)[5,5] + vcov(modPB)[8,8] + 2*vcov(modPB)[8,5])
+SlPB2.u <- SlPB2 + t.stat * sqrt(vcov(modPB)[5,5] + vcov(modPB)[8,8] + 2*vcov(modPB)[8,5])
+
+# slope for PB.PZN: 
+SlPB3 <- coefficients(modPB)[5] + coefficients(modPB)[9]
+SlPB3.l <- SlPB3 - t.stat * sqrt(vcov(modPB)[5,5] + vcov(modPB)[9,9] + 2*vcov(modPB)[9,5])
+SlPB3.u <- SlPB3 + t.stat * sqrt(vcov(modPB)[5,5] + vcov(modPB)[9,9] + 2*vcov(modPB)[9,5])
+
+slopesPB <- (cbind(c(SlPB1, SlPB2, SlPB3), c(SlPB1.l, SlPB2.l, SlPB3.l), c(SlPB1.u, SlPB2.u, SlPB3.u)))
+rownames(slopesPB) <- c("P", "PZ", "PZN")
+colnames(slopesPB) <- c("S", "l", "u")
+
+# ints for PB.PP: 
+IPB1 <- coefficients(modPB)[1] - coefficients(modPB)[5]*mean(data$invTT)
+IPB1.l <- confint(modPB)[1,1]
+IPB1.u <- confint(modPB)[1,2]
+IPB1.l2 <- IPB1 - t.stat * sqrt(vcov(modPB)[1,1])
+
+# ints for PB.ZP: modPB includes all int tPBms, but we leave out the invTi tPBm for among group lines; ints hPBe are at mean(invTT) 
+IPB2 <- coefficients(modPB)[1] + coefficients(modPB)[3] - coefficients(modPB)[5]*mean(data$invTT) - coefficients(modPB)[8]*mean(data$invTT)
+#IPB2.l <- IPB2 - t.stat * sqrt(vcov(modPB)[1,1] + vcov(modPB)[3,3] + 2*vcov(modPB)[3,1] + vcov(modPB)[5,5]*(mean(data$invTT)^2) + vcov(modPB)[6,6]*(mean(data$invTT)^2)) 
+#IPB2.u <- IPB2 + t.stat * sqrt(vcov(modPB)[1,1] + vcov(modPB)[3,3] + 2*vcov(modPB)[3,1])
+
+# ints for PB.PZN: 
+IPB3 <- coefficients(modPB)[1] + coefficients(modPB)[4] - coefficients(modPB)[5]*mean(data$invTT) - coefficients(modPB)[9]*mean(data$invTT)
+IPB3.l <- IPB3 - t.stat * sqrt(vcov(modPB)[1,1] + vcov(modPB)[4,4] + 2*vcov(modPB)[4,1]) 
+IPB3.u <- IPB3 + t.stat * sqrt(vcov(modPB)[1,1] + vcov(modPB)[4,4] + 2*vcov(modPB)[4,1])
+
+slopesPB <- (cbind(c(SlPB1, SlPB2, SlPB3), c(SlPB1.l, SlPB2.l, SlPB3.l), c(SlPB1.u, SlPB2.u, SlPB3.u)))
+rownames(slopesPB) <- c("P", "PZ", "PZN")
+colnames(slopesPB) <- c("S", "l", "u")
 
 ### WITHIN AND AMONG GROUP PLOTS
 ### plotting within- and among-group regressions and model outputs
@@ -464,27 +517,27 @@ PP.plot <- ggplot(data = data, aes(x = invTi, y = log(PP.biomass), min = 0)) +
   theme(strip.background = element_blank(),
         strip.text.x = element_blank()) +
   facet_grid(.~trophic.level) + ## this sets it up as facets
-  geom_point(aes(group = Tank, color = Tank, shape = as.factor(week)),  alpha = 1/2, size = 2) + 
-  scale_colour_grey(start = 0, end = .8) +
-  scale_x_continuous(sec.axis = sec_axis(~(1/(.*k))-273)) + 
-  theme(legend.position = "FALSE") +
-  geom_point(aes(group = Tank, shape = trophic.level), alpha = 1/2, size = 2) +
+  geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(week), alpha = Tankn), size = 2) + 
+  scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
+  scale_alpha("Tankn", guide = "none") +
+  scale_shape(name = "Week", guide = guide_legend(ncol = 2)) +
   xlab("Temperature 1/kTi") +
   ylab("ln(PPi)")
 
 PP.plot
 
-## PLOT 1: Individual regression lines fitted within and among groups
-PP.plot +
-  geom_smooth(method = "lm", se = FALSE, aes(group = Tank, color = trophic.level)) +
-  geom_smooth(method = "lm", se = FALSE, aes(group = trophic.level), color = 'black')
+PB.funcP <- function(x) {IPB1 + SlPB1*x} # for trophic level 1
+x <- data[(data$trophic.level=="P"),]$invTT
+PBvalsP <- PB.funcP(x)
 
-ggsave("PPplot.png", device = "png", height = 3, width = 5)
+PB.funcPZ <- function(x) { IPB2 + SlPB2*x } # for trophic level 2
+x <- data2[(data$trophic.level=="PZ"),]$invTT
+PBvalsPZ <- PB.funcPZ(x)
 
-## PLOT 2: Use fitted lines from the model. 
-PP.plot +
-  geom_smooth(data = mod.coefs, aes(x = invTi, y = .fitted, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
-  geom_smooth(data = mod.coefs, aes(x = invTT, y = .fitted), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black')
+PB.funcPZN <- function(x) { IPB3 + SlPB3*x } # for trophic level 3
+x <- data[(data$trophic.level=="PZN"),]$invTT
+PBvalsPZN <- PB.funcPZN(x)
+
 
 ## PLOT 3: Plot lines from model
 # PP coefs
@@ -508,18 +561,10 @@ BvalsPZN <- PP.PZN.func(mod.coefs[(mod.coefs$trophic.level == "PZN"),]$invTT)
 Fig2G <-
   PP.plot +
   geom_smooth(method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = invTi, y = log(PP.biomass), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) +
-  geom_smooth(data = subset(mod.coefs, trophic.level == "P"), aes(x = invTT, y = yvalsPP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
-  geom_smooth(data = subset(mod.coefs, trophic.level == "PZ"), aes(x = invTT, y = BvalsZP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) +
-  geom_smooth(data = subset(mod.coefs, trophic.level == "PZN"), aes(x = invTT, y = BvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) 
+  geom_smooth(data = subset(data, trophic.level == "P"), aes(x = invTT, y = PBvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+  geom_smooth(data = subset(data, trophic.level == "PZ"), aes(x = invTT, y = PBvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) +
+  geom_smooth(data = subset(data, trophic.level == "PZN"), aes(x = invTT, y = PBvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) 
   
-## attempt at CIs here:
-  geom_ribbon(aes(x = (mod.coefs$invTT), y = yvalsPP, ymin = yvalsPP - 0.3, ymax = yvalsPP + 0.3), fill = "grey70", alpha = 0.6) +
-  #geom_line(aes(x = (mod.coefs$invTT), y = yvalsPP), lwd = 2) +
-  geom_ribbon(aes(x = (mod.coefs$invTT), y = yvalsZP, ymin = yvalsZP - 0.3, ymax = yvalsZP + 0.3), fill = "grey70", alpha = 0.6) +
-  #geom_line(aes(x = (mod.coefs$invTT), y = yvalsZP), lwd = 2, color = "seagreen") +
-  geom_ribbon(aes(x = (mod.coefs$invTT), y = yvalsPZN, ymin = yvalsPZN - 0.3, ymax = yvalsPZN + 0.3), fill = "grey70", alpha = 0.6) +
-  #geom_line(aes(x = (mod.coefs$invTT), y = yvalsPZN), lwd = 2, color = "blue")
-
 ggsave("PPplot.png", device = "png")
 
   #not sure what this one is for
