@@ -192,15 +192,24 @@ data1 <- data[(data$NPP2 >= 0.001),] #remove 18 negative values
 
 # NPP candidate model set -------------------------------------------------
 
-modNPP0 <- lme(log(NPP2) ~ 1, random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")  
-modNPP1 <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, na.action=na.omit, method="ML")
-modNPP2 <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)  
-modNPP4 <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
-modNPP5 <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*trophic.level + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
-modNPP6 <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)) + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
-modNPP7 <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+### might just ax the random int...or test for it: 
+modNPPF <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+#modNPPa <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit) anova didn't work but sd of ranef model is so small i don't htink we need it.
 
-model.sel(modNPP0, modNPP2, modNPP4,modNPP1, modNPP5, modNPP6, modNPP7)
+modNPPF <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
+modNPP4 <- lm(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
+modNPP3 <- lm(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
+modNPP2.3 <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
+modNPP2.2 <- lm(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT), data=data1, na.action=na.omit)
+modNPP2 <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level, data=data1, na.action=na.omit)
+modNPP1.3 <- lm(log(NPP2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
+modNPP1.2 <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), data=data1, na.action=na.omit)
+modNPP1 <- lm(log(NPP2) ~ 1 + I(invTi - invTT), data=data1, na.action=na.omit)
+modNPP0.5 <- lm(log(NPP2) ~ 1 + trophic.level, data=data1, na.action=na.omit)
+modNPP0 <- lm(log(NPP2) ~ 1, data=data1, na.action=na.omit)
+
+model.sel(modNPP0, modNPP0.5, modNPP1, modNPP1.2, modNPP1.3, modNPP2, modNPP2.2, modNPP2.3, modNPP3, modNPP4, modNPPF)
+
 
 ## Best model: create fitted values to use later for plotting
 modNPP5r <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*trophic.level + I(invTT - mean(invTT))*trophic.level, random = ~ 1 | Tank, data=data1, method="REML", na.action=na.omit)  
@@ -208,56 +217,55 @@ mod.coefsN <- augment(modNPP5r, effect = "random")
 ## come back to get confints, might need qpCR
 
 ## or, what if we use an averaged model: 
-m.avgN <- model.avg(modNPP5, modNPP2, modNPP1)
+m.avgN <- model.avg(modNPP4, modNPP1.2)
 confint(m.avgN)
 
 ## calculating confidence intervals for activation energies.
-
 vcov(m.avgN) # diagonals of vcov are variances
 vcov(m.avgN)[1,1] # intercept variance is:
 
-## following equation 4 in main text:
-pars <-  c("B0", "B1", "B2", "B3", "B4", "B5", "B6")
-
-## the among group lines are generally described by: [though check this...]
-#  int = ln(b0) + ln(Miα) = β0 + β4(TL) + β5(TL) + β6(TL)
-#  slope = EB = β1 + β2 + β3 + β5 + β6
-
-TL <- 0
-int <- P.B0 + P.B4*TL + P.B5*TL + P.B6*TL
-# so slope = 
-Sl <- 
-  
-# int estimates for intercept for PP
-P.B0 <- coefficients(m.avgN)[1]
-P.int0v <- vcov(m.avgN)[1,1]
-P.B4 <- coefficients(m.avgN)[3] #B/c PP
-P.B5 <- coefficients(m.avgN)[8]
-P.B6 <- 0 # not in model
-
-# B2 parameter for intercept for PP
-P.int2 <- coefficients(m.avgN)[5]
-P.int2v <- vcov(m.avgN)[5,5]
-# composite intercept parameter, B0 + B2*mean(T)
-P.intI <- (coefficients(m.avgN)[1]) # - coefficients(m.avgN)[5]*mean(mod.coefsN$invTT))
-#P.intIv <- sqrt((P.int0v^2) + (P.int2v^2)) # pooled variance
-require(graphics)
 df <- 162-8-1
 t.stat <- qt(0.975, df = df) #calculates critical t-value for the threshold (first value) and df (= n - p - 1)
-P.intL <- P.intI - t.stat * sqrt((P.int0v) + (P.int2v)*(mean(mod.coefsN$invTT)^2) + 2*mean(mod.coefsN$invTT)*vcov(m.avgN)[1,5])
-P.intU <- P.intI + t.stat * sqrt((P.int0v) + (P.int2v)*(mean(mod.coefsN$invTT)^2) + 2*mean(mod.coefsN$invTT)*vcov(m.avgN)[1,5])
 
-# B2 parameter for slope for PP
-P.s1 <- coefficients(m.avgN)[5]
-P.s1v <- vcov(m.avgN)[5,5]
-P.sL <- P.s1 - t.stat * (sqrt(P.s1v))  #running into trouble here because my this estimate of the 95% CI for one parameter is not agreeing with the model output. but they are close, and after reading about these (i.e., here) I'm going to chalk the differences up to different esimation methods by the algorithm than by my formula.
-confint(m.avgN)[5,]
-confint(m.avgN, Full = F)[5,] # no difference between F and T
-confint.default(m.avgN)[5,] # based on asymtotic normality... much closer to my by-hand estimate
-P.sU <- as.numeric(coefficients(m.avgN)[5]) + t.stat * (sqrt(vcov(m.avgN)[5,5]))
+# slope for NPP.PP: 
+Sl1 <- coefficients(m.avgN)[5]
+Sl1.l <- confint(m.avgN)[5,1]
+Sl1.u <- confint(m.avgN)[5,2]
+Sl1.l2 <- Sl1 - t.stat * sqrt(vcov(m.avgN)[5,5])
 
-## leaving off here... seems like formula to estimate confindence intervals (e.g., Figueirias et al) are not matching the R output for single parameters, and i don't konw why. could it have something to do with the hierarchical model? check that, carefully.
+# slope for NPP.ZP: 
+Sl2 <- coefficients(m.avgN)[5] + coefficients(m.avgN)[8]
+Sl2.l <- Sl2 - t.stat * sqrt(vcov(m.avgN)[5,5] + vcov(m.avgN)[8,8] + 2*vcov(m.avgN)[8,5])
+Sl2.u <- Sl2 + t.stat * sqrt(vcov(m.avgN)[5,5] + vcov(m.avgN)[8,8] + 2*vcov(m.avgN)[8,5])
+  
+# slope for NPP.PZN: 
+Sl3 <- coefficients(m.avgN)[5] + coefficients(m.avgN)[9]
+Sl3.l <- Sl3 - t.stat * sqrt(vcov(m.avgN)[5,5] + vcov(m.avgN)[9,9] + 2*vcov(m.avgN)[9,5])
+Sl3.u <- Sl3 + t.stat * sqrt(vcov(m.avgN)[5,5] + vcov(m.avgN)[9,9] + 2*vcov(m.avgN)[9,5])
 
+slopesNPP <- (cbind(c(Sl1, Sl2, Sl3), c(Sl1.l, Sl2.l, Sl3.l), c(Sl1.u, Sl2.u, Sl3.u)))
+rownames(slopesNPP) <- c("P", "PZ", "PZN")
+colnames(slopesNPP) <- c("S", "l", "u")
+
+# ints for NPP.PP: 
+I1 <- coefficients(m.avgN)[1] - coefficients(m.avgN)[5]*mean(data1$invTT)
+I1.l <- confint(m.avgN)[1,1]
+I1.u <- confint(m.avgN)[1,2]
+I1.l2 <- I1 - t.stat * sqrt(vcov(m.avgN)[1,1])
+
+# ints for NPP.ZP: m.avgN includes all int terms, but we leave out the invTi term for among group lines; ints here are at mean(invTT) 
+I2 <- coefficients(m.avgN)[1] + coefficients(m.avgN)[2] - coefficients(m.avgN)[5]*mean(data1$invTT) - coefficients(m.avgN)[8]*mean(data1$invTT)
+I2.l <- I2 - t.stat * sqrt(vcov(m.avgN)[1,1] + vcov(m.avgN)[2,2] + 2*vcov(m.avgN)[2,1]) 
+I2.u <- I2 + t.stat * sqrt(vcov(m.avgN)[1,1] + vcov(m.avgN)[2,2] + 2*vcov(m.avgN)[2,1])
+
+# ints for NPP.PZN: 
+I3 <- coefficients(m.avgN)[1] + coefficients(m.avgN)[3] - coefficients(m.avgN)[5]*mean(data1$invTT) - coefficients(m.avgN)[9]*mean(data1$invTT)
+I3.l <- I3 - t.stat * sqrt(vcov(m.avgN)[1,1] + vcov(m.avgN)[2,2] + 2*vcov(m.avgN)[2,1]) 
+I3.u <- I3 + t.stat * sqrt(vcov(m.avgN)[1,1] + vcov(m.avgN)[2,2] + 2*vcov(m.avgN)[2,1])
+
+slopesNPP <- (cbind(c(Sl1, Sl2, Sl3), c(Sl1.l, Sl2.l, Sl3.l), c(Sl1.u, Sl2.u, Sl3.u)))
+rownames(slopesNPP) <- c("P", "PZ", "PZN")
+colnames(slopesNPP) <- c("S", "l", "u")
 
 # FIGURE 2: 
 ### plotting within- and among-group regressions and model outputs
@@ -278,38 +286,17 @@ NPP.plot <- ggplot(data = data1, aes(x = invTi, y = log(NPP2), ymin = -2, ymax =
 NPP.plot
 ggsave("NPPplot.png", device = "png", width = 7, height = 3) # save for appendix
 
-
-## NPP.PLOT 1: Individual regression lines fitted within and among groups
-NPP.plot +
-  geom_smooth(method = "lm", se = FALSE, aes(group = Tank, color = trophic.level)) +
-  geom_smooth(method = "lm", se = FALSE, aes(group = trophic.level), color = "gray3") 
-# geom_smooth(method = "lm", se = FALSE, formula = y ~ x, color = 'black')
-ggsave("NPPplot.png", device = "png", width = 5, height = 3)
-
-## PLOT 2: Raw data and fitted lines from the best model. Added the predictions of the model to the original dataset (mod.coefsN), then fit lines to those using linear regressions
-NPP.funcP <- function(x) { (fixef(modNPP5r)[1] - fixef(modNPP5r)[5]*mean(mod.coefsN$invTT)) + fixef(modNPP5r)[5]*x}
-NvalsP <- NPP.funcP(mod.coefsN[(mod.coefsN$trophic.level=="P"),]$invTT)
-
-NPP.funcPZ <- function(x) { (fixef(modNPP5r)[1] + fixef(modNPP5r)[3] - fixef(modNPP5r)[5]*mean(mod.coefsN$invTT) - fixef(modNPP5r)[8]*mean(mod.coefsN$invTT)) + (fixef(modNPP5r)[5] + fixef(modNPP5r)[8])*x}
-NvalsPZ <- NPP.funcPZ(mod.coefsN[(mod.coefsN$trophic.level=="PZ"),]$invTT)
-
-NPP.funcPZN <- function(x) { (fixef(modNPP5r)[1] + fixef(modNPP5r)[4] - fixef(modNPP5r)[5]*mean(mod.coefsN$invTT) - fixef(modNPP5r)[9]*mean(mod.coefsN$invTT)) + (fixef(modNPP5r)[5] + fixef(modNPP5r)[9])*x}
-NvalsPZN <- NPP.funcPZN(mod.coefsN[(mod.coefsN$trophic.level=="PZN"),]$invTT)
-
-mod.coefsN$Tank <- as.factor(mod.coefsN$Tank)
-
-
 ## PLOT 2A: Raw data and fitted lines from the averaged model. Added the predictions of the model to the original dataset (mod.coefsN), then fit lines to those using linear regressions
-NPP.funcP <- function(x) {(coefficients(m.avgN)[1] - coefficients(m.avgN)[5]*mean(mod.coefsN$invTT)) + coefficients(m.avgN)[5]*x}
-NvalsP <- NPP.funcP(mod.coefsN[(mod.coefsN$trophic.level=="P"),]$invTT)
+NPP.funcP <- function(x) {I1 + Sl1*x}
+NvalsP <- NPP.funcP(data1[(data1$trophic.level=="P"),]$invTT)
 
-NPP.funcPZ <- function(x) { (fixef(modNPP5r)[1] + fixef(modNPP5r)[3] - fixef(modNPP5r)[5]*mean(mod.coefsN$invTT) - fixef(modNPP5r)[8]*mean(mod.coefsN$invTT)) + (fixef(modNPP5r)[5] + fixef(modNPP5r)[8])*x}
-NvalsPZ <- NPP.funcPZ(mod.coefsN[(mod.coefsN$trophic.level=="PZ"),]$invTT)
+NPP.funcPZ <- function(x) { I2 + Sl2*x }
+NvalsPZ <- NPP.funcPZ(data1[(data1$trophic.level=="PZ"),]$invTT)
 
-NPP.funcPZN <- function(x) { (fixef(modNPP5r)[1] + fixef(modNPP5r)[4] - fixef(modNPP5r)[5]*mean(mod.coefsN$invTT) - fixef(modNPP5r)[9]*mean(mod.coefsN$invTT)) + (fixef(modNPP5r)[5] + fixef(modNPP5r)[9])*x}
-NvalsPZN <- NPP.funcPZN(mod.coefsN[(mod.coefsN$trophic.level=="PZN"),]$invTT)
+NPP.funcPZN <- function(x) { I3 + Sl3*x }
+NvalsPZN <- NPP.funcPZN(data1[(data1$trophic.level=="PZN"),]$invTT)
 
-mod.coefsN$Tank <- as.factor(mod.coefsN$Tank)
+#mod.coefsN$Tank <- as.factor(mod.coefsN$Tank)
 
 
 
@@ -319,10 +306,10 @@ mod.coefsN$Tank <- as.factor(mod.coefsN$Tank)
 # the among-group lines are model fits based on the best model (so this could be model averaged coefficients too)
 Fig2A <- 
   NPP.plot + 
-  geom_smooth(data = subset(mod.coefsN), method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = invTi, y = .fitted, group = Tank),  size = .8, color = alpha("steelblue", 0.5)) + 
-  geom_smooth(data = subset(mod.coefsN, trophic.level == "P"), aes(x = invTT, y = NvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
- geom_smooth(data = subset(mod.coefsN, trophic.level == "PZ"), aes(x = invTT, y = NvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
-  geom_smooth(data = subset(mod.coefsN, trophic.level == "PZN"), aes(x = invTT, y = NvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+  geom_smooth(data = subset(data1), method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = invTi, y = log(NPP2), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) + 
+  geom_smooth(data = subset(data1, trophic.level == "P"), aes(x = invTT, y = NvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+ geom_smooth(data = subset(data1, trophic.level == "PZ"), aes(x = invTT, y = NvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+  geom_smooth(data = subset(data1, trophic.level == "PZN"), aes(x = invTT, y = NvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) 
 
 
 
