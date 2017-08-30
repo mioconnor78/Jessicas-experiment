@@ -264,16 +264,17 @@ colnames(slopesNPP) <- c("S", "l", "u")
 # FIGURE 2: 
 ### plotting within- and among-group regressions and model outputs
 
-NPP.plot <- ggplot(data = data1, aes(x = invTi, y = log(NPP2), ymin = -2, ymax = 6)) + 
+NPP.plot <- ggplot(data = data1, aes(x = -invTi, y = log(NPP2), ymin = -2, ymax = 6)) +
   theme_bw() +
-  theme(legend.position = c(0.9, 0.14)) + 
+  theme(legend.position = "none") +
   theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
   theme(strip.background = element_rect(colour="white", fill="white")) +
   facet_grid(.~trophic.level) + ## this sets it up as facets
   geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(week), alpha = Tankn), size = 2) + 
   scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
   scale_alpha("Tankn", guide = "none") +
-  scale_shape(name = "Week", guide = guide_legend(ncol = 2)) +
+  #theme(legend.position = c(0.88, 0.15), legend.text=element_text(size=6)) + 
+  #scale_shape(name = "Week", guide = guide_legend(ncol = 2, size = 6)) +
   xlab("") + #xlab("Temperature 1/kTi") +
   ylab("ln(NPPi)")
 
@@ -281,7 +282,7 @@ NPP.plot
 ggsave("NPPplot.png", device = "png", width = 7, height = 3) # save for appendix
 
 ## PLOT 2A: Raw data and fitted lines from the averaged model. Added the predictions of the model to the original dataset (mod.coefsN), then fit lines to those using linear regressions
-NPP.funcP <- function(x) {I1 + Sl1*x}
+NPP.funcP <- function(x) { I1 + Sl1*x}
 NvalsP <- NPP.funcP(data1[(data1$trophic.level=="P"),]$invTT)
 
 NPP.funcPZ <- function(x) { I2 + Sl2*x }
@@ -296,10 +297,10 @@ NvalsPZN <- NPP.funcPZN(data1[(data1$trophic.level=="PZN"),]$invTT)
 # the among-group lines are model fits based on the best model (so this could be model averaged coefficients too)
 Fig2A <- 
   NPP.plot + 
-  geom_smooth(data = subset(data1), method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = invTi, y = log(NPP2), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) + 
-  geom_smooth(data = subset(data1, trophic.level == "P"), aes(x = invTT, y = NvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
- geom_smooth(data = subset(data1, trophic.level == "PZ"), aes(x = invTT, y = NvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
-  geom_smooth(data = subset(data1, trophic.level == "PZN"), aes(x = invTT, y = NvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) 
+  geom_smooth(data = subset(data1), method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTi, y = log(NPP2), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) + 
+  geom_smooth(data = subset(data1, trophic.level == "P"), aes(x = -invTT, y = NvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+ geom_smooth(data = subset(data1, trophic.level == "PZ"), aes(x = -invTT, y = NvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+  geom_smooth(data = subset(data1, trophic.level == "PZN"), aes(x = -invTT, y = NvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) 
 
 ggsave("Fig2A-C.png", device = "png", width = 7, height = 3)
 
@@ -509,6 +510,7 @@ colnames(slopesPB) <- c("S", "l", "u")
 ### WITHIN AND AMONG GROUP PLOTS
 ### plotting within- and among-group regressions and model outputs
 
+Fig2G <-
 PP.plot <- ggplot(data = data, aes(x = invTi, y = log(PP.biomass), min = 0)) + 
   theme_bw() +
   theme(legend.position = "none") +
@@ -520,11 +522,13 @@ PP.plot <- ggplot(data = data, aes(x = invTi, y = log(PP.biomass), min = 0)) +
   geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(week), alpha = Tankn), size = 2) + 
   scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
   scale_alpha("Tankn", guide = "none") +
-  scale_shape(name = "Week", guide = guide_legend(ncol = 2)) +
+  theme(legend.position = c(0.93, 0.20), legend.text=element_text(size=6), legend.title = element_text(size = 7)) + 
+  scale_shape(name = "Week", guide = guide_legend(ncol = 2, keywidth = .8, keyheight = .8)) +
   xlab("Temperature 1/kTi") +
   ylab("ln(PPi)")
 
 PP.plot
+ggsave("PBplot.png", device = "png", width = 7, height = 3) 
 
 PB.funcP <- function(x) {IPB1 + SlPB1*x} # for trophic level 1
 x <- data[(data$trophic.level=="P"),]$invTT
@@ -557,7 +561,6 @@ PP.PZN.func <- function(x) { (fixef(modPP6r)[1] - fixef(modPP6r)[3]*mean(data$in
 BvalsPZN <- PP.PZN.func(mod.coefs[(mod.coefs$trophic.level == "PZN"),]$invTT)
 
 #z <- 0.5 #invTi - invTT for each tank, approximate 
-
 Fig2G <-
   PP.plot +
   geom_smooth(method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = invTi, y = log(PP.biomass), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) +
@@ -568,7 +571,7 @@ Fig2G <-
 ggsave("PPplot.png", device = "png")
 
   #not sure what this one is for
-Fig2G <-
+
 PP.plot +
   #geom_smooth(data = mod.coefs, aes(x = invTi, y = yvalsP, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
   geom_smooth(method = "lm", se = FALSE, aes(group = Tank, color = trophic.level), alpha = 0.23, size = .8) +
