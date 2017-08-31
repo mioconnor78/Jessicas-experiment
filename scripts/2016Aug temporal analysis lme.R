@@ -3,6 +3,7 @@
 ### MO made a new file on Aug29 from June file when I decided to take week out as a fixed effect, and instead model autocorrelation. 
 ### cleaning up the code now August 2017
 
+
 ### load libraries
 library(MuMIn)
 library(nlme)
@@ -194,31 +195,30 @@ data1 <- data[(data$NPP2 >= 0.001),] #remove 18 negative values
 
 ### might just ax the random int...or test for it: 
 modNPPF <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
-#modNPPa <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit) anova didn't work but sd of ranef model is so small i don't htink we need it.
+modNPPa <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
 
 modNPPF <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modNPP4 <- lm(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-#modNPP3 <- lm(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modNPP2.3 <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modNPP2.2 <- lm(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT), data=data1, na.action=na.omit)
-modNPP2 <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level, data=data1, na.action=na.omit)
-modNPP1.3 <- lm(log(NPP2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modNPP1.2 <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modNPP1 <- lm(log(NPP2) ~ 1 + I(invTi - invTT), data=data1, na.action=na.omit)
-modNPP0.5 <- lm(log(NPP2) ~ 1 + trophic.level, data=data1, na.action=na.omit)
+modNPP8 <- lm(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
+modNPP7 <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
+modNPP6 <- lm(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT), data=data1, na.action=na.omit)
+modNPP5 <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level, data=data1, na.action=na.omit)
+modNPP4 <- lm(log(NPP2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
+modNPP3 <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), data=data1, na.action=na.omit)
+modNPP2 <- lm(log(NPP2) ~ 1 + I(invTi - invTT), data=data1, na.action=na.omit)
+modNPP1 <- lm(log(NPP2) ~ 1 + trophic.level, data=data1, na.action=na.omit)
 modNPP0 <- lm(log(NPP2) ~ 1, data=data1, na.action=na.omit)
 
-model.sel(modNPP0, modNPP0.5, modNPP1, modNPP1.2, modNPP1.3, modNPP2, modNPP2.2, modNPP2.3, modNPP4, modNPPF)
+model.sel(modNPP0, modNPP1, modNPP2, modNPP3, modNPP4, modNPP5, modNPP6, modNPP7, modNPP8, modNPPF)
 
 ## or, what if we use an averaged model: 
-m.avgN <- model.avg(modNPP4, modNPP1.2)
+m.avgN <- model.avg(modNPP8, modNPP3)
 confint(m.avgN)
 
 ## calculating confidence intervals for activation energies.
 vcov(m.avgN) # diagonals of vcov are variances
 vcov(m.avgN)[1,1] # intercept variance is:
 
-df <- 162-8-1
+df <- length(data1$NPP2)-(length(coefficients(m.avgN))+1)-1
 t.stat <- qt(0.975, df = df) #calculates critical t-value for the threshold (first value) and df (= n - p - 1)
 
 # slope for NPP.PP: 
@@ -226,6 +226,7 @@ Sl1 <- coefficients(m.avgN)[5]
 Sl1.l <- confint(m.avgN)[5,1]
 Sl1.u <- confint(m.avgN)[5,2]
 Sl1.l2 <- Sl1 - t.stat * sqrt(vcov(m.avgN)[5,5])
+Sl1.u2 <- Sl1 + t.stat * sqrt(vcov(m.avgN)[5,5])
 
 # slope for NPP.ZP: 
 Sl2 <- coefficients(m.avgN)[5] + coefficients(m.avgN)[8]
@@ -237,19 +238,20 @@ Sl3 <- coefficients(m.avgN)[5] + coefficients(m.avgN)[9]
 Sl3.l <- Sl3 - t.stat * sqrt(vcov(m.avgN)[5,5] + vcov(m.avgN)[9,9] + 2*vcov(m.avgN)[9,5])
 Sl3.u <- Sl3 + t.stat * sqrt(vcov(m.avgN)[5,5] + vcov(m.avgN)[9,9] + 2*vcov(m.avgN)[9,5])
 
-slopesNPP <- (cbind(c(Sl1, Sl2, Sl3), c(Sl1.l, Sl2.l, Sl3.l), c(Sl1.u, Sl2.u, Sl3.u)))
+slopesNPP <- (cbind(c(Sl1, Sl2, Sl3), c(Sl1.l2, Sl2.l, Sl3.l), c(Sl1.u2, Sl2.u, Sl3.u)))
 rownames(slopesNPP) <- c("P", "PZ", "PZN")
 colnames(slopesNPP) <- c("S", "l", "u")
 
-# ints for NPP.PP: 
+# ints for NPP.PP: [not confident in CIs for ints yet; don't use]
 I1 <- coefficients(m.avgN)[1] - coefficients(m.avgN)[5]*mean(data1$invTT)
 I1.l <- confint(m.avgN)[1,1]
 I1.u <- confint(m.avgN)[1,2]
 I1.l2 <- I1 - t.stat * sqrt(vcov(m.avgN)[1,1])
+I1.u2 <- I1 + t.stat * sqrt(vcov(m.avgN)[1,1])
 
 # ints for NPP.ZP: m.avgN includes all int terms, but we leave out the invTi term for among group lines; ints here are at mean(invTT) 
 I2 <- coefficients(m.avgN)[1] + coefficients(m.avgN)[2] - coefficients(m.avgN)[5]*mean(data1$invTT) - coefficients(m.avgN)[8]*mean(data1$invTT)
-I2.l <- I2 - t.stat * sqrt(vcov(m.avgN)[1,1] + vcov(m.avgN)[2,2] + 2*vcov(m.avgN)[2,1]) 
+I2.l <- I2 - t.stat * sqrt(vcov(m.avgN)[1,1] + vcov(m.avgN)[2,2] + (mean(data1$invTT)^2)*(vcov(m.avgN)[5,5] + vcov(m.avgN)[8,8]) + 2*mean(data1$invTT)*vcov(m.avgN)[2,1] + 2*vcov(m.avgN)[5,1] + 2*vcov(m.avgN)[8,1] + 2*vcov(m.avgN)[5,2] + 2*vcov(m.avgN)[2,8] + 2*vcov(m.avgN)[5,8]) 
 I2.u <- I2 + t.stat * sqrt(vcov(m.avgN)[1,1] + vcov(m.avgN)[2,2] + 2*vcov(m.avgN)[2,1])
 
 # ints for NPP.PZN: 
@@ -257,9 +259,9 @@ I3 <- coefficients(m.avgN)[1] + coefficients(m.avgN)[3] - coefficients(m.avgN)[5
 I3.l <- I3 - t.stat * sqrt(vcov(m.avgN)[1,1] + vcov(m.avgN)[2,2] + 2*vcov(m.avgN)[2,1]) 
 I3.u <- I3 + t.stat * sqrt(vcov(m.avgN)[1,1] + vcov(m.avgN)[2,2] + 2*vcov(m.avgN)[2,1])
 
-slopesNPP <- (cbind(c(Sl1, Sl2, Sl3), c(Sl1.l, Sl2.l, Sl3.l), c(Sl1.u, Sl2.u, Sl3.u)))
-rownames(slopesNPP) <- c("P", "PZ", "PZN")
-colnames(slopesNPP) <- c("S", "l", "u")
+IntsNPP <- (cbind(c(I1, I2, I3), c(I1.l2, I2.l, I3.l), c(I1.u2, I2.u, I3.u)))
+rownames(IntsNPP) <- c("P", "PZ", "PZN")
+colnames(IntsNPP) <- c("I", "l", "u")
 
 # FIGURE 2: 
 ### plotting within- and among-group regressions and model outputs
@@ -320,21 +322,20 @@ modERF <- lme(log(ER2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(
 modERa <- lm(log(ER2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data2, na.action=na.omit) #don't need random effect
 ## proceed without random effect
 modERF <- lm(log(ER2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data2, na.action=na.omit)
-modER4 <- lm(log(ER2) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), data=data2, na.action=na.omit)
-#modER3 <- lm(log(ER2) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data2, na.action=na.omit)
-modER2.3 <- lm(log(ER2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), data=data2, na.action=na.omit)
-modER2.2 <- lm(log(ER2) ~ 1 + trophic.level*I(invTi - invTT), data=data2, na.action=na.omit)
-modER2 <- lm(log(ER2) ~ 1 + I(invTi - invTT) + trophic.level, data=data2, na.action=na.omit)
-modER1.3 <- lm(log(ER2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), data=data2, na.action=na.omit)
-modER1.2 <- lm(log(ER2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), data=data2, na.action=na.omit)
-modER1 <- lm(log(ER2) ~ 1 + I(invTi - invTT), data=data2, na.action=na.omit)
-modER0.5 <- lm(log(ER2) ~ 1 + trophic.level, data=data2, na.action=na.omit)
+modER8 <- lm(log(ER2) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), data=data2, na.action=na.omit)
+modER7 <- lm(log(ER2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), data=data2, na.action=na.omit)
+modER6 <- lm(log(ER2) ~ 1 + trophic.level*I(invTi - invTT), data=data2, na.action=na.omit)
+modER5 <- lm(log(ER2) ~ 1 + I(invTi - invTT) + trophic.level, data=data2, na.action=na.omit)
+modER4 <- lm(log(ER2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), data=data2, na.action=na.omit)
+modER3 <- lm(log(ER2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), data=data2, na.action=na.omit)
+modER2 <- lm(log(ER2) ~ 1 + I(invTi - invTT), data=data2, na.action=na.omit)
+modER1 <- lm(log(ER2) ~ 1 + trophic.level, data=data2, na.action=na.omit)
 modER0 <- lm(log(ER2) ~ 1, data=data2, na.action=na.omit)
 
-model.sel(modER0, modER0.5, modER1, modER1.2, modER1.3, modER2, modER2.2, modER2.3, modER4, modERF)
+model.sel(modER0, modER1, modER2, modER3, modER4, modER5, modER6, modER7, modER8, modERF)
 
 ## calculating confidence intervals for activation energies.
-modER <- modER2.3
+modER <- modER7
 vcov(modER) # diagonals of vcov are variances
 vcov(modER)[1,1] # intercept variance is:
 
@@ -346,6 +347,7 @@ SlER1 <- coefficients(modER)[5]
 SlER1.l <- confint(modER)[5,1]
 SlER1.u <- confint(modER)[5,2]
 SlER1.l2 <- SlER1 - t.stat * sqrt(vcov(modER)[5,5])
+SlER1.u2 <- SlER1 + t.stat * sqrt(vcov(modER)[5,5])
 
 # slope for ER.ZP: 
 SlER2 <- coefficients(modER)[5] + coefficients(modER)[6]
@@ -357,7 +359,7 @@ SlER3 <- coefficients(modER)[5] + coefficients(modER)[7]
 SlER3.l <- SlER3 - t.stat * sqrt(vcov(modER)[5,5] + vcov(modER)[7,7] + 2*vcov(modER)[7,5])
 SlER3.u <- SlER3 + t.stat * sqrt(vcov(modER)[5,5] + vcov(modER)[7,7] + 2*vcov(modER)[7,5])
 
-slopesER <- (cbind(c(SlER1, SlER2, SlER3), c(SlER1.l, SlER2.l, SlER3.l), c(SlER1.u, SlER2.u, SlER3.u)))
+slopesER <- (cbind(c(SlER1, SlER2, SlER3), c(SlER1.l2, SlER2.l, SlER3.l), c(SlER1.u2, SlER2.u, SlER3.u)))
 rownames(slopesER) <- c("P", "PZ", "PZN")
 colnames(slopesER) <- c("S", "l", "u")
 
@@ -443,24 +445,23 @@ hist(log(data$PP.biomass))
 #analysis
 ### might just ax the random int...or test for it: 
 modPBF <- lme(log(PP.biomass) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
-modPBa <- lm(log(PP.biomass) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data, na.action=na.omit) #don't need random effect
+modPBa <- lm(log(PP.biomass) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data, na.action=na.omit) 
 ## proceed without random effect...
-modPBF <- lm(log(PP.biomass) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data, na.action=na.omit)
-modPB4 <- lm(log(PP.biomass) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), data=data, na.action=na.omit)
-#modPB3 <- lm(log(PP.biomass) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data, na.action=na.omit)
-modPB2.3 <- lm(log(PP.biomass) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), data=data, na.action=na.omit)
-modPB2.2 <- lm(log(PP.biomass) ~ 1 + trophic.level*I(invTi - invTT), data=data, na.action=na.omit)
-modPB2 <- lm(log(PP.biomass) ~ 1 + I(invTi - invTT) + trophic.level, data=data, na.action=na.omit)
-modPB1.3 <- lm(log(PP.biomass) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), data=data, na.action=na.omit)
-modPB1.2 <- lm(log(PP.biomass) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), data=data, na.action=na.omit)
-modPB1 <- lm(log(PP.biomass) ~ 1 + I(invTi - invTT), data=data, na.action=na.omit)
-modPB0.5 <- lm(log(PP.biomass) ~ 1 + trophic.level, data=data, na.action=na.omit)
-modPB0 <- lm(log(PP.biomass) ~ 1, data=data, na.action=na.omit)
 
-model.sel(modPB0, modPB0.5, modPB1, modPB1.2, modPB1.3, modPB2, modPB2.2, modPB2.3, modPB4, modPBF)
+modPB8 <- lme(log(PP.biomass) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+modPB7 <- lme(log(PP.biomass) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+modPB6 <- lme(log(PP.biomass) ~ 1 + trophic.level*I(invTi - invTT), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+modPB5 <- lme(log(PP.biomass) ~ 1 + I(invTi - invTT) + trophic.level, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+modPB4 <- lme(log(PP.biomass) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+modPB3 <- lme(log(PP.biomass) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+modPB2 <- lme(log(PP.biomass) ~ 1 + I(invTi - invTT), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+modPB1 <- lme(log(PP.biomass) ~ 1 + trophic.level, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+modPB0 <- lme(log(PP.biomass) ~ 1, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+
+model.sel(modPB0, modPB1, modPB2, modPB3, modPB4, modPB5, modPB6, modPB7, modPB8, modPBF)
 
 ## calculating confidence intPBvals for activation enPBgies.
-modPB <- modPBF
+modPB <- modPB7
 vcov(modPB) # diagonals of vcov are variances
 vcov(modPB)[1,1] # intPBcept variance is:
 
@@ -468,22 +469,23 @@ df <- length(data$PP.biomass)-(length(coef(modPB))+1)-1
 t.stat <- qt(0.975, df = df) #calculates critical t-value for the threshold (first value) and df (= n - p - 1)
 
 # slope for PB.PP: 
-SlPB1 <- coefficients(modPB)[5]
-SlPB1.l <- confint(modPB)[5,1]
-SlPB1.u <- confint(modPB)[5,2]
+SlPB1 <- fixef(modPB)[5]
+SlPB1.l <- intervals(modPB)[1]
+SlPB1.u <- intervals(modPB)[5,2]
 SlPB1.l2 <- SlPB1 - t.stat * sqrt(vcov(modPB)[5,5])
+SlPB1.u2 <- SlPB1 + t.stat * sqrt(vcov(modPB)[5,5])
 
 # slope for PB.ZP: 
-SlPB2 <- coefficients(modPB)[5] + coefficients(modPB)[8]
-SlPB2.l <- SlPB2 - t.stat * sqrt(vcov(modPB)[5,5] + vcov(modPB)[8,8] + 2*vcov(modPB)[8,5])
-SlPB2.u <- SlPB2 + t.stat * sqrt(vcov(modPB)[5,5] + vcov(modPB)[8,8] + 2*vcov(modPB)[8,5])
+SlPB2 <- fixef(modPB)[5] + fixef(modPB)[6]
+SlPB2.l <- SlPB2 - t.stat * sqrt(vcov(modPB)[5,5] + vcov(modPB)[6,6] + 2*vcov(modPB)[6,5])
+SlPB2.u <- SlPB2 + t.stat * sqrt(vcov(modPB)[5,5] + vcov(modPB)[6,6] + 2*vcov(modPB)[6,5])
 
 # slope for PB.PZN: 
-SlPB3 <- coefficients(modPB)[5] + coefficients(modPB)[9]
-SlPB3.l <- SlPB3 - t.stat * sqrt(vcov(modPB)[5,5] + vcov(modPB)[9,9] + 2*vcov(modPB)[9,5])
-SlPB3.u <- SlPB3 + t.stat * sqrt(vcov(modPB)[5,5] + vcov(modPB)[9,9] + 2*vcov(modPB)[9,5])
+SlPB3 <- fixef(modPB)[5] + fixef(modPB)[7]
+SlPB3.l <- SlPB3 - t.stat * sqrt(vcov(modPB)[5,5] + vcov(modPB)[7,7] + 2*vcov(modPB)[7,5])
+SlPB3.u <- SlPB3 + t.stat * sqrt(vcov(modPB)[5,5] + vcov(modPB)[7,7] + 2*vcov(modPB)[7,5])
 
-slopesPB <- (cbind(c(SlPB1, SlPB2, SlPB3), c(SlPB1.l, SlPB2.l, SlPB3.l), c(SlPB1.u, SlPB2.u, SlPB3.u)))
+slopesPB <- (cbind(c(SlPB1, SlPB2, SlPB3), c(SlPB1.l2, SlPB2.l, SlPB3.l), c(SlPB1.u2, SlPB2.u, SlPB3.u)))
 rownames(slopesPB) <- c("P", "PZ", "PZN")
 colnames(slopesPB) <- c("S", "l", "u")
 
