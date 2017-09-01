@@ -20,6 +20,7 @@ library(zoo)
 ### set working directory and load data
 data <- read.csv("./data/temporal_dataFEB12.csv")
 temps <- read.csv("./data/dailytemps.csv")
+
 dim(data)
 head(data)
 tail(data)
@@ -57,6 +58,7 @@ temps.Tmn <-
 
 names(temps.Tmn) <- c("Tank", "temp.Tmn")
 data.t <- left_join(data.t, temps.Tmn, by = c("Tank")) 
+
 
 ## temperature at the time of measurement of oxygen for oxygen exchange corrections. These temps are only needed for the abiotic corrections on oxygen flux. 
 ## get dates and times so that I can pick the time I want from the temps3 file
@@ -121,8 +123,7 @@ data.t5 <- as.tibble(data.t4) %>%
 data.t5$Tankn <- rep(c(1:10), 3)
 
 head(data.t5) 
-
-data.t6 <- left_join(data.t4, data.t5, by = c("Tank", "trophic.level")) # add weekly temps to data file
+data.t6 <- left_join(data.t4, data.t5, by = c("Tank", "trophic.level")) 
   
 ### Define temperature as inverse temperature
 data <- data.t6
@@ -163,6 +164,7 @@ data$NPP.mass <- data$NPP2 / (data$PP.biomass)  # NPP on ummol 02/L/day/ugCPP
 data$ER.mass <- data$ER2/(data$total.carbon) # ER on ummol 02/L/day/ugTPP
 
 data <- data[data$week >= '4',]
+
 ### data prep complete
 
 ### SOME BASIC PLOTS
@@ -251,13 +253,13 @@ I1.u2 <- I1 + t.stat * sqrt(vcov(m.avgN)[1,1])
 
 # ints for NPP.ZP: m.avgN includes all int terms, but we leave out the invTi term for among group lines; ints here are at mean(invTT) 
 I2 <- coefficients(m.avgN)[1] + coefficients(m.avgN)[2] - coefficients(m.avgN)[5]*mean(data1$invTT) - coefficients(m.avgN)[8]*mean(data1$invTT)
-I2.l <- I2 - t.stat * sqrt(vcov(m.avgN)[1,1] + vcov(m.avgN)[2,2] + (mean(data1$invTT)^2)*(vcov(m.avgN)[5,5] + vcov(m.avgN)[8,8]) + 2*mean(data1$invTT)*vcov(m.avgN)[2,1] + 2*vcov(m.avgN)[5,1] + 2*vcov(m.avgN)[8,1] + 2*vcov(m.avgN)[5,2] + 2*vcov(m.avgN)[2,8] + 2*vcov(m.avgN)[5,8]) 
-I2.u <- I2 + t.stat * sqrt(vcov(m.avgN)[1,1] + vcov(m.avgN)[2,2] + 2*vcov(m.avgN)[2,1])
+#I2.l <- I2 - t.stat * sqrt(vcov(m.avgN)[1,1] + vcov(m.avgN)[2,2] + (mean(data1$invTT)^2)*(vcov(m.avgN)[5,5] + vcov(m.avgN)[8,8]) + 2*mean(data1$invTT)*vcov(m.avgN)[2,1] + 2*vcov(m.avgN)[5,1] + 2*vcov(m.avgN)[8,1] + 2*vcov(m.avgN)[5,2] + 2*vcov(m.avgN)[2,8] + 2*vcov(m.avgN)[5,8]) 
+#I2.u <- I2 + t.stat * sqrt(vcov(m.avgN)[1,1] + vcov(m.avgN)[2,2] + 2*vcov(m.avgN)[2,1])
 
 # ints for NPP.PZN: 
 I3 <- coefficients(m.avgN)[1] + coefficients(m.avgN)[3] - coefficients(m.avgN)[5]*mean(data1$invTT) - coefficients(m.avgN)[9]*mean(data1$invTT)
-I3.l <- I3 - t.stat * sqrt(vcov(m.avgN)[1,1] + vcov(m.avgN)[2,2] + 2*vcov(m.avgN)[2,1]) 
-I3.u <- I3 + t.stat * sqrt(vcov(m.avgN)[1,1] + vcov(m.avgN)[2,2] + 2*vcov(m.avgN)[2,1])
+#I3.l <- I3 - t.stat * sqrt(vcov(m.avgN)[1,1] + vcov(m.avgN)[2,2] + 2*vcov(m.avgN)[2,1]) 
+#I3.u <- I3 + t.stat * sqrt(vcov(m.avgN)[1,1] + vcov(m.avgN)[2,2] + 2*vcov(m.avgN)[2,1])
 
 IntsNPP <- (cbind(c(I1, I2, I3), c(I1.l2, I2.l, I3.l), c(I1.u2, I2.u, I3.u)))
 rownames(IntsNPP) <- c("P", "PZ", "PZN")
@@ -376,8 +378,8 @@ IER2 <- coefficients(modER)[1] + coefficients(modER)[3] - coefficients(modER)[5]
 
 # ints for ER.PZN: 
 IER3 <- coefficients(modER)[1] + coefficients(modER)[4] - coefficients(modER)[5]*mean(data2$invTT) - coefficients(modER)[7]*mean(data2$invTT)
-IER3.l <- IER3 - t.stat * sqrt(vcov(modER)[1,1] + vcov(modER)[4,4] + 2*vcov(modER)[4,1]) 
-IER3.u <- IER3 + t.stat * sqrt(vcov(modER)[1,1] + vcov(modER)[4,4] + 2*vcov(modER)[4,1])
+#IER3.l <- IER3 - t.stat * sqrt(vcov(modER)[1,1] + vcov(modER)[4,4] + 2*vcov(modER)[4,1]) 
+#IER3.u <- IER3 + t.stat * sqrt(vcov(modER)[1,1] + vcov(modER)[4,4] + 2*vcov(modER)[4,1])
 
 slopesER <- (cbind(c(SlER1, SlER2, SlER3), c(SlER1.l, SlER2.l, SlER3.l), c(SlER1.u, SlER2.u, SlER3.u)))
 rownames(slopesER) <- c("P", "PZ", "PZN")
@@ -388,7 +390,7 @@ colnames(slopesER) <- c("S", "l", "u")
 
 ### WITHIN AND AMONG GROUP PLOTS
 ### plotting within- and among-group regressions and model outputs
-ER.plot <- ggplot(data = data2, aes(x = invTi, y = log(ER2), min = 0)) + 
+ER.plot <- ggplot(data = data2, aes(x = -invTi, y = log(ER2), min = 0)) + 
   theme_bw() +
   theme(legend.position = "none") +
   theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
@@ -420,11 +422,11 @@ RvalsPZN <- ER.funcPZN(x)
 
 Fig2D <- 
 ER.plot +
-  geom_smooth(method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = invTi, y = log(ER2), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) +
+  geom_smooth(method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTi, y = log(ER2), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) +
   #geom_smooth(method = "lm", se = FALSE, aes(group = Tank), color = "gray40", alpha = 0.23, size = .8) +
-  geom_smooth(data = data2[(data2$trophic.level=="P"),], aes(x = invTT, y = RvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
-  geom_smooth(data = subset(data2, trophic.level == "PZ"), aes(x = invTT, y = RvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) +
-  geom_smooth(data = subset(data2, trophic.level == "PZN"), aes(x = invTT, y = RvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) 
+  geom_smooth(data = data2[(data2$trophic.level=="P"),], aes(x = -invTT, y = RvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+  geom_smooth(data = subset(data2, trophic.level == "PZ"), aes(x = -invTT, y = RvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) +
+  geom_smooth(data = subset(data2, trophic.level == "PZN"), aes(x = -invTT, y = RvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) 
 
   #geom_text(label = "Y.P = -0.69x + 31.30", x = 38.87, y = 1.75) +
   #geom_text(label = "Y.PZ = -0.69x + 31.79", x = 38.87, y = 1) +
@@ -490,18 +492,18 @@ rownames(slopesPB) <- c("P", "PZ", "PZN")
 colnames(slopesPB) <- c("S", "l", "u")
 
 # ints for PB.PP: 
-IPB1 <- coefficients(modPB)[1] - coefficients(modPB)[5]*mean(data$invTT)
+IPB1 <- fixef(modPB)[1] - fixef(modPB)[5]*mean(data$invTT)
 IPB1.l <- confint(modPB)[1,1]
 IPB1.u <- confint(modPB)[1,2]
 IPB1.l2 <- IPB1 - t.stat * sqrt(vcov(modPB)[1,1])
 
 # ints for PB.ZP: modPB includes all int tPBms, but we leave out the invTi tPBm for among group lines; ints hPBe are at mean(invTT) 
-IPB2 <- coefficients(modPB)[1] + coefficients(modPB)[3] - coefficients(modPB)[5]*mean(data$invTT) - coefficients(modPB)[8]*mean(data$invTT)
+IPB2 <- fixef(modPB)[1] + fixef(modPB)[3] - fixef(modPB)[5]*mean(data$invTT) - fixef(modPB)[6]*mean(data$invTT)
 #IPB2.l <- IPB2 - t.stat * sqrt(vcov(modPB)[1,1] + vcov(modPB)[3,3] + 2*vcov(modPB)[3,1] + vcov(modPB)[5,5]*(mean(data$invTT)^2) + vcov(modPB)[6,6]*(mean(data$invTT)^2)) 
 #IPB2.u <- IPB2 + t.stat * sqrt(vcov(modPB)[1,1] + vcov(modPB)[3,3] + 2*vcov(modPB)[3,1])
 
 # ints for PB.PZN: 
-IPB3 <- coefficients(modPB)[1] + coefficients(modPB)[4] - coefficients(modPB)[5]*mean(data$invTT) - coefficients(modPB)[9]*mean(data$invTT)
+IPB3 <- fixef(modPB)[1] + fixef(modPB)[4] - fixef(modPB)[5]*mean(data$invTT) - fixef(modPB)[7]*mean(data$invTT)
 IPB3.l <- IPB3 - t.stat * sqrt(vcov(modPB)[1,1] + vcov(modPB)[4,4] + 2*vcov(modPB)[4,1]) 
 IPB3.u <- IPB3 + t.stat * sqrt(vcov(modPB)[1,1] + vcov(modPB)[4,4] + 2*vcov(modPB)[4,1])
 
@@ -512,8 +514,7 @@ colnames(slopesPB) <- c("S", "l", "u")
 ### WITHIN AND AMONG GROUP PLOTS
 ### plotting within- and among-group regressions and model outputs
 
-Fig2G <-
-PP.plot <- ggplot(data = data, aes(x = invTi, y = log(PP.biomass), min = 0)) + 
+PP.plot <- ggplot(data = data, aes(x = -invTi, y = log(PP.biomass), min = 0)) + 
   theme_bw() +
   theme(legend.position = "none") +
   theme(legend.position = "none") +
@@ -565,10 +566,10 @@ BvalsPZN <- PP.PZN.func(mod.coefs[(mod.coefs$trophic.level == "PZN"),]$invTT)
 #z <- 0.5 #invTi - invTT for each tank, approximate 
 Fig2G <-
   PP.plot +
-  geom_smooth(method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = invTi, y = log(PP.biomass), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) +
-  geom_smooth(data = subset(data, trophic.level == "P"), aes(x = invTT, y = PBvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
-  geom_smooth(data = subset(data, trophic.level == "PZ"), aes(x = invTT, y = PBvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) +
-  geom_smooth(data = subset(data, trophic.level == "PZN"), aes(x = invTT, y = PBvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) 
+  geom_smooth(method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTi, y = log(PP.biomass), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) +
+  geom_smooth(data = subset(data, trophic.level == "P"), aes(x = -invTT, y = PBvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+  geom_smooth(data = subset(data, trophic.level == "PZ"), aes(x = -invTT, y = PBvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) +
+  geom_smooth(data = subset(data, trophic.level == "PZN"), aes(x = -invTT, y = PBvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) 
   
 ggsave("PPplot.png", device = "png")
 
@@ -694,6 +695,9 @@ model.sel(modTC0, modTC1, modTC2, modTC4)
 modTC2r <- lme(log(total.carbon)~1+I(invT-mean(invT))+trophic.level, random=~1|Tank, data=data, method="REML", na.action=na.omit, correlation = corAR1(form = ~week|Tank))
 
 summary(modTC2r)
+
+
+
 
 
 
