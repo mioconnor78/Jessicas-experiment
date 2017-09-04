@@ -699,9 +699,6 @@ summary(modTC2r)
 
 
 
-
-
-
 ### TOTAL CARBON #### 
 ## Does total biomass vary with temperature and trophic structure?  
 ## have to analyze this for weeks 4 and later, because we have no ZP data from weeks 2 and 3. 

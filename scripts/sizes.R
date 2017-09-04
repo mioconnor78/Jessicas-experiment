@@ -112,25 +112,67 @@ hist((data$total.zoo.abundance.liter))
 
 # SIZE candidate model set -------------------------------------------------
 ## analyzing size for week 8
+## suggests that predators reduce body sizes, across all measured individuals. temp too, but not significant. pooled across all species.
+## with the interaction not significant, it's 'ignoring' the other trophic treatment.
 
-modSF <- lm(log(size) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modS8 <- lm(log(size) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modS7 <- lm(log(size) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modS6 <- lm(log(size) ~ 1 + trophic.level*I(invTi - invTT), data=data1, na.action=na.omit)
-modS5 <- lm(log(size) ~ 1 + I(invTi - invTT) + trophic.level, data=data1, na.action=na.omit)
-modS4 <- lm(log(size) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modS3 <- lm(log(size) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modS2 <- lm(log(size) ~ 1 + I(invTi - invTT), data=data1, na.action=na.omit)
-modS1 <- lm(log(size) ~ 1 + trophic.level, data=data1, na.action=na.omit)
-modS0 <- lm(log(size) ~ 1, data=data1, na.action=na.omit)
+modSF <- lm(log(size) ~ 1 + trophic.level + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
+modS8 <- lm(log(size) ~ 1 + trophic.level + I(invTT - mean(invTT)), data=data1, na.action=na.omit)
+modS7 <- lm(log(size) ~ 1 + I(invTT - mean(invTT)), data=data1, na.action=na.omit)
+modS6 <- lm(log(size) ~ 1 + trophic.level, data=data1, na.action=na.omit)
+modS5 <- lm(log(size) ~ 1, data=data1, na.action=na.omit)
 
-model.sel(modS0, modS1, modS2, modS3, modS4, modS5, modS6, modS7, modS8, modSF)
+model.sel(modS5, modS6, modS7, modS8, modSF)
 
 ## or, what if we use an averaged model: 
-m.avgN <- model.avg(modNPP8, modNPP3)
-confint(m.avgN)
+m.avgS <- model.avg(modS6, modS8)
+coefficients(m.avgS)
+confint(m.avgS)
+
+size.funcZ <- function(x) { coefficients(m.avgS)[1] + coefficients(m.avgS)[3]*x }
+size.funcZN <- function(x) { coefficients(m.avgS)[1] + coefficients(m.avgS)[2] + coefficients(m.avgS)[3]*x }
+z.vals <- size.funcZ(data1[(data1$trophic.level =='PZ'),]$invTT - mean(data1$invTT))
+zn.vals <- size.funcZN(data1[(data1$trophic.level =='PZN'),]$invTT - mean(data1$invTT))
+
+Fig3B <- ggplot(data = data1, aes(x = -invTT, y = log(size))) + #, ymax = 1.2)
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
+  theme(strip.background = element_rect(colour="white", fill="white")) +
+  facet_grid(trophic.level~.) + ## this sets it up as facets
+  geom_point(aes(group = taxon, shape = taxon), size = 2) + 
+  scale_alpha("Tankn", guide = "none") +
+  #theme(legend.position = c(0.88, 1), legend.text=element_text(size=6)) + 
+  scale_shape(name = "Week", guide = guide_legend(ncol = 2, size = 6)) +
+  scale_x_continuous("Temperature", sec.axis = sec_axis(~((1/(k*-.))-273))) +
+  #xlab("Temperature 1/kTi") +
+  ylab("ln(size)") +
+  geom_smooth(data = data1[(data1$trophic.level =='PZ'),], method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTT, y = z.vals),  size = .8, color = alpha("steelblue", 0.5)) +
+  geom_smooth(data = data1[(data1$trophic.level =='PZN'),], method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTT, y = zn.vals),  size = .8, color = alpha("steelblue", 0.5))
+
+ggsave("Fig 3B.png")
 
 
+## daphnia sizes
+## i think we want a figure like this, but with ses on the datapoints. 
+## start with the zooplankton size data i just added to the data folder. 
+
+data1 <- data[(data$week == "8"),] #from main datafile
+Fig3D <- ggplot(data = data1[(data1$trophic.level != "P"),], aes(x = -invTT, y = (Daphnia.mature.size), ymax = .8, ymin = -0.2)) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
+  theme(strip.background = element_rect(colour="white", fill="white")) +
+  facet_grid(trophic.level~.) + ## this sets it up as facets
+  geom_point(size = 2) + 
+  geom_point(aes(x = -invTT, y = (community.size)), shape = 2) +
+  scale_alpha("Tankn", guide = "none") +
+  #theme(legend.position = c(0.88, 1), legend.text=element_text(size=6)) + 
+  #scale_shape(name = "Week", guide = guide_legend(ncol = 2, size = 6)) +
+  scale_x_continuous("Temperature", sec.axis = sec_axis(~((1/(k*-.))-273))) +
+  #xlab("Temperature 1/kTi") +
+  ylab("Mature Daphnia ln(length)") +
+  geom_smooth(data = data1[(data1$trophic.level =='PZ'),], method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTT, y = z.vals),  size = .8, color = alpha("steelblue", 0.5)) +
+  geom_smooth(data = data1[(data1$trophic.level =='PZN'),], method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTT, y = zn.vals),  size = .8, color = alpha("steelblue", 0.5))
 
 
 

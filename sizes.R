@@ -61,7 +61,7 @@ sizes <- ggplot(data = sizes.t3, aes(x = log(size))) +
 sizes # pretty close to log normal
 ggsave("sizes.png")
 ## seeing that we only have good coverage for week 8, so let's just use that.
-
+## because we have uneven samples among groups, i think we want regress the means against temperature, not the full samples...(right?)
 data1 <- sizes.t3[(sizes.t3$week == "8"),] %>%
   mutate(taxon = species) %>%
   mutate(taxon = replace(taxon, species == "calanoid", "Copepod")) %>%
