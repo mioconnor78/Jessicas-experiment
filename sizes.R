@@ -31,6 +31,30 @@ sizes.t$invTT <- as.numeric(as.character(sizes.t$invTT))
 
 sizes.t2 <- sizes.t[sizes.t$week >= '4',]
 
+
+---------------
+## daphnia sizes
+daph <- read.csv("./data/zooplankton size for correction no eggs_new.csv")
+daph$Tank <- as.character(daph$tank)
+
+## curious if the numbers of daphnia match...
+## they don't, so for now use the data in the community size file
+test2 <- daph %>%
+  filter(stage == "mature") %>%
+  group_by(., Tank, week) %>%
+  summarise(., length(size.in.mm)) %>%
+  arrange(as.numeric(week), as.numeric(Tank))
+
+test <- sizes.t3 %>%
+  mutate(taxon = species) %>%
+  mutate(taxon = replace(taxon, species == "calanoid", "Copepod")) %>%
+  mutate(taxon = replace(taxon, species == "cyclopoid", "Copepod")) %>%
+  group_by(., Tank, week, taxon) %>%
+  summarise(., length(size)) %>%
+  arrange(as.numeric(week), as.numeric(Tank)) %>%
+  filter(taxon == "Daphnia")
+------------------
+
 data.N <- as.tibble(data) %>%
   group_by(Tank, trophic.level, week) %>%
   summarise(., N = mean(total.zoo.abundance.liter)) %>%
@@ -67,7 +91,6 @@ data1 <- sizes.t3[(sizes.t3$week == "8"),] %>%
   mutate(taxon = replace(taxon, species == "calanoid", "Copepod")) %>%
 mutate(taxon = replace(taxon, species == "cyclopoid", "Copepod"))
 
-
 sizes8 <- ggplot(data = data1, aes(x = log(size))) +
   geom_histogram(binwidth=.5, colour="black", fill="white") +
   facet_grid(week~Tank)
@@ -82,7 +105,7 @@ size.plot <- ggplot(data = data1, aes(x = -invTT, y = log(size))) + #, ymax = 1.
   facet_grid(trophic.level~taxon) + ## this sets it up as facets
   geom_point(aes(group = taxon, shape = taxon), size = 2) + 
   scale_alpha("Tankn", guide = "none") +
-  #theme(legend.position = c(0.88, 1), legend.text=element_text(size=6)) + 
+  #theme(legend.position = c(0.88, 1), legend.text=element_text(size=6)) +
   scale_shape(name = "Week", guide = guide_legend(ncol = 2, size = 6)) +
   scale_x_continuous("Celcius", sec.axis = sec_axis(~((1/(k*-.))-273))) +
   xlab("Temperature 1/kTi") +
@@ -113,26 +136,45 @@ hist((data$total.zoo.abundance.liter))
 # SIZE candidate model set -------------------------------------------------
 ## analyzing size for week 8
 
-modSF <- lm(log(size) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modS8 <- lm(log(size) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modS7 <- lm(log(size) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modS6 <- lm(log(size) ~ 1 + trophic.level*I(invTi - invTT), data=data1, na.action=na.omit)
-modS5 <- lm(log(size) ~ 1 + I(invTi - invTT) + trophic.level, data=data1, na.action=na.omit)
-modS4 <- lm(log(size) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modS3 <- lm(log(size) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modS2 <- lm(log(size) ~ 1 + I(invTi - invTT), data=data1, na.action=na.omit)
-modS1 <- lm(log(size) ~ 1 + trophic.level, data=data1, na.action=na.omit)
-modS0 <- lm(log(size) ~ 1, data=data1, na.action=na.omit)
+modSF <- lm(log(size) ~ 1 + trophic.level*I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
+modS8 <- lm(log(size) ~ 1 + trophic.level + I(invTT - mean(invTT)), data=data1, na.action=na.omit)
+modS7 <- lm(log(size) ~ 1 + trophic.level, data=data1, na.action=na.omit)
+modS6 <- lm(log(size) ~ 1 + I(invTT - mean(invTT)), data=data1, na.action=na.omit)
+modS5 <- lm(log(size) ~ 1, data=data1, na.action=na.omit)
 
-model.sel(modS0, modS1, modS2, modS3, modS4, modS5, modS6, modS7, modS8, modSF)
+model.sel(modS5, modS6, modS7, modS8, modSF)
 
 ## or, what if we use an averaged model: 
-m.avgN <- model.avg(modNPP8, modNPP3)
-confint(m.avgN)
+m.avgS <- model.avg(modS7, modS8)
+coefficients(m.avgS)
+confint(m.avgS)
 
 
+S.PZ <- function(x) { coefficients(m.avgS)[1] + coefficients(m.avgS)[3]*x}
+SvalsPZ <- S.PZ(data1[(data1$trophic.level=="PZ"),]$invTT - mean(data1$invTT))
 
+S.PZN <- function(x) { (coefficients(m.avgS)[1] + coefficients(m.avgS)[2]) + coefficients(m.avgS)[3]*x}
+SvalsPZN <- S.PZN(data1[(data1$trophic.level=="PZN"),]$invTT- mean(data1$invTT))
 
+# because there is no trend with tempeature, maybe don't show this plot? unles we want to talk about the species composition shifts (daphnia really only at warm temps in PZN treatments)
+Fig3A <- ggplot(data = data1, aes(x = -invTT, y = log(size))) + #, ymax = 1.2)
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
+  theme(strip.background = element_rect(colour="white", fill="white")) +
+  facet_grid(trophic.level~.) + ## this sets it up as facets
+  geom_point(aes(group = taxon, shape = taxon, color = taxon), size = 2, alpha = 0.5) + 
+  scale_alpha("Tankn", guide = "none") +
+  scale_colour_grey(start = 0, end = 0.6, guide = "none") +
+  scale_x_continuous("Temperature", sec.axis = sec_axis(~((1/(k*-.))-273))) +
+  xlab("Temperature 1/kTi") +
+  ylab("ln(size)") +
+  geom_smooth(data = data1[(data1$trophic.level=="PZ"),], method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTT, y = log(size)),  size = .8, color = alpha("steelblue", 0.5)) +
+  geom_smooth(data = data1[(data1$trophic.level=="PZN"),], method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTT, y = SvalsPZN),  size = .8, color = alpha("steelblue", 0.5))
+
+Fig3A
+
+ggsave("Fig3A sizes wk 8.png", device = "png", width =4, height = 3) 
 
 ## abundance analysis
 require(car)
