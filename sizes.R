@@ -60,22 +60,11 @@ data.N <- as.tibble(data) %>%
   summarise(., N = mean(total.zoo.abundance.liter)) %>%
   arrange(trophic.level, week) 
 
-data$N1 <- 300*(data$total.zoo.abundance.liter) + 1
-data$N <- 300*(data$total.zoo.abundance.liter)
+data$N1 <- 5*(data$total.zoo.abundance.liter) + 1
+data$N <- 5*(data$total.zoo.abundance.liter)
 
 
 # visualizing data --------------------------------------------------------
-
-## abundance - waiting for raw abundance data to describe the distribution. it's count data, so makes me think we would be using a Poisson or negbinom model. But these have been transformed to density, so not whole numbers now. this is making it hard for me to test the distribution.
-
-## from the data on abundance / L...
-qqp(data[(data$trophic.level != "P"),]$N1, "lnorm")
-qqp(data[(data$trophic.level != "P"),]$N1, "norm")
-nbinom <- fitdistr(data[(data$trophic.level != "P"),]$N1, "Negative Binomial")
-qqp(data[(data$trophic.level != "P"),]$N1, "nbinom", size = nbinom$estimate[[1]], mu = nbinom$estimate[[2]])
-
-gamma <- fitdistr(data[(data$trophic.level != "P"),]$N1, "gamma")
-
 
 ## how are the size data distributed?
 sizes <- ggplot(data = sizes.t3, aes(x = log(size))) +
@@ -166,8 +155,8 @@ Fig3A <- ggplot(data = data1, aes(x = -invTT, y = log(size))) + #, ymax = 1.2)
   geom_point(aes(group = taxon, shape = taxon, color = taxon), size = 2, alpha = 0.5) + 
   scale_alpha("Tankn", guide = "none") +
   scale_colour_grey(start = 0, end = 0.6, guide = "none") +
-  scale_x_continuous("Temperature", sec.axis = sec_axis(~((1/(k*-.))-273))) +
-  xlab("Temperature 1/kTi") +
+  scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*-.))-273), name = "deg Celcius")) +
+  #xlab("Temperature 1/kTi") +
   ylab("ln(size)") +
   geom_smooth(data = data1[(data1$trophic.level=="PZ"),], method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTT, y = log(size)),  size = .8, color = alpha("steelblue", 0.5)) +
   geom_smooth(data = data1[(data1$trophic.level=="PZN"),], method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTT, y = SvalsPZN),  size = .8, color = alpha("steelblue", 0.5))
@@ -180,15 +169,69 @@ ggsave("Fig3A sizes wk 8.png", device = "png", width =4, height = 3)
 require(car)
 require(MASS)
 
+## abundance - waiting for raw abundance data to describe the distribution. it's count data, so makes me think we would be using a Poisson or negbinom model.
+
+qqp(data[(data$trophic.level != "P"),]$N1, "lnorm")
+qqp(data[(data$trophic.level != "P"),]$N1, "norm")
+nbinom <- fitdistr(data[(data$trophic.level != "P"),]$N1, "Negative Binomial")
+qqp(data[(data$trophic.level != "P"),]$N1, "nbinom", size = nbinom$estimate[[1]], mu = nbinom$estimate[[2]])
+hist(data[(data$trophic.level != "P"),]$N)
+plot(data[(data$trophic.level != "P"),]$N ~ data[(data$trophic.level != "P"),]$Tank)
+
+## i think we're going to go with the lognormal distribution
+### might just ax the random int...or test for it: 
+modNF <- lme(log(N1) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data[(data$trophic.level != "P"),], method="ML", na.action=na.omit) 
+modNa <- lm(log(N1) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data[(data$trophic.level != "P"),], na.action=na.omit)
+
+anova(modNF, modNa)
+
+modNF <- lm(log(N1) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data[(data$trophic.level != "P"),], na.action=na.omit)
+modN8 <- lm(log(N1) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), data=data[(data$trophic.level != "P"),], na.action=na.omit)
+modN7 <- lm(log(N1) ~ 1 + I(invTi - invTT) + trophic.level * I(invTT - mean(invTT)), data=data[(data$trophic.level != "P"),], na.action=na.omit)
+modN6 <- lm(log(N1) ~ 1 + trophic.level*I(invTi - invTT), data=data[(data$trophic.level != "P"),], na.action=na.omit)
+modN5 <- lm(log(N1) ~ 1 + I(invTi - invTT) + trophic.level, data=data[(data$trophic.level != "P"),], na.action=na.omit)
+modN4 <- lm(log(N1) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data[(data$trophic.level != "P"),], na.action=na.omit)
+modN3 <- lm(log(N1) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), data=data[(data$trophic.level != "P"),], na.action=na.omit)
+modN2 <- lm(log(N1) ~ 1 + I(invTi - invTT), data=data[(data$trophic.level != "P"),], na.action=na.omit)
+modN1 <- lm(log(N1) ~ 1 + trophic.level, data=data[(data$trophic.level != "P"),], na.action=na.omit)
+modN0 <- lm(log(N1) ~ 1, data=data[(data$trophic.level != "P"),], na.action=na.omit)
+
+model.sel(modN0, modN1, modN2, modN3, modN4, modN5, modN6, modN7, modN8, modNF)
+
+## or, what if we use an averaged model: 
+m.avgN <- model.avg(modN5, modN6)
+confint(modNF)
+
+
+
+N.plot <- ggplot(data=data[(data$trophic.level != "P"),], aes(x = -invTi, y = log(N1))) + #, ymin = -2, ymax = 6
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
+  theme(strip.background = element_rect(colour="white", fill="white")) +
+  facet_grid(trophic.level~.) + ## this sets it up as facets
+  geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(week), alpha = Tankn), size = 2) + 
+  scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
+  scale_alpha("Tankn", guide = "none") +
+  #theme(legend.position = c(0.88, 0.15), legend.text=element_text(size=6)) + 
+  #scale_shape(name = "Week", guide = guide_legend(ncol = 2, size = 6)) +
+  xlab("") + #xlab("Temperature 1/kTi") +
+  ylab("ln(No. / 5 L)")
+
+N.plot
+ggsave("Nplot.png", device = "png", width = 4, height = 3) # save for appendix
+
+
+
+
+
 ### used a fixed effects model only because i'm not aware of methods for the mixed effects models on an poisson distribution
 ### following http://ase.tufts.edu/gsc/gradresources/guidetomixedmodelsinr/mixed%20model%20guide.html
 ### mean < 5, so...
 library("mlmRev")
-library(lmer)
+#library(lme4)
 GHQ <- glmer(N1 ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)) + (1 | Tank), data=data[(data$trophic.level != "P"),], family = binomial(link = "logit"), nAGQ = 25)
 summary(PQL)
-
-
 
 ### functionf or checking for overdispersion
 model<-GHQ
