@@ -54,7 +54,57 @@ testS <- sizes.t3 %>%
   arrange(as.numeric(week), as.numeric(Tank)) %>%
   filter(taxon == "Daphnia")
 
-## use 'final size' spreadsheet; first have to match weeks, then go ahead with sizes.
+## use 'final size' spreadsheet
+sz <- read.csv("./data/Finalzpsize.csv")
+sz$Tank <- as.character(sz$Tank)
+#sz$week <- sz$Week
+View(sz)
+
+sz2 <- sz %>%
+  mutate(taxon = species) %>%
+  mutate(taxon = replace(taxon, species == "calanoid", "Copepod")) %>%
+  mutate(taxon = replace(taxon, species == "cyclopoid", "Copepod")) %>%
+  mutate(trophic.level = as.character(treatment)) %>%
+  mutate(trophic.level = replace(trophic.level, treatment == "PP+Z", "PZ")) %>%
+  mutate(trophic.level = replace(trophic.level, treatment == "PP+Z+N", "PZN")) %>%
+  filter(stage != "larvae") %>%
+  filter(stage != "egg") %>%
+  filter(size.in.cm > 0)
+
+View(sz2)
+
+testF <- sz2 %>%
+  group_by(., Tank, week, taxon) %>%
+  summarise(., length(size.in.cm)) %>%
+  arrange(as.numeric(week), as.numeric(Tank)) %>%
+  filter(taxon == "Daphnia")
+dim(testF)
+
+
+## run data prep first from other file to get temps.wk and temps.mn
+sz2.t <- left_join(sz2, temps.wk, by = c("week", "Tank")) # add weekly temps to sizes file
+sz2.t <- sz2.t[,-c(1:2, 5:6)]
+
+sz2.t1 <- left_join(sz2.t, temps.Tmn, by = c("Tank")) 
+
+sz2.t2 <- as.tibble(sz2.t1) %>%
+  group_by(Tank, trophic.level) %>%
+  summarise(., mean.temp = mean(temp.wk)) %>%
+  arrange(trophic.level, mean.temp) %>%
+  select(-mean.temp) 
+
+sz2.t2$Tankn <- rep(c(1:9), 2)
+sz2.t3 <- left_join(sz2.t1, sz2.t2, by = c("Tank", "trophic.level")) 
+
+sz2.t3$invTi <-  1/((sz2.t3$temp.wk + 273)*k) # average temp of the tank each week
+sz2.t3$invTT <-  1/((sz2.t3$temp.Tmn + 273)*k) # average temp of the tank over all weeks
+sz2.t3$invTi <- as.numeric(as.character(sz2.t3$invTi))
+sz2.t3$invTT <- as.numeric(as.character(sz2.t3$invTT))
+
+
+
+
+
 ------------------
 
 data.N <- as.tibble(data) %>%
@@ -69,7 +119,7 @@ data$N <- 5*(data$total.zoo.abundance.liter)
 # visualizing data --------------------------------------------------------
 
 ## how are the size data distributed?
-sizes <- ggplot(data = sizes.t3, aes(x = log(size))) +
+sizes <- ggplot(data = sz2.t3, aes(x = log(size.in.cm))) +
   geom_histogram(binwidth=.5, colour="black", fill="white") +
   facet_grid(week~Tank)
 
@@ -77,31 +127,28 @@ sizes # pretty close to log normal
 ggsave("sizes.png")
 ## seeing that we only have good coverage for week 8, so let's just use that.
 ## because we have uneven samples among groups, i think we want regress the means against temperature, not the full samples...(right?)
-data1 <- sizes.t3[(sizes.t3$week == "8"),] %>%
-  mutate(taxon = species) %>%
-  mutate(taxon = replace(taxon, species == "calanoid", "Copepod")) %>%
-mutate(taxon = replace(taxon, species == "cyclopoid", "Copepod"))
+data1 <- sz2.t3[(sz2.t3$week == "8"),]
 
-sizes8 <- ggplot(data = data1, aes(x = log(size))) +
+sizes8 <- ggplot(data = data1, aes(x = log(size.in.cm))) +
   geom_histogram(binwidth=.5, colour="black", fill="white") +
   facet_grid(week~Tank)
 
 sizes8
 
-size.plot <- ggplot(data = data1, aes(x = -invTT, y = log(size))) + #, ymax = 1.2)
+size.plot <- ggplot(data = data1, aes(x = -invTT, y = log(size.in.cm))) + #, ymax = 1.2)
   theme_bw() +
   theme(legend.position = "none") +
   theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
   theme(strip.background = element_rect(colour="white", fill="white")) +
-  facet_grid(trophic.level~taxon) + ## this sets it up as facets
+  facet_grid(trophic.level~.) + ## this sets it up as facets
   geom_point(aes(group = taxon, shape = taxon), size = 2) + 
   scale_alpha("Tankn", guide = "none") +
   #theme(legend.position = c(0.88, 1), legend.text=element_text(size=6)) +
   scale_shape(name = "Week", guide = guide_legend(ncol = 2, size = 6)) +
   scale_x_continuous("Celcius", sec.axis = sec_axis(~((1/(k*-.))-273))) +
   xlab("Temperature 1/kTi") +
-  ylab("ln(size)") +
-  geom_smooth(data = data1, method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTT, y = log(size)),  size = .8, color = alpha("steelblue", 0.5))
+  ylab("Length ln(cm)") +
+  geom_smooth(data = data1, method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTT, y = log(size.in.cm)),  size = .8, color = alpha("steelblue", 0.5))
   
 size.plot
 ggsave("sizeswk8.png")
@@ -126,7 +173,7 @@ hist((data$total.zoo.abundance.liter))
 
 # SIZE candidate model set -------------------------------------------------
 ## analyzing size for week 8
-
+data1$size <- data1$size.in.cm
 modSF <- lm(log(size) ~ 1 + trophic.level*I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
 modS8 <- lm(log(size) ~ 1 + trophic.level + I(invTT - mean(invTT)), data=data1, na.action=na.omit)
 modS7 <- lm(log(size) ~ 1 + trophic.level, data=data1, na.action=na.omit)
@@ -148,24 +195,24 @@ S.PZN <- function(x) { (coefficients(m.avgS)[1] + coefficients(m.avgS)[2]) + coe
 SvalsPZN <- S.PZN(data1[(data1$trophic.level=="PZN"),]$invTT- mean(data1$invTT))
 
 # because there is no trend with tempeature, maybe don't show this plot? unles we want to talk about the species composition shifts (daphnia really only at warm temps in PZN treatments)
-Fig3A <- ggplot(data = data1, aes(x = -invTT, y = log(size))) + #, ymax = 1.2)
+Fig3B <- ggplot(data = data1, aes(x = -invTT, y = log(size))) + #, ymax = 1.2)
   theme_bw() +
   theme(legend.position = "none") +
   theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
   theme(strip.background = element_rect(colour="white", fill="white")) +
-  facet_grid(trophic.level~.) + ## this sets it up as facets
+  facet_grid(.~trophic.level) + ## this sets it up as facets
   geom_point(aes(group = taxon, shape = taxon, color = taxon), size = 2, alpha = 0.5) + 
   scale_alpha("Tankn", guide = "none") +
   scale_colour_grey(start = 0, end = 0.6, guide = "none") +
   scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*-.))-273), name = "deg Celcius")) +
   #xlab("Temperature 1/kTi") +
-  ylab("ln(size)") +
+  ylab("Length ln(cm)") +
   geom_smooth(data = data1[(data1$trophic.level=="PZ"),], method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTT, y = log(size)),  size = .8, color = alpha("steelblue", 0.5)) +
   geom_smooth(data = data1[(data1$trophic.level=="PZN"),], method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTT, y = SvalsPZN),  size = .8, color = alpha("steelblue", 0.5))
 
-Fig3A
+Fig3B
 
-ggsave("Fig3A sizes wk 8.png", device = "png", width =4, height = 3) 
+ggsave("Fig3B.png", device = "png", width =4, height = 3) 
 
 ## abundance analysis
 require(car)
@@ -239,6 +286,7 @@ Fig3A <-
   N.plot +
   geom_smooth(method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTi, y = log(N1), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) # stop here - no 'among tank' temp term in best models
  
+ggsave("Fig3A.png", device = "png", width =4, height = 3) 
   
    #geom_smooth(method = "lm", se = FALSE, aes(group = Tank), color = "gray40", alpha = 0.23, size = .8) +
   geom_smooth(data = subset(data, trophic.level == "PZ"), aes(x = -invTT, y = NvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) +
