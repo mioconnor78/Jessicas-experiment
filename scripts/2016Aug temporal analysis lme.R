@@ -196,8 +196,8 @@ data1 <- data[(data$NPP2 >= 0.001),] #remove 18 negative values
 # NPP candidate model set -------------------------------------------------
 
 ### might just ax the random int...or test for it: 
-modNPPF <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
-modNPPa <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
+modNPPF <- lme(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
+modNPPa <- lm(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
 
 modNPPF <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
 modNPP8 <- lm(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
@@ -268,19 +268,21 @@ colnames(IntsNPP) <- c("I", "l", "u")
 # FIGURE 2: 
 ### plotting within- and among-group regressions and model outputs
 
+labels <- c(P = "Phytoplankton", PZ = "Phytoplankton + Grazers", PZN = "Phyto. + Grazers + Predators")
+
 NPP.plot <- ggplot(data = data1, aes(x = -invTi, y = log(NPP2), ymin = -2, ymax = 6)) +
   theme_bw() +
   theme(legend.position = "none") +
   theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
   theme(strip.background = element_rect(colour="white", fill="white")) +
-  facet_grid(.~trophic.level) + ## this sets it up as facets
+  facet_grid(.~trophic.level, labeller=labeller(trophic.level = labels)) + ## this sets it up as facets
   geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(week), alpha = Tankn), size = 2) + 
   scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
   scale_alpha("Tankn", guide = "none") +
   #theme(legend.position = c(0.88, 0.15), legend.text=element_text(size=6)) + 
   #scale_shape(name = "Week", guide = guide_legend(ncol = 2, size = 6)) +
-  xlab("") + #xlab("Temperature 1/kTi") +
-  ylab("ln(NPPi)")
+  xlab("Temperature 1/kTi") +
+  ylab("Oxygen Production (NPP) \n ln(umol O2 / L / hr)")
 
 NPP.plot
 ggsave("NPPplot.png", device = "png", width = 7, height = 3) # save for appendix
@@ -390,18 +392,20 @@ colnames(slopesER) <- c("S", "l", "u")
 
 ### WITHIN AND AMONG GROUP PLOTS
 ### plotting within- and among-group regressions and model outputs
+xlab <- expression(paste('Temperature (',~degree,'C)',sep=''))
 ER.plot <- ggplot(data = data2, aes(x = -invTi, y = log(ER2), min = 0)) + 
   theme_bw() +
   theme(legend.position = "none") +
   theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
   theme(strip.background = element_blank(), strip.text.x = element_blank()) +
-  facet_grid(.~trophic.level) + ## this sets it up as facets
+  facet_grid(.~trophic.level, labeller = labeller(trophic.level = labels)) + ## this sets it up as facets
   geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(week), alpha = Tankn), size = 2) + 
   scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
   scale_alpha("Tankn", guide = "none") +
   scale_shape(name = "Week", guide = guide_legend(ncol = 2)) +
+  scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*-.))-273), name = xlab)) +
   xlab("") + #xlab("Temperature 1/kTi") +
-  ylab("ln(ERi)")
+  ylab("Oxygen Consumption (ER) \n ln(umol O2 / L / hr)")
 
 ER.plot
 ggsave("ERplot.png", device = "png", width = 7, height = 3) # save for appendix
@@ -516,19 +520,31 @@ colnames(slopesPB) <- c("S", "l", "u")
 
 PP.plot <- ggplot(data = data, aes(x = -invTi, y = log(PP.biomass), min = 0)) + 
   theme_bw() +
-  theme(legend.position = "none") +
-  theme(legend.position = "none") +
-  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
-  theme(strip.background = element_blank(),
+  theme(panel.grid.minor = element_blank(), 
+        panel.grid.major = element_blank(), 
+        legend.position = c(0.94, 0.30), 
+        legend.text=element_text(size=6), 
+        legend.title = element_text(size = 7), 
+        legend.key = element_rect(fill = NA), 
+        strip.background = element_blank(),
         strip.text.x = element_blank()) +
-  facet_grid(.~trophic.level) + ## this sets it up as facets
-  geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(week), alpha = Tankn), size = 2) + 
+  facet_grid(.~trophic.level) + 
+  geom_point(aes(group = as.character(Tankn), 
+                 color = as.character(Tankn), 
+                 shape = as.factor(week), 
+                 alpha = Tankn), 
+             size = 2) + 
   scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
   scale_alpha("Tankn", guide = "none") +
-  theme(legend.position = c(0.93, 0.20), legend.text=element_text(size=6), legend.title = element_text(size = 7)) + 
-  scale_shape(name = "Week", guide = guide_legend(ncol = 2, keywidth = .8, keyheight = .8)) +
+  scale_x_continuous("Temperature (1/kTi)", 
+                     sec.axis = sec_axis(~((1/(k*-.))-273), 
+                                         name = xlab)) +
+  scale_shape(name = "Week", 
+              guide = guide_legend(ncol = 2, 
+                                   keywidth = .8, 
+                                   keyheight = .8)) +
   xlab("Temperature 1/kTi") +
-  ylab("ln(PPi)")
+  ylab("Phytoplankton Biomass (M) \n ln(ug C / L)")
 
 PP.plot
 ggsave("PBplot.png", device = "png", width = 7, height = 3) 
@@ -545,25 +561,6 @@ PB.funcPZN <- function(x) { IPB3 + SlPB3*x } # for trophic level 3
 x <- data[(data$trophic.level=="PZN"),]$invTT
 PBvalsPZN <- PB.funcPZN(x)
 
-
-## PLOT 3: Plot lines from model
-# PP coefs
-z <- mean(mod.coefs$invTi - mod.coefs$invTT)
-z
-PP.PP.func <- function(x) { (fixef(modPP6r)[1] - fixef(modPP6r)[3]*mean(mod.coefs$invTT) - fixef(modPP6r)[6]*z*mean(mod.coefs$invTT)) + (fixef(modPP6r)[3] + fixef(modPP6r)[6]*z)*x } #x = invTT # slope = -2.47
-# use this function to compute yvals for plotting.
-yvalsPP <- PP.PP.func(mod.coefs[(mod.coefs$trophic.level == "P"),]$invTT)
-
-# ZP coefs
-PP.ZP.func <- function(x) { (fixef(modPP6r)[1] - fixef(modPP6r)[3]*mean(mod.coefs$invTT) - fixef(modPP6r)[6]*z*mean(mod.coefs$invTT) + fixef(modPP6r)[4] - fixef(modPP6r)[7]*mean(mod.coefs$invTT)) + (fixef(modPP6r)[3] + fixef(modPP6r)[6]*z + fixef(modPP6r)[7])*x } #x = invTT #slope = -3.98
-# use this function to compute yvals for plotting.
-BvalsZP <- PP.ZP.func(mod.coefs[(mod.coefs$trophic.level == "PZ"),]$invTT)
-
-# PZN coefs
-PP.PZN.func <- function(x) { (fixef(modPP6r)[1] - fixef(modPP6r)[3]*mean(data$invTT) - fixef(modPP6r)[6]*z*mean(mod.coefs$invTT) + fixef(modPP6r)[5] - fixef(modPP6r)[8]*mean(mod.coefs$invTT)) + (fixef(modPP6r)[3] + fixef(modPP6r)[6]*z + fixef(modPP6r)[8])*x } #x = invTT, #slope = -2.38
-BvalsPZN <- PP.PZN.func(mod.coefs[(mod.coefs$trophic.level == "PZN"),]$invTT)
-
-#z <- 0.5 #invTi - invTT for each tank, approximate 
 Fig2G <-
   PP.plot +
   geom_smooth(method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTi, y = log(PP.biomass), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) +
@@ -572,22 +569,6 @@ Fig2G <-
   geom_smooth(data = subset(data, trophic.level == "PZN"), aes(x = -invTT, y = PBvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) 
   
 ggsave("PPplot.png", device = "png")
-
-  #not sure what this one is for
-
-PP.plot +
-  #geom_smooth(data = mod.coefs, aes(x = invTi, y = yvalsP, group = Tank, color = trophic.level), method = "lm", se = FALSE, inherit.aes = FALSE) +
-  geom_smooth(method = "lm", se = FALSE, aes(group = Tank, color = trophic.level), alpha = 0.23, size = .8) +
-  geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
-  geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsZP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 2, size = 1.5) +
-  geom_smooth(data = mod.coefs, aes(x = invTT, y = yvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 4, size = 1.5) +
-  geom_text(label = "Y.P = 1.68x - 59.75", x = 39.9, y = 2) +
-  geom_text(label = "Y.PZ = 4.07x - 155.09", x = 39.9, y = 1.5) +
-  geom_text(label = "Y.PZN = 2.13x -78.10", x = 39.9, y = 1)
-#geom_point(data = mod.coefs, aes(x = invTi, y = pred.data))
-
-ggsave("Fig2G-H.png", device = "png", width = 7, height = 3)
-
 
 
 
@@ -644,7 +625,7 @@ Fig2D
 Fig2G
 ggsave("Figure2.png", plot = Figure2, width = 7, height = 7)
 
-png('Figure2.png')
+png('Figure2.png', width = 7, height = 7, units = 'in', res = 300)
 multiplot(Fig2A, Fig2D, Fig2G, cols = 1)
 dev.off()
 

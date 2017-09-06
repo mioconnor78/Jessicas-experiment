@@ -32,20 +32,20 @@ sizes.t$invTT <- as.numeric(as.character(sizes.t$invTT))
 sizes.t2 <- sizes.t[sizes.t$week >= '4',]
 
 
----------------
+#---------------
 ## daphnia sizes
 daph <- read.csv("./data/zooplankton size for correction no eggs_new.csv")
 daph$Tank <- as.character(daph$tank)
 
 ## curious if the numbers of daphnia match...
 ## they don't, so for now use the data in the community size file
-test2 <- daph %>%
-  filter(stage == "mature") %>%
-  group_by(., Tank, week) %>%
+testD <- daph %>%
+  filter(species == "Daphnia") %>% #stage == "mature", 
+  group_by(., Tank, week, species) %>%
   summarise(., length(size.in.mm)) %>%
   arrange(as.numeric(week), as.numeric(Tank))
 
-test <- sizes.t3 %>%
+testS <- sizes.t3 %>%
   mutate(taxon = species) %>%
   mutate(taxon = replace(taxon, species == "calanoid", "Copepod")) %>%
   mutate(taxon = replace(taxon, species == "cyclopoid", "Copepod")) %>%
@@ -53,6 +53,8 @@ test <- sizes.t3 %>%
   summarise(., length(size)) %>%
   arrange(as.numeric(week), as.numeric(Tank)) %>%
   filter(taxon == "Daphnia")
+
+## use 'final size' spreadsheet; first have to match weeks, then go ahead with sizes.
 ------------------
 
 data.N <- as.tibble(data) %>%
@@ -169,6 +171,9 @@ ggsave("Fig3A sizes wk 8.png", device = "png", width =4, height = 3)
 require(car)
 require(MASS)
 
+# ABUNDANCE ---------------------------------------------------------------
+
+
 ## abundance - waiting for raw abundance data to describe the distribution. it's count data, so makes me think we would be using a Poisson or negbinom model.
 
 qqp(data[(data$trophic.level != "P"),]$N1, "lnorm")
@@ -180,12 +185,12 @@ plot(data[(data$trophic.level != "P"),]$N ~ data[(data$trophic.level != "P"),]$T
 
 ## i think we're going to go with the lognormal distribution
 ### might just ax the random int...or test for it: 
-modNF <- lme(log(N1) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data[(data$trophic.level != "P"),], method="ML", na.action=na.omit) 
-modNa <- lm(log(N1) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data[(data$trophic.level != "P"),], na.action=na.omit)
+modNF <- lme(log(N1) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data[(data$trophic.level != "P"),], method="ML", na.action=na.omit) 
+modNa <- lm(log(N1) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data[(data$trophic.level != "P"),], na.action=na.omit)
 
 anova(modNF, modNa)
 
-modNF <- lm(log(N1) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data[(data$trophic.level != "P"),], na.action=na.omit)
+modNF <- lm(log(N1) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*II(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data[(data$trophic.level != "P"),], na.action=na.omit)
 modN8 <- lm(log(N1) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), data=data[(data$trophic.level != "P"),], na.action=na.omit)
 modN7 <- lm(log(N1) ~ 1 + I(invTi - invTT) + trophic.level * I(invTT - mean(invTT)), data=data[(data$trophic.level != "P"),], na.action=na.omit)
 modN6 <- lm(log(N1) ~ 1 + trophic.level*I(invTi - invTT), data=data[(data$trophic.level != "P"),], na.action=na.omit)
@@ -200,27 +205,44 @@ model.sel(modN0, modN1, modN2, modN3, modN4, modN5, modN6, modN7, modN8, modNF)
 
 ## or, what if we use an averaged model: 
 m.avgN <- model.avg(modN5, modN6)
-confint(modNF)
+coefficients(m.avgN)
 
-
-
+labels <- c(P = "Phytoplankton", PZ = "Phytoplankton + Grazers", PZN = "Phyto. + Grazers + Predators")
+xlab <- expression(paste('Temperature (',~degree,'C)',sep=''))
 N.plot <- ggplot(data=data[(data$trophic.level != "P"),], aes(x = -invTi, y = log(N1))) + #, ymin = -2, ymax = 6
   theme_bw() +
   theme(legend.position = "none") +
   theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
   theme(strip.background = element_rect(colour="white", fill="white")) +
-  facet_grid(trophic.level~.) + ## this sets it up as facets
+  facet_grid(.~trophic.level, labeller=labeller(trophic.level = labels)) + ## this sets it up as facets
   geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(week), alpha = Tankn), size = 2) + 
   scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
   scale_alpha("Tankn", guide = "none") +
+  #scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*-.))-273), name = xlab)) +
   #theme(legend.position = c(0.88, 0.15), legend.text=element_text(size=6)) + 
   #scale_shape(name = "Week", guide = guide_legend(ncol = 2, size = 6)) +
-  xlab("") + #xlab("Temperature 1/kTi") +
-  ylab("ln(No. / 5 L)")
+  xlab("Temperature 1/kTi") +
+  ylab("Density ln((N+1) / 5 L)")
 
 N.plot
+
 ggsave("Nplot.png", device = "png", width = 4, height = 3) # save for appendix
 
+N.PZ <- function(x) { coefficients(m.avgN)[1] + coefficients(m.avgN)[3]*x}
+NvalsPZ <- N.PZ(data[(data$trophic.level=="PZ"),]$invTT - mean(data$invTT))
+
+N.PZN <- function(x) { (coefficients(m.avgN)[1] + coefficients(m.avgN)[3]) + (coefficients(m.avgN)[3])*x}
+NvalsPZN <- N.PZN(data[(data$trophic.level=="PZN"),]$invTT- mean(data$invTT))
+
+
+Fig3A <- 
+  N.plot +
+  geom_smooth(method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTi, y = log(N1), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) # stop here - no 'among tank' temp term in best models
+ 
+  
+   #geom_smooth(method = "lm", se = FALSE, aes(group = Tank), color = "gray40", alpha = 0.23, size = .8) +
+  geom_smooth(data = subset(data, trophic.level == "PZ"), aes(x = -invTT, y = NvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) +
+  geom_smooth(data = subset(data, trophic.level == "PZN"), aes(x = -invTT, y = NvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) 
 
 
 
