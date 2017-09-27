@@ -241,3 +241,100 @@ Fig3A <-
   geom_smooth(data = subset(data1, trophic.level == "PZN"), aes(x = -invTT, y = NvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) 
 
 
+# Possibly recovered code -------------------------------------------------
+#####
+#### possibly recovered code?
+## use 'final size' spreadsheet
+sz <- read.csv("./data/Finalzpsize.csv")
+sz$Tank <- as.character(sz$Tank)
+#sz$week <- sz$Week
+#View(sz)
+
+
+sz2 <- sz %>%
+  mutate(taxon = species) %>%
+  mutate(taxon = replace(taxon, species == "calanoid", "Copepod")) %>%
+  mutate(taxon = replace(taxon, species == "cyclopoid", "Copepod")) %>%
+  mutate(trophic.level = as.character(treatment)) %>%
+  mutate(trophic.level = replace(trophic.level, treatment == "PP+Z", "PZ")) %>%
+  mutate(trophic.level = replace(trophic.level, treatment == "PP+Z+N", "PZN")) %>%
+  filter(stage != "larvae") %>%
+  filter(stage != "egg") %>%
+  filter(size.in.cm > 0)
+
+View(sz2)
+
+testF <- sz2 %>%
+  group_by(., Tank, week, taxon) %>%
+  summarise(., length(size.in.cm)) %>%
+  arrange(as.numeric(week), as.numeric(Tank)) %>%
+  filter(taxon == "Daphnia")
+dim(testF)
+
+sz2.t <- left_join(sz2, temps.wk, by = c("week", "Tank")) # add weekly temps to sizes file
+sz2.t <- sz2.t[,-c(1:2, 5:6)]
+
+sz2.t1 <- left_join(sz2.t, temps.Tmn, by = c("Tank")) 
+
+sz2.t2 <- as.tibble(sz2.t1) %>%
+  group_by(Tank, trophic.level) %>%
+  summarise(., mean.temp = mean(temp.wk)) %>%
+  arrange(trophic.level, mean.temp)
+  #select(-mean.temp) 
+
+sz2.t2$Tankn <- rep(c(1:9), 2)
+sz2.t3 <- left_join(sz2.t1, sz2.t2, by = c("Tank", "trophic.level")) 
+
+sz2.t3$invTi <-  1/((sz2.t3$temp.wk + 273)*k) # average temp of the tank each week
+sz2.t3$invTT <-  1/((sz2.t3$temp.Tmn + 273)*k) # average temp of the tank over all weeks
+sz2.t3$invTi <- as.numeric(as.character(sz2.t3$invTi))
+sz2.t3$invTT <- as.numeric(as.character(sz2.t3$invTT))
+
+sizes <- ggplot(data = sz2.t3, aes(x = log(size.in.cm))) +
+  geom_histogram(binwidth=.5, colour="black", fill="white") +
+  facet_grid(week~Tank)
+
+data1 <- sz2.t3[(sz2.t3$week == "8"),]
+sizes8 <- ggplot(data = data1, aes(x = log(size.in.cm))) +
+  geom_histogram(binwidth=.5, colour="black", fill="white") +
+  facet_grid(week~Tank)
+sizes8
+
+size.plot <- ggplot(data = data1, aes(x = -invTT, y = log(size.in.cm))) + #, ymax = 1.2)
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
+  theme(strip.background = element_rect(colour="white", fill="white")) +
+  facet_grid(trophic.level~taxon) + ## this sets it up as facets
+  facet_grid(trophic.level~.) + ## this sets it up as facets
+  geom_point(aes(group = taxon, shape = taxon), size = 2) + 
+  scale_alpha("Tankn", guide = "none") +
+  #theme(legend.position = c(0.88, 1), legend.text=element_text(size=6)) +
+  scale_shape(name = "Week", guide = guide_legend(ncol = 2, size = 6)) +
+  scale_x_continuous("Celcius", sec.axis = sec_axis(~((1/(k*-.))-273))) +
+  xlab("Temperature 1/kTi") +
+  ylab("Length ln(cm)")
+
+size.plot
+
+data1$size <- data1$size.in.cm
+## this is what I want, I think [sept 27 2017]
+Fig3B <- ggplot(data = data1, aes(x = -invTT, y = log(size))) + #, ymax = 1.2)
+    theme_bw() +
+    theme(legend.position = "none") +
+    theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
+    theme(strip.background = element_rect(colour="white", fill="white")) +
+    facet_grid(.~trophic.level) + ## this sets it up as facets
+    theme(strip.background = element_blank(), strip.text = element_blank()) +
+    geom_point(aes(group = taxon, shape = taxon, color = taxon), size = 2, alpha = 0.5) + 
+    scale_alpha("Tankn", guide = "none") +
+    scale_colour_grey(start = 0, end = 0.6, guide = "none") +
+    scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*-.))-273), name = "deg Celcius")) +
+    ylab("ln(size)") +
+    ylab("Length ln(cm)") 
+    #geom_smooth(data = data1[(data1$trophic.level=="PZ"),], method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTT, y = log(size)),  size = .8, color = alpha("steelblue", 0.5)) +
+    #geom_smooth(data = data1[(data1$trophic.level=="PZN"),], method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTT, y = SvalsPZN),  size = .8, color = alpha("steelblue", 0.5))
+
+  ggsave("Fig3B.png", device = "png", width =4, height = 3) 
+  
+  

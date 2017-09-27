@@ -7,7 +7,7 @@
 ### load libraries
 library(MuMIn)
 library(nlme)
-#library(plyr)
+library(plyr)
 library(tidyverse) 
 library(broom)
 library(reshape2)
