@@ -427,6 +427,10 @@ NvalsPZN <- N.PZN(data[(data$trophic.level=="PZN"),]$invTT- mean(data$invTT))
 
 Fig3A <- 
 N.plot +
+  geom_line(aes(x = fitted(modN2), y = fitted(modN2)))
+  
+## just fit a line to the fitted values, and then use geom_ribbon for CIs.
+
   geom_smooth(method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTi, y = log(N1), group = week, colour = "week")) #color = alpha("steelblue", 0.5)
 # scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none")
 # stop here - no 'among tank' temp term in best models
