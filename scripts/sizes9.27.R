@@ -185,9 +185,12 @@ require(MASS)
 ### following http://ase.tufts.edu/gsc/gradresources/guidetomixedmodelsinr/mixed%20model%20guide.html
 ### mean < 5, so...
 library("mlmRev")
-library(lmer)
+library(lme4)
 GHQ <- glmer(N1 ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)) + (1 | Tank), data=data[(data$trophic.level != "P"),], family = binomial(link = "logit"), nAGQ = 25)
 summary(PQL)
+summary(GHQ)
+
+## check y vals... refresh on what this method is even doing...
 
 
 
@@ -212,21 +215,6 @@ overdisp_fun <- function(model) {
 # the data are overdisperssed. crap.
 
 
-modNF <- lme(log(total.zoo.abundance.liter) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, quasipoisson(link = "log"), data=data[(data$trophic.level != "P"),], method="ML", na.action=na.omit) 
-modNa <- glm((total.zoo.abundance.liter) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), quasipoisson(link = "log"), data=data[(data$trophic.level != "P"),], na.action=na.omit)
-
-modNPPF <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modNPP8 <- lm(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modNPP7 <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modNPP6 <- lm(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT), data=data1, na.action=na.omit)
-modNPP5 <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level, data=data1, na.action=na.omit)
-modNPP4 <- lm(log(NPP2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modNPP3 <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modNPP2 <- lm(log(NPP2) ~ 1 + I(invTi - invTT), data=data1, na.action=na.omit)
-modNPP1 <- lm(log(NPP2) ~ 1 + trophic.level, data=data1, na.action=na.omit)
-modNPP0 <- lm(log(NPP2) ~ 1, data=data1, na.action=na.omit)
-
-model.sel(modNPP0, modNPP1, modNPP2, modNPP3, modNPP4, modNPP5, modNPP6, modNPP7, modNPP8, modNPPF)
 
 ## or, what if we use an averaged model: 
 m.avgN <- model.avg(modNPP8, modNPP3)
@@ -244,6 +232,9 @@ Fig3A <-
 # Possibly recovered code -------------------------------------------------
 #####
 #### possibly recovered code?
+
+# FIGURE 3 CD -------------------------------------------------------------
+### THIS CODE MAKES FIGURE 3 IN MANUSCRIPT
 ## use 'final size' spreadsheet
 sz <- read.csv("./data/Finalzpsize.csv")
 sz$Tank <- as.character(sz$Tank)
@@ -337,4 +328,22 @@ Fig3B <- ggplot(data = data1, aes(x = -invTT, y = log(size))) + #, ymax = 1.2)
 
   ggsave("Fig3B.png", device = "png", width =4, height = 3) 
   
+  
+  
+  
+  Fig3B <- ggplot(data = data1, aes(x = -invTT, y = log(size))) + #, ymax = 1.2)
+    theme_bw() +
+    theme(legend.position = "none") +
+    theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
+    theme(strip.background = element_rect(colour="white", fill="white")) +
+    facet_grid(.~trophic.level) + ## this sets it up as facets
+    theme(strip.background = element_blank(), strip.text = element_blank()) +
+    geom_point(aes(group = taxon, shape = taxon), size = 2, alpha = 0.5) + 
+    scale_alpha("Tankn", guide = "none") +
+    scale_colour_grey(start = 0, end = 0.6, guide = "none") +
+    scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*-.))-273), name = "deg Celcius")) +
+    ylab("ln(size)") +
+    ylab("Length ln(cm)") 
+  #geom_smooth(data = data1[(data1$trophic.level=="PZ"),], method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTT, y = log(size)),  size = .8, color = alpha("steelblue", 0.5)) +
+  #geom_smooth(data = data1[(data1$trophic.level=="PZN"),], method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTT, y = SvalsPZN),  size = .8, color = alpha("steelblue", 0.5))
   
