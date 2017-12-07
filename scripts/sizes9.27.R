@@ -134,6 +134,8 @@ size.funcZN <- function(x) { coefficients(m.avgS)[1] + coefficients(m.avgS)[2] +
 z.vals <- size.funcZ(data1[(data1$trophic.level =='PZ'),]$invTT - mean(data1$invTT))
 zn.vals <- size.funcZN(data1[(data1$trophic.level =='PZN'),]$invTT - mean(data1$invTT))
 
+
+
 Fig3B <- ggplot(data = data1, aes(x = -invTT, y = log(size))) + #, ymax = 1.2)
   theme_bw() +
   theme(legend.position = "none") +
@@ -149,6 +151,8 @@ Fig3B <- ggplot(data = data1, aes(x = -invTT, y = log(size))) + #, ymax = 1.2)
   ylab("ln(size)") +
   geom_smooth(data = data1[(data1$trophic.level =='PZ'),], method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTT, y = z.vals),  size = .8, color = alpha("steelblue", 0.5)) +
   geom_smooth(data = data1[(data1$trophic.level =='PZN'),], method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTT, y = zn.vals),  size = .8, color = alpha("steelblue", 0.5))
+
+Fig3B
 
 ggsave("Fig 3B.png")
 
@@ -175,6 +179,7 @@ Fig3D <- ggplot(data = data1[(data1$trophic.level != "P"),], aes(x = -invTT, y =
   geom_smooth(data = data1[(data1$trophic.level =='PZ'),], method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTT, y = z.vals),  size = .8, color = alpha("steelblue", 0.5)) +
   geom_smooth(data = data1[(data1$trophic.level =='PZN'),], method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTT, y = zn.vals),  size = .8, color = alpha("steelblue", 0.5))
 
+Fig3D
 
 
 ## abundance analysis
@@ -213,12 +218,6 @@ overdisp_fun <- function(model) {
   c(chisq = Pearson.chisq, ratio = prat, rdf = rdf, p = pval)
 }
 # the data are overdisperssed. crap.
-
-
-
-## or, what if we use an averaged model: 
-m.avgN <- model.avg(modNPP8, modNPP3)
-confint(m.avgN)
 
 
 Fig3A <- 
@@ -306,7 +305,7 @@ size.plot <- ggplot(data = data1, aes(x = -invTT, y = log(size.in.cm))) + #, yma
   xlab("Temperature 1/kTi") +
   ylab("Length ln(cm)")
 
-size.plot
+#size.plot
 
 data1$size <- data1$size.in.cm
 ## this is what I want, I think [sept 27 2017]
@@ -315,38 +314,63 @@ Fig3B <- ggplot(data = data1, aes(x = -invTT, y = log(size))) + #, ymax = 1.2)
     theme(legend.position = "none") +
     theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
     theme(strip.background = element_rect(colour="white", fill="white")) +
-    facet_grid(.~trophic.level) + ## this sets it up as facets
+    facet_grid(.~trophic.level, labeller=labeller(trophic.level = labels)) + ## this sets it up as facets
     theme(strip.background = element_blank(), strip.text = element_blank()) +
     geom_point(aes(group = taxon, shape = taxon, color = taxon), size = 2, alpha = 0.5) + 
     scale_alpha("Tankn", guide = "none") +
     scale_colour_grey(start = 0, end = 0.6, guide = "none") +
-    scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*-.))-273), name = "deg Celcius")) +
-    ylab("ln(size)") +
+    scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*-.))-273))) +
+    ylab("ln(size)") + #, name = "deg Celcius"
     ylab("Length ln(cm)") 
     #geom_smooth(data = data1[(data1$trophic.level=="PZ"),], method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTT, y = log(size)),  size = .8, color = alpha("steelblue", 0.5)) +
     #geom_smooth(data = data1[(data1$trophic.level=="PZN"),], method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTT, y = SvalsPZN),  size = .8, color = alpha("steelblue", 0.5))
-
+Fig3B
   ggsave("Fig3B.png", device = "png", width =4, height = 3) 
   
+  ## stats for size data in figure 3:
+  modSF <- lm(log(size) ~ 1 + trophic.level*taxon + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
+  modS8 <- lm(log(size) ~ 1 + trophic.level*taxon + I(invTT - mean(invTT)), data=data1, na.action=na.omit)
+  modS7 <- lm(log(size) ~ 1 + I(invTT - mean(invTT))*taxon, data=data1, na.action=na.omit)
+  modS6 <- lm(log(size) ~ 1 + trophic.level*taxon, data=data1, na.action=na.omit)
+  modS5 <- lm(log(size) ~ 1 + taxon, data=data1, na.action=na.omit)
+  modSF2 <- lm(log(size) ~ 1 + trophic.level + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
+  modS4 <- lm(log(size) ~ 1 + trophic.level + I(invTT - mean(invTT)), data=data1, na.action=na.omit)
+  modS3 <- lm(log(size) ~ 1 + I(invTT - mean(invTT)), data=data1, na.action=na.omit)
+  modS2 <- lm(log(size) ~ 1 + trophic.level , data=data1, na.action=na.omit)
+  modS1 <- lm(log(size) ~ 1, data=data1, na.action=na.omit)
   
   
+  model.sel(modS5, modS6, modS7, modS8, modSF, modS1, modS2, modS3, modS4, modSF2)
   
-  Fig3B <- ggplot(data = data1, aes(x = -invTT, y = log(size))) + #, ymax = 1.2)
+  ## or, what if we use an averaged model: 
+  m.avgS <- model.avg(modS6, modS8)
+  coefficients(m.avgS)
+  confint(m.avgS)
+  
+ ## size figure without temperature: 
+  
+  labels2 <- c("copepod", "daphnia")
+  
+  Fig3B <- ggplot(data = data1, aes(x = trophic.level, y = log(size))) + #, ymax = 1.2)
     theme_bw() +
     theme(legend.position = "none") +
     theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
     theme(strip.background = element_rect(colour="white", fill="white")) +
-    facet_grid(.~trophic.level) + ## this sets it up as facets
+    geom_boxplot() +
+    facet_grid(.~taxon, labeller=labeller(taxon = labels2)) + ## this sets it up as facets
     theme(strip.background = element_blank(), strip.text = element_blank()) +
-    geom_point(aes(group = taxon, shape = taxon), size = 2, alpha = 0.5) + 
+    #geom_point(aes(group = taxon, shape = taxon, color = taxon), size = 2, alpha = 0.5) + 
     scale_alpha("Tankn", guide = "none") +
     scale_colour_grey(start = 0, end = 0.6, guide = "none") +
-    scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*-.))-273), name = "deg Celcius")) +
-    ylab("ln(size)") +
-    ylab("Length ln(cm)") 
-  #geom_smooth(data = data1[(data1$trophic.level=="PZ"),], method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTT, y = log(size)),  size = .8, color = alpha("steelblue", 0.5)) +
-  #geom_smooth(data = data1[(data1$trophic.level=="PZN"),], method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTT, y = SvalsPZN),  size = .8, color = alpha("steelblue", 0.5))
-  
+    ylab("Length ln(cm)") +
+    xlab("Food Chain Length")
+
+# Size figure box plot ----------------------------------------------------
+
+
+  Fig3B
+  ggsave("Fig3B.png", device = "png", width =4, height = 3) 
+
 ### recovered from github: 
 
   # ABUNDANCE ---------------------------------------------------------------
@@ -388,33 +412,45 @@ m.avgN <- model.avg(modNF, modN8)
 coefficients(m.avgN)
 confint(m.avgN)
 
+
+# figure 3A Density week 8 ------------------------------------------------
+
+
 ## analysis for just week 8:
-modN3 <- lm(log(N1) ~ 1 + invTi*trophic.level, data=data[(data$trophic.level != "P" & data$week == "8"),], na.action=na.omit)
-modN2 <- lm(log(N1) ~ 1 + invTi, data=data[(data$trophic.level != "P" & data$week == "8"),], na.action=na.omit)
-modN1 <- lm(log(N1) ~ 1 + trophic.level, data=data[(data$trophic.level != "P" & data$week == "8"),], na.action=na.omit)
-modN0 <- lm(log(N1) ~ 1, data=data[(data$trophic.level != "P" & data$week == "8"),], na.action=na.omit)
+data1 <- data[(data$trophic.level != "P" & data$week == "8"),]
+modN3 <- lm(log(N1) ~ 1 + invTi*trophic.level, data=data1, na.action=na.omit)
+modN2 <- lm(log(N1) ~ 1 + invTi, data=data1, na.action=na.omit)
+modN1 <- lm(log(N1) ~ 1 + trophic.level, data=data1, na.action=na.omit)
+modN0 <- lm(log(N1) ~ 1, data=data1, na.action=na.omit)
 
 model.sel(modN0, modN1, modN2, modN3)
 coef(modN2)
 confint(modN2)
-                             
+
+mod.coefs <- augment(modN2)  
+mod.coefs1 <- left_join(data1, mod.coefs)
+          
 labels <- c(P = "Phytoplankton", PZ = "Phytoplankton + Grazers", PZN = "Phyto. + Grazers + Predators")
 xlab <- expression(paste('Temperature (',~degree,'C)',sep=''))
 
-N.plot <- ggplot(data=data[(data$trophic.level != "P" & data$week == "8"),], aes(x = -invTi, y = log(N1), ymin = 0, ymax = 9)) + #
+N.plot <- ggplot(data=mod.coefs1, aes(x = -invTi, y = log.N1., ymin = 0, ymax = 9)) + #
   theme_bw() +
   theme(legend.position = "none") +
   theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
   theme(strip.background = element_rect(colour="white", fill="white")) +
   facet_grid(.~trophic.level, labeller=labeller(trophic.level = labels)) + ## this sets it up as facets
-  geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(week), alpha = Tankn), size = 4) + 
+  #geom_ribbon(aes(ymin = .fitted - .se.fit, ymax = .fitted + .se.fit), fill = "grey70") +
+  geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(trophic.level), alpha = Tankn), size = 4) + 
+  geom_smooth(aes(x=-invTi, y = log.N1.), method = "lm") +
+  geom_line(aes(x=-invTi, y = .fitted)) +
   scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
   scale_alpha("Tankn", guide = "none") +
-  #scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*-.))-273), name = xlab)) +
+  scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*-.))-273), name = "deg Celcius")) +
   #theme(legend.position = c(0.88, 0.15), legend.text=element_text(size=6)) + 
   #scale_shape(name = "Week", guide = guide_legend(ncol = 2, size = 6)) +
   xlab("Temperature 1/kTi") +
   ylab("Density ln((N+1) / 300 L)")
+
 
 N.plot
 
@@ -430,6 +466,7 @@ N.plot +
   geom_line(aes(x = fitted(modN2), y = fitted(modN2)))
   
 ## just fit a line to the fitted values, and then use geom_ribbon for CIs.
+
 
   geom_smooth(method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTi, y = log(N1), group = week, colour = "week")) #color = alpha("steelblue", 0.5)
 # scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none")
