@@ -1,8 +1,6 @@
 ### Garzke et al temperature experiment
-### this is the current working code file
-### MO made a new file on Aug29 from June file when I decided to take week out as a fixed effect, and instead model autocorrelation. 
-### cleaning up the code now August 2017
-### March 2018 changing chla analysis to chla not carbon.
+### scripts for final manuscript
+### Mary O'Connor 
 
 
 ### load libraries
@@ -22,12 +20,8 @@ library(zoo)
 data <- read.csv("./data/temporal_dataFEB12.csv")
 temps <- read.csv("./data/dailytemps.csv")
 
-#dim(data)
-#head(data)
-#tail(data)
 data <- data[-(241:255),]
 data$Tank <- as.character(data$Tank)
-#View(data)
 
 # process temperature data ------------------------------------------------
 
@@ -89,11 +83,6 @@ data.t <- select(data.t, -contains("Min"))
 data.t <- select(data.t, -contains("Sec"))
 data.t <- select(data.t, -contains("calc"))
 
-## but now i've already done the date compiles...
-#temps3$Year <- as.numeric(temps3$Year)
-#temps3$Month <- as.numeric(temps3$Month)
-#temps3$Day <- as.numeric(temps3$Day)
-#temps3$time <- as.numeric(temps3$time)
 data.t$Month <- as.numeric(data.t$Month)
 data.t$Date <- as.numeric(data.t$Date)
 
@@ -158,10 +147,8 @@ data$total.carbon <- data$PP.biomass + data$ZP.carbon1 #I'm assuming 0 for ZP in
 ### Estimating NPP and ER from the raw data: 
 
 #calculate NPP and ER (hourly), in terms of umol O2 / l / hr, following yvon durochers 2010.
+z <- 31.25 # for converting mg/L to umol O2
 
-z <- 31.25
-
-# O2 has molar mass of 32g/mol. so 1 umol = 32 ug. so take ug/32
 data$NPP2 <- (data$dusk - data$dawn1)/z  # oxygen produced umol / L /day, net all respiration. raw data is mg/L. 
 data$ER2 <- -(24/data$hours2)*((data$dawn2 - data$dusk))/z  # amount of oxygen consumed per day via respiaration. negative to get the change in oxygen umol / L /day; oxygen used in the dark and daylight. MeanER can be greater than meanNPP, because NPP reflects ER already.
 data$GPP <- data$NPP2+(data$ER2/24)*data$hours1 # daily oxygen production (NPP2) + estimated daytime community respiration (daily R / 24 * hours daylight)
@@ -173,25 +160,11 @@ data <- data[data$week >= '4',]
 
 ### data prep complete
 
-### SOME BASIC PLOTS
-#data1 <- data[(data$NPP2 >= 0.5),] # three negative values and one very small value now, not sure what to do about them.
-hist(data[(data$NPP2 >= 0.05),]$NPP2)
-hist(log(data$NPP2))
-hist((data1$NPP2))
-
-plot(log(data1$NPP2)~data1$Tank, pch = 19, col = data1$trophic.level)
-plot(log(data1$NPP2)~data1$week, pch = 19, col = data1$trophic.level)
-plot(log(data1$NPP2)~I(data1$invTi-data1$invTT), pch = 19, col = data1$Tank, ylim = c(0,6))
-plot(log(data1$NPP2)~I(data1$invTi-data1$invTT), pch = 19, col = data1$Tank, ylim = c(0,6))
-abline(3.5435395, -0.6159088, lwd = 2, col = 1)
-plot(log(data1$NPP2)~data1$invTi, pch = data1$Tank, col = data1$Tank)
-
-
 
 # analysis begins ---------------------------------------------------------
 
 ### ANALYSES
-## trying the method suggested by Van de pol and Wright 2009
+## following Van de pol and Wright 2009
 ## center by within-tank temperature
 ## model with mean tank temperature (invTT) and the weekly deviation from that long-term average (invTi - invTT), with Tank as a random intercept effect.  
 
@@ -200,26 +173,30 @@ data1 <- data
 data1 <- data[(data$NPP2 >= 0.001),] #remove 18 negative values 
 
 # NPP candidate model set -------------------------------------------------
+modNPPF <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
 
-### might just ax the random int...or test for it: 
-modNPPF <- lme(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
-modNPPa <- lm(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
+modNPP8 <- lme(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
 
-modNPPF <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modNPP8 <- lm(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modNPP7 <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modNPP6 <- lm(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT), data=data1, na.action=na.omit)
-modNPP5 <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level, data=data1, na.action=na.omit)
-modNPP4 <- lm(log(NPP2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modNPP3 <- lm(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), data=data1, na.action=na.omit)
-modNPP2 <- lm(log(NPP2) ~ 1 + I(invTi - invTT), data=data1, na.action=na.omit)
-modNPP1 <- lm(log(NPP2) ~ 1 + trophic.level, data=data1, na.action=na.omit)
-modNPP0 <- lm(log(NPP2) ~ 1, data=data1, na.action=na.omit)
+modNPP7 <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+
+modNPP6 <- lme(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+
+modNPP5 <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+
+modNPP4 <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+
+modNPP3 <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+
+modNPP2 <- lme(log(NPP2) ~ 1 + I(invTi - invTT), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+
+modNPP1 <- lme(log(NPP2) ~ 1 + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+
+modNPP0 <- lme(log(NPP2) ~ 1, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
 
 model.sel(modNPP0, modNPP1, modNPP2, modNPP3, modNPP4, modNPP5, modNPP6, modNPP7, modNPP8, modNPPF)
 
-## or, what if we use an averaged model: 
-m.avgN <- model.avg(modNPP8, modNPP3)
+## Average best models: 
+m.avgN <- model.avg(modNPP8, modNPPF)
 confint(m.avgN)
 
 ## calculating confidence intervals for activation energies.
@@ -250,30 +227,21 @@ slopesNPP <- (cbind(c(Sl1, Sl2, Sl3), c(Sl1.l2, Sl2.l, Sl3.l), c(Sl1.u2, Sl2.u, 
 rownames(slopesNPP) <- c("P", "PZ", "PZN")
 colnames(slopesNPP) <- c("S", "l", "u")
 
-# ints for NPP.PP: [not confident in CIs for ints yet; don't use]
+# ints for NPP.PP:
 I1 <- coefficients(m.avgN)[1] - coefficients(m.avgN)[5]*mean(data1$invTT)
-I1.l <- confint(m.avgN)[1,1]
-I1.u <- confint(m.avgN)[1,2]
-I1.l2 <- I1 - t.stat * sqrt(vcov(m.avgN)[1,1])
-I1.u2 <- I1 + t.stat * sqrt(vcov(m.avgN)[1,1])
 
 # ints for NPP.ZP: m.avgN includes all int terms, but we leave out the invTi term for among group lines; ints here are at mean(invTT) 
 I2 <- coefficients(m.avgN)[1] + coefficients(m.avgN)[2] - coefficients(m.avgN)[5]*mean(data1$invTT) - coefficients(m.avgN)[8]*mean(data1$invTT)
-#I2.l <- I2 - t.stat * sqrt(vcov(m.avgN)[1,1] + vcov(m.avgN)[2,2] + (mean(data1$invTT)^2)*(vcov(m.avgN)[5,5] + vcov(m.avgN)[8,8]) + 2*mean(data1$invTT)*vcov(m.avgN)[2,1] + 2*vcov(m.avgN)[5,1] + 2*vcov(m.avgN)[8,1] + 2*vcov(m.avgN)[5,2] + 2*vcov(m.avgN)[2,8] + 2*vcov(m.avgN)[5,8]) 
-#I2.u <- I2 + t.stat * sqrt(vcov(m.avgN)[1,1] + vcov(m.avgN)[2,2] + 2*vcov(m.avgN)[2,1])
 
 # ints for NPP.PZN: 
 I3 <- coefficients(m.avgN)[1] + coefficients(m.avgN)[3] - coefficients(m.avgN)[5]*mean(data1$invTT) - coefficients(m.avgN)[9]*mean(data1$invTT)
-#I3.l <- I3 - t.stat * sqrt(vcov(m.avgN)[1,1] + vcov(m.avgN)[2,2] + 2*vcov(m.avgN)[2,1]) 
-#I3.u <- I3 + t.stat * sqrt(vcov(m.avgN)[1,1] + vcov(m.avgN)[2,2] + 2*vcov(m.avgN)[2,1])
 
-IntsNPP <- (cbind(c(I1, I2, I3), c(I1.l2, I2.l, I3.l), c(I1.u2, I2.u, I3.u)))
-rownames(IntsNPP) <- c("P", "PZ", "PZN")
-colnames(IntsNPP) <- c("I", "l", "u")
+#IntsNPP <- (cbind(c(I1, I2, I3), c(I1.l2, I2.l, I3.l), c(I1.u2, I2.u, I3.u)))
+#rownames(IntsNPP) <- c("P", "PZ", "PZN")
+#colnames(IntsNPP) <- c("I", "l", "u")
 
 # FIGURE 2: 
 ### plotting within- and among-group regressions and model outputs
-
 labels <- c(P = "Phytoplankton", PZ = "Phytoplankton + Grazers", PZN = "Phyto. + Grazers + Predators")
 
 NPP.plot <- ggplot(data = data1, aes(x = -invTi, y = log(NPP2), ymin = -2, ymax = 6)) +
@@ -285,8 +253,6 @@ NPP.plot <- ggplot(data = data1, aes(x = -invTi, y = log(NPP2), ymin = -2, ymax 
   geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(week), alpha = Tankn), size = 2) + 
   scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
   scale_alpha("Tankn", guide = "none") +
-  #theme(legend.position = c(0.88, 0.15), legend.text=element_text(size=6)) + 
-  #scale_shape(name = "Week", guide = guide_legend(ncol = 2, size = 6)) +
   xlab("Temperature 1/kTi") +
   ylab("Oxygen Production (NPP) \n ln(umol O2 / L / hr)")
 
