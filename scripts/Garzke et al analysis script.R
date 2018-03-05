@@ -133,28 +133,25 @@ data$invTT <-  1/((data$temp.Tmn + 273)*k) # average temp of the tank over all w
 data$invTi <- as.numeric(as.character(data$invTi))
 data$invTT <- as.numeric(as.character(data$invTT))
 
-## some plots to visualize for the two temperature terms:
-plot((data$invTi - data$invTT) ~ data$week)
-plot((data$invTi - data$invTT) ~ data$invTT)
-plot((data$invTi) ~ data$invTT)
-plot((data$invTi - data$invTT) ~ data$Tank)
-
-### estimate biomass from chlorophyll concentration
-data$PP.biomass <- (data$chla*55) #chla (ug/L)* 55 C in PP / 1 chla = ugPPC/L
-data$ZP.carbon1 <- ifelse(data$trophic.level=='P',  0, data$zoo.ug.carbon.liter) # for adding
-data$total.carbon <- data$PP.biomass + data$ZP.carbon1 #I'm assuming 0 for ZP in P treatments here.
 
 ### Estimating NPP and ER from the raw data: 
 
 #calculate NPP and ER (hourly), in terms of umol O2 / l / hr, following yvon durochers 2010.
 z <- 31.25 # for converting mg/L to umol O2
 
-data$NPP2 <- (data$dusk - data$dawn1)/z  # oxygen produced umol / L /day, net all respiration. raw data is mg/L. 
-data$ER2 <- -(24/data$hours2)*((data$dawn2 - data$dusk))/z  # amount of oxygen consumed per day via respiaration. negative to get the change in oxygen umol / L /day; oxygen used in the dark and daylight. MeanER can be greater than meanNPP, because NPP reflects ER already.
-data$GPP <- data$NPP2+(data$ER2/24)*data$hours1 # daily oxygen production (NPP2) + estimated daytime community respiration (daily R / 24 * hours daylight)
-data$NEM <- data$ER2/data$GPP  # following Yvon Durochers 2010. NEM > 1 means the system is respiring more than it's fixing per day. This does not need to be logged.
-data$NPP.mass <- data$NPP2 / (data$PP.biomass)  # NPP on ummol 02/L/day/ugCPP
-data$ER.mass <- data$ER2/(data$total.carbon) # ER on ummol 02/L/day/ugTPP
+#correct oxygen concentration observations for changes due to temperature.
+C.star <- function(t) exp(7.7117 - 1.31303*log(t + 45.93))
+
+# for each, compare corrected and uncorrected estimates.
+data$NPP2a <- ((data$dusk - data$dawn1)) / (z*(data$hours1)) 
+data$NPP2 <- ((data$dusk - data$dawn1) - (C.star(data$temp.dk) - C.star(data$temp.d1))) /(z*(data$hours1))  # oxygen produced umol / L / hour, net all respiration. raw data is mg/L. 
+## comparing corrected v uncorrected NPP estimates:
+diffs <- data$NPP2 - data$NPP2a
+
+data$ER2 <- -((data$dawn2 - data$dusk) - (C.star(data$temp.d2) - C.star(data$temp.dk)))/(z*(data$hours2))
+data$ER2a <- -((data$dawn2 - data$dusk))/(z*(data$hours2))# amount of oxygen consumed per day via respiration. negative to get the change in oxygen umol / L /day; oxygen used in the dark and daylight. MeanER can be greater than meanNPP, because NPP reflects ER already.
+diffER <- data$ER2 - data$ER2a
+
 
 data <- data[data$week >= '4',]
 
@@ -169,8 +166,7 @@ data <- data[data$week >= '4',]
 ## model with mean tank temperature (invTT) and the weekly deviation from that long-term average (invTi - invTT), with Tank as a random intercept effect.  
 
 # ANALYSES FOR FIGURE 2 ---------------------------------------------------
-data1 <- data
-data1 <- data[(data$NPP2 >= 0.001),] #remove 18 negative values 
+data1 <- data[(data$NPP2 >= 0.00001),] #remove 21 negative values 
 
 # NPP candidate model set -------------------------------------------------
 modNPPF <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
@@ -199,33 +195,14 @@ model.sel(modNPP0, modNPP1, modNPP2, modNPP3, modNPP4, modNPP5, modNPP6, modNPP7
 m.avgN <- model.avg(modNPP8, modNPPF)
 confint(m.avgN)
 
-## calculating confidence intervals for activation energies.
-vcov(m.avgN) # diagonals of vcov are variances
-vcov(m.avgN)[1,1] # intercept variance is:
-
-df <- length(data1$NPP2)-(length(coefficients(m.avgN))+1)-1
-t.stat <- qt(0.975, df = df) #calculates critical t-value for the threshold (first value) and df (= n - p - 1)
-
 # slope for NPP.PP: 
 Sl1 <- coefficients(m.avgN)[5]
-Sl1.l <- confint(m.avgN)[5,1]
-Sl1.u <- confint(m.avgN)[5,2]
-Sl1.l2 <- Sl1 - t.stat * sqrt(vcov(m.avgN)[5,5])
-Sl1.u2 <- Sl1 + t.stat * sqrt(vcov(m.avgN)[5,5])
 
 # slope for NPP.ZP: 
 Sl2 <- coefficients(m.avgN)[5] + coefficients(m.avgN)[8]
-Sl2.l <- Sl2 - t.stat * sqrt(vcov(m.avgN)[5,5] + vcov(m.avgN)[8,8] + 2*vcov(m.avgN)[8,5])
-Sl2.u <- Sl2 + t.stat * sqrt(vcov(m.avgN)[5,5] + vcov(m.avgN)[8,8] + 2*vcov(m.avgN)[8,5])
   
 # slope for NPP.PZN: 
 Sl3 <- coefficients(m.avgN)[5] + coefficients(m.avgN)[9]
-Sl3.l <- Sl3 - t.stat * sqrt(vcov(m.avgN)[5,5] + vcov(m.avgN)[9,9] + 2*vcov(m.avgN)[9,5])
-Sl3.u <- Sl3 + t.stat * sqrt(vcov(m.avgN)[5,5] + vcov(m.avgN)[9,9] + 2*vcov(m.avgN)[9,5])
-
-slopesNPP <- (cbind(c(Sl1, Sl2, Sl3), c(Sl1.l2, Sl2.l, Sl3.l), c(Sl1.u2, Sl2.u, Sl3.u)))
-rownames(slopesNPP) <- c("P", "PZ", "PZN")
-colnames(slopesNPP) <- c("S", "l", "u")
 
 # ints for NPP.PP:
 I1 <- coefficients(m.avgN)[1] - coefficients(m.avgN)[5]*mean(data1$invTT)
@@ -236,24 +213,21 @@ I2 <- coefficients(m.avgN)[1] + coefficients(m.avgN)[2] - coefficients(m.avgN)[5
 # ints for NPP.PZN: 
 I3 <- coefficients(m.avgN)[1] + coefficients(m.avgN)[3] - coefficients(m.avgN)[5]*mean(data1$invTT) - coefficients(m.avgN)[9]*mean(data1$invTT)
 
-#IntsNPP <- (cbind(c(I1, I2, I3), c(I1.l2, I2.l, I3.l), c(I1.u2, I2.u, I3.u)))
-#rownames(IntsNPP) <- c("P", "PZ", "PZN")
-#colnames(IntsNPP) <- c("I", "l", "u")
 
 # FIGURE 2: 
 ### plotting within- and among-group regressions and model outputs
 labels <- c(P = "Phytoplankton", PZ = "Phytoplankton + Grazers", PZN = "Phyto. + Grazers + Predators")
 
-NPP.plot <- ggplot(data = data1, aes(x = -invTi, y = log(NPP2), ymin = -2, ymax = 6)) +
+NPP.plot <- ggplot(data = data1, aes(x = -invTi, y = log(NPP2), ymin = -11, ymax = -5)) +
   theme_bw() +
   theme(legend.position = "none") +
   theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
   theme(strip.background = element_rect(colour="white", fill="white")) +
-  facet_grid(.~trophic.level, labeller=labeller(trophic.level = labels)) + ## this sets it up as facets
+  facet_grid(.~trophic.level, labeller=labeller(trophic.level = labels)) + 
   geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(week), alpha = Tankn), size = 2) + 
   scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
   scale_alpha("Tankn", guide = "none") +
-  xlab("Temperature 1/kTi") +
+  xlab("") + #Temperature 1/kTi
   ylab("Oxygen Production (NPP) \n ln(umol O2 / L / hr)")
 
 NPP.plot
@@ -280,7 +254,7 @@ Fig2A <-
  geom_smooth(data = subset(data1, trophic.level == "PZ"), aes(x = -invTT, y = NvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
   geom_smooth(data = subset(data1, trophic.level == "PZN"), aes(x = -invTT, y = NvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) 
 
-ggsave("Fig2A-C.png", device = "png", width = 7, height = 3)
+ggsave("Fig2A.png", device = "png", width = 7, height = 3)
 
 
 
@@ -293,71 +267,39 @@ data2 <- data[!is.na(data$ER2),]
 hist(log(data2$ER2))
 
 #analysis
-### might just ax the random int...or test for it: 
 modERF <- lme(log(ER2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data2, method="ML", na.action=na.omit) 
-modERa <- lm(log(ER2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data2, na.action=na.omit) #don't need random effect
-## proceed without random effect
-modERF <- lme(log(ER2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data2, na.action=na.omit)
-modER8 <- lme(log(ER2) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data2, na.action=na.omit)
-modER7 <- lme(log(ER2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data2, na.action=na.omit)
-modER6 <- lme(log(ER2) ~ 1 + trophic.level*I(invTi - invTT), random = ~ 1 | Tank, data=data2, na.action=na.omit)
-modER5 <- lme(log(ER2) ~ 1 + I(invTi - invTT) + trophic.level, random = ~ 1 | Tank, data=data2, na.action=na.omit)
-modER4 <- lme(log(ER2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data2, na.action=na.omit)
-modER3 <- lme(log(ER2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data2, na.action=na.omit)
-modER2 <- lme(log(ER2) ~ 1 + I(invTi - invTT), random = ~ 1 | Tank, data=data2, na.action=na.omit)
-modER1 <- lme(log(ER2) ~ 1 + trophic.level, random = ~ 1 | Tank, data=data2, na.action=na.omit)
-modER0 <- lme(log(ER2) ~ 1, random = ~ 1 | Tank, data=data2, na.action=na.omit)
+modER8 <- lme(log(ER2) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data2,  method="ML", na.action=na.omit)
+modER7 <- lme(log(ER2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data2,  method="ML", na.action=na.omit)
+modER6 <- lme(log(ER2) ~ 1 + trophic.level*I(invTi - invTT), random = ~ 1 | Tank, data=data2,  method="ML", na.action=na.omit)
+modER5 <- lme(log(ER2) ~ 1 + I(invTi - invTT) + trophic.level, random = ~ 1 | Tank, data=data2,  method="ML", na.action=na.omit)
+modER4 <- lme(log(ER2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data2, method="ML", na.action=na.omit)
+modER3 <- lme(log(ER2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data2, method="ML", na.action=na.omit)
+modER2 <- lme(log(ER2) ~ 1 + I(invTi - invTT), random = ~ 1 | Tank, data=data2, method="ML", na.action=na.omit)
+modER1 <- lme(log(ER2) ~ 1 + trophic.level, random = ~ 1 | Tank, data=data2, method="ML", na.action=na.omit)
+modER0 <- lme(log(ER2) ~ 1, random = ~ 1 | Tank, data=data2, method="ML", na.action=na.omit)
 
 model.sel(modER0, modER1, modER2, modER3, modER4, modER5, modER6, modER7, modER8, modERF)
 
 ## calculating confidence intervals for activation energies.
 modER <- modER7
-vcov(modER) # diagonals of vcov are variances
-vcov(modER)[1,1] # intercept variance is:
-
-df <- length(data2$ER2)-(length(coef(modER))+1)-1
-t.stat <- qt(0.975, df = df) #calculates critical t-value for the threshold (first value) and df (= n - p - 1)
 
 # slope for ER.PP: 
-SlER1 <- coefficients(modER)[5]
-SlER1.l <- confint(modER)[5,1]
-SlER1.u <- confint(modER)[5,2]
-SlER1.l2 <- SlER1 - t.stat * sqrt(vcov(modER)[5,5])
-SlER1.u2 <- SlER1 + t.stat * sqrt(vcov(modER)[5,5])
+SlER1 <- fixef(modER)[5]
 
 # slope for ER.ZP: 
-SlER2 <- coefficients(modER)[5] + coefficients(modER)[6]
-SlER2.l <- SlER2 - t.stat * sqrt(vcov(modER)[5,5] + vcov(modER)[6,6] + 2*vcov(modER)[6,5])
-SlER2.u <- SlER2 + t.stat * sqrt(vcov(modER)[5,5] + vcov(modER)[6,6] + 2*vcov(modER)[6,5])
+SlER2 <- fixef(modER)[5] + fixef(modER)[6]
 
 # slope for ER.PZN: 
-SlER3 <- coefficients(modER)[5] + coefficients(modER)[7]
-SlER3.l <- SlER3 - t.stat * sqrt(vcov(modER)[5,5] + vcov(modER)[7,7] + 2*vcov(modER)[7,5])
-SlER3.u <- SlER3 + t.stat * sqrt(vcov(modER)[5,5] + vcov(modER)[7,7] + 2*vcov(modER)[7,5])
-
-slopesER <- (cbind(c(SlER1, SlER2, SlER3), c(SlER1.l2, SlER2.l, SlER3.l), c(SlER1.u2, SlER2.u, SlER3.u)))
-rownames(slopesER) <- c("P", "PZ", "PZN")
-colnames(slopesER) <- c("S", "l", "u")
+SlER3 <- fixef(modER)[5] + fixef(modER)[7]
 
 # ints for ER.PP: 
-IER1 <- coefficients(modER)[1] - coefficients(modER)[5]*mean(data2$invTT)
-IER1.l <- confint(modER)[1,1]
-IER1.u <- confint(modER)[1,2]
-IER1.l2 <- IER1 - t.stat * sqrt(vcov(modER)[1,1])
+IER1 <- fixef(modER)[1] - fixef(modER)[5]*mean(data2$invTT)
 
 # ints for ER.ZP: modER includes all int terms, but we leave out the invTi term for among group lines; ints here are at mean(invTT) 
-IER2 <- coefficients(modER)[1] + coefficients(modER)[3] - coefficients(modER)[5]*mean(data2$invTT) - coefficients(modER)[6]*mean(data2$invTT)
-#IER2.l <- IER2 - t.stat * sqrt(vcov(modER)[1,1] + vcov(modER)[3,3] + 2*vcov(modER)[3,1] + vcov(modER)[5,5]*(mean(data2$invTT)^2) + vcov(modER)[6,6]*(mean(data2$invTT)^2)) 
-#IER2.u <- IER2 + t.stat * sqrt(vcov(modER)[1,1] + vcov(modER)[3,3] + 2*vcov(modER)[3,1])
+IER2 <- fixef(modER)[1] + fixef(modER)[3] - fixef(modER)[5]*mean(data2$invTT) - fixef(modER)[6]*mean(data2$invTT)
 
 # ints for ER.PZN: 
-IER3 <- coefficients(modER)[1] + coefficients(modER)[4] - coefficients(modER)[5]*mean(data2$invTT) - coefficients(modER)[7]*mean(data2$invTT)
-#IER3.l <- IER3 - t.stat * sqrt(vcov(modER)[1,1] + vcov(modER)[4,4] + 2*vcov(modER)[4,1]) 
-#IER3.u <- IER3 + t.stat * sqrt(vcov(modER)[1,1] + vcov(modER)[4,4] + 2*vcov(modER)[4,1])
-
-slopesER <- (cbind(c(SlER1, SlER2, SlER3), c(SlER1.l, SlER2.l, SlER3.l), c(SlER1.u, SlER2.u, SlER3.u)))
-rownames(slopesER) <- c("P", "PZ", "PZN")
-colnames(slopesER) <- c("S", "l", "u")
+IER3 <- fixef(modER)[1] + fixef(modER)[4] - fixef(modER)[5]*mean(data2$invTT) - fixef(modER)[7]*mean(data2$invTT)
 
 
 # Fig 2 D-E: ER ------------------------------------------------------------
@@ -365,18 +307,17 @@ colnames(slopesER) <- c("S", "l", "u")
 ### WITHIN AND AMONG GROUP PLOTS
 ### plotting within- and among-group regressions and model outputs
 xlab <- expression(paste('Temperature (',~degree,'C)',sep=''))
-ER.plot <- ggplot(data = data2, aes(x = -invTi, y = log(ER2), min = 0)) + 
+ER.plot <- ggplot(data = data2, aes(x = -invTi, y = log(ER2), ymin = -8, ymax = -4)) + 
   theme_bw() +
   theme(legend.position = "none") +
   theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
   theme(strip.background = element_blank(), strip.text.x = element_blank()) +
-  facet_grid(.~trophic.level, labeller = labeller(trophic.level = labels)) + ## this sets it up as facets
+  facet_grid(.~trophic.level, labeller = labeller(trophic.level = labels)) + 
   geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(week), alpha = Tankn), size = 2) + 
   scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
   scale_alpha("Tankn", guide = "none") +
   scale_shape(name = "Week", guide = guide_legend(ncol = 2)) +
-  scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*-.))-273), name = xlab)) +
-  xlab("") + #xlab("Temperature 1/kTi") +
+  scale_x_continuous("", sec.axis = sec_axis(~((1/(k*-.))-273), name = "")) + #Temperature (1/kTi)
   ylab("Oxygen Consumption (ER) \n ln(umol O2 / L / hr)")
 
 ER.plot
@@ -384,29 +325,21 @@ ggsave("ERplot.png", device = "png", width = 7, height = 3) # save for appendix
 
 ## PLOT 2: Raw data and fitted lines from the model. Added the predictions of the model to the original dataset, then fit lines to those using linear regressions
 ER.funcP <- function(x) {IER1 + SlER1*x} # for trophic level 1
-x <- data2[(data2$trophic.level=="P"),]$invTT
-RvalsP <- ER.funcP(x)
+RvalsP <- ER.funcP(data2[(data2$trophic.level=="P"),]$invTT)
 
 ER.funcPZ <- function(x) { IER2 + SlER2*x } # for trophic level 2
-x <- data2[(data2$trophic.level=="PZ"),]$invTT
-RvalsPZ <- ER.funcPZ(x)
+RvalsPZ <- ER.funcPZ(data2[(data2$trophic.level=="PZ"),]$invTT)
 
 ER.funcPZN <- function(x) { IER3 + SlER3*x } # for trophic level 3
-x <- data2[(data2$trophic.level=="PZN"),]$invTT
-RvalsPZN <- ER.funcPZN(x)
+RvalsPZN <- ER.funcPZN(data2[(data2$trophic.level=="PZN"),]$invTT)
 
 
 Fig2D <- 
 ER.plot +
   geom_smooth(method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTi, y = log(ER2), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) +
-  #geom_smooth(method = "lm", se = FALSE, aes(group = Tank), color = "gray40", alpha = 0.23, size = .8) +
-  geom_smooth(data = data2[(data2$trophic.level=="P"),], aes(x = -invTT, y = RvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+  geom_smooth(data = subset(data2, trophic.level == "P"), aes(x = -invTT, y = RvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
   geom_smooth(data = subset(data2, trophic.level == "PZ"), aes(x = -invTT, y = RvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) +
   geom_smooth(data = subset(data2, trophic.level == "PZN"), aes(x = -invTT, y = RvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) 
-
-  #geom_text(label = "Y.P = -0.69x + 31.30", x = 38.87, y = 1.75) +
-  #geom_text(label = "Y.PZ = -0.69x + 31.79", x = 38.87, y = 1) +
-  #geom_text(label = "Y.PZN = -0.69x + 31.49", x = 38.87, y = .25)
 
 ggsave("Fig2D-F.png", device = "png", width = 7, height = 3)
 
@@ -421,10 +354,8 @@ hist(data$chla)
 hist(log(data$chla))
 
 #analysis
-### might just ax the random int...or test for it: 
+
 modPBF <- lme(log(chla) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
-modPBa <- lm(log(chla) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), data=data, na.action=na.omit) 
-## proceed without random effect...
 
 modPB8 <- lme(log(chla) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
 modPB7 <- lme(log(chla) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
@@ -440,52 +371,24 @@ model.sel(modPB0, modPB1, modPB2, modPB3, modPB4, modPB5, modPB6, modPB7, modPB8
 
 ## calculating confidence intPBvals for activation enPBgies.
 modPB <- modPB7
-vcov(modPB) # diagonals of vcov are variances
-vcov(modPB)[1,1] # intPBcept variance is:
-
-df <- length(data$PP.biomass)-(length(coef(modPB))+1)-1
-t.stat <- qt(0.975, df = df) #calculates critical t-value for the threshold (first value) and df (= n - p - 1)
 
 # slope for PB.PP: 
 SlPB1 <- fixef(modPB)[5]
-SlPB1.l <- intervals(modPB)[1]
-SlPB1.u <- intervals(modPB)[5,2]
-SlPB1.l2 <- SlPB1 - t.stat * sqrt(vcov(modPB)[5,5])
-SlPB1.u2 <- SlPB1 + t.stat * sqrt(vcov(modPB)[5,5])
 
 # slope for PB.ZP: 
 SlPB2 <- fixef(modPB)[5] + fixef(modPB)[6]
-SlPB2.l <- SlPB2 - t.stat * sqrt(vcov(modPB)[5,5] + vcov(modPB)[6,6] + 2*vcov(modPB)[6,5])
-SlPB2.u <- SlPB2 + t.stat * sqrt(vcov(modPB)[5,5] + vcov(modPB)[6,6] + 2*vcov(modPB)[6,5])
 
 # slope for PB.PZN: 
 SlPB3 <- fixef(modPB)[5] + fixef(modPB)[7]
-SlPB3.l <- SlPB3 - t.stat * sqrt(vcov(modPB)[5,5] + vcov(modPB)[7,7] + 2*vcov(modPB)[7,5])
-SlPB3.u <- SlPB3 + t.stat * sqrt(vcov(modPB)[5,5] + vcov(modPB)[7,7] + 2*vcov(modPB)[7,5])
-
-slopesPB <- (cbind(c(SlPB1, SlPB2, SlPB3), c(SlPB1.l2, SlPB2.l, SlPB3.l), c(SlPB1.u2, SlPB2.u, SlPB3.u)))
-rownames(slopesPB) <- c("P", "PZ", "PZN")
-colnames(slopesPB) <- c("S", "l", "u")
 
 # ints for PB.PP: 
 IPB1 <- fixef(modPB)[1] - fixef(modPB)[5]*mean(data$invTT)
-IPB1.l <- confint(modPB)[1,1]
-IPB1.u <- confint(modPB)[1,2]
-IPB1.l2 <- IPB1 - t.stat * sqrt(vcov(modPB)[1,1])
 
 # ints for PB.ZP: modPB includes all int tPBms, but we leave out the invTi tPBm for among group lines; ints hPBe are at mean(invTT) 
 IPB2 <- fixef(modPB)[1] + fixef(modPB)[3] - fixef(modPB)[5]*mean(data$invTT) - fixef(modPB)[6]*mean(data$invTT)
-#IPB2.l <- IPB2 - t.stat * sqrt(vcov(modPB)[1,1] + vcov(modPB)[3,3] + 2*vcov(modPB)[3,1] + vcov(modPB)[5,5]*(mean(data$invTT)^2) + vcov(modPB)[6,6]*(mean(data$invTT)^2)) 
-#IPB2.u <- IPB2 + t.stat * sqrt(vcov(modPB)[1,1] + vcov(modPB)[3,3] + 2*vcov(modPB)[3,1])
 
 # ints for PB.PZN: 
 IPB3 <- fixef(modPB)[1] + fixef(modPB)[4] - fixef(modPB)[5]*mean(data$invTT) - fixef(modPB)[7]*mean(data$invTT)
-IPB3.l <- IPB3 - t.stat * sqrt(vcov(modPB)[1,1] + vcov(modPB)[4,4] + 2*vcov(modPB)[4,1]) 
-IPB3.u <- IPB3 + t.stat * sqrt(vcov(modPB)[1,1] + vcov(modPB)[4,4] + 2*vcov(modPB)[4,1])
-
-slopesPB <- (cbind(c(SlPB1, SlPB2, SlPB3), c(SlPB1.l, SlPB2.l, SlPB3.l), c(SlPB1.u, SlPB2.u, SlPB3.u)))
-rownames(slopesPB) <- c("P", "PZ", "PZN")
-colnames(slopesPB) <- c("S", "l", "u")
 
 ### WITHIN AND AMONG GROUP PLOTS
 ### plotting within- and among-group regressions and model outputs
@@ -494,7 +397,7 @@ PP.plot <- ggplot(data = data, aes(x = -invTi, y = log(chla), min = 0)) +
   theme_bw() +
   theme(panel.grid.minor = element_blank(), 
         panel.grid.major = element_blank(), 
-        legend.position = c(0.94, 0.30), 
+        legend.position = c(0.94, 0.3), 
         legend.text=element_text(size=6), 
         legend.title = element_text(size = 7), 
         legend.key = element_rect(fill = NA), 
@@ -516,22 +419,19 @@ PP.plot <- ggplot(data = data, aes(x = -invTi, y = log(chla), min = 0)) +
                                    keywidth = .8, 
                                    keyheight = .8)) +
   xlab("Temperature 1/kTi") +
-  ylab("Phytoplankton ug Chl a / L")
+  ylab("Phytoplankton Abundance \n ln(ug Chl a / L)")
 
 PP.plot
 ggsave("PBplot.png", device = "png", width = 7, height = 3) 
 
 PB.funcP <- function(x) {IPB1 + SlPB1*x} # for trophic level 1
-x <- data[(data$trophic.level=="P"),]$invTT
-PBvalsP <- PB.funcP(x)
+PBvalsP <- PB.funcP(data[(data$trophic.level=="P"),]$invTT)
 
 PB.funcPZ <- function(x) { IPB2 + SlPB2*x } # for trophic level 2
-x <- data2[(data$trophic.level=="PZ"),]$invTT
-PBvalsPZ <- PB.funcPZ(x)
+PBvalsPZ <- PB.funcPZ(data[(data$trophic.level=="PZ"),]$invTT)
 
 PB.funcPZN <- function(x) { IPB3 + SlPB3*x } # for trophic level 3
-x <- data[(data$trophic.level=="PZN"),]$invTT
-PBvalsPZN <- PB.funcPZN(x)
+PBvalsPZN <- PB.funcPZN(data[(data$trophic.level=="PZN"),]$invTT)
 
 Fig2G <-
   PP.plot +
@@ -540,21 +440,11 @@ Fig2G <-
   geom_smooth(data = subset(data, trophic.level == "PZ"), aes(x = -invTT, y = PBvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) +
   geom_smooth(data = subset(data, trophic.level == "PZN"), aes(x = -invTT, y = PBvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) 
   
-ggsave("PPplot.png", device = "png")
+ggsave("Fig2G.png", device = "png")
 
 
+# FIGURE 2: Multiple plot function
 
-## maybe put NPP back where was, and just use this:
-# Multiple plot function
-#
-# ggplot objects can be passed in ..., or to plotlist (as a list of ggplot objects)
-# - cols:   Number of columns in layout
-# - layout: A matrix specifying the layout. If present, 'cols' is ignored.
-#
-# If the layout is something like matrix(c(1,2,3,3), nrow=2, byrow=TRUE),
-# then plot 1 will go in the upper left, 2 will go in the upper right, and
-# 3 will go all the way across the bottom.
-#
 multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
   library(grid)
   
@@ -591,11 +481,6 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
   }
 }
 
-Figure2 <- multiplot(Fig2A, Fig2D, Fig2G, cols = 1)
-Fig2A
-Fig2D
-Fig2G
-ggsave("Figure2.png", plot = Figure2, width = 7, height = 7)
 
 png('Figure2.png', width = 7, height = 7, units = 'in', res = 300)
 multiplot(Fig2A, Fig2D, Fig2G, cols = 1)
