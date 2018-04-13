@@ -1,0 +1,241 @@
+---
+title: "Garzke et al code"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+```{r, echo=FALSE}
+### 1. Load libraries and data
+### load libraries
+library(MuMIn)
+library(nlme)
+library(plyr)
+library(tidyverse) 
+library(broom)
+library(reshape2)
+library(lubridate)
+library(hms)
+library(zoo)
+library(knitr)
+
+### load data
+data <- read.csv("../data/Garzkedata.csv")
+
+k <- 8.617342*10^-5  # eV/K
+```
+
+### 1. Figure 2, Table 2
+
+#### 1.1 Phytoplankton abundance
+```{r, fig.width=3, fig.height=3}
+hist(data$chla)
+hist(log(data$chla))
+```
+
+```{r, echo=FALSE}
+#### Phytoplankton coefficients for Figure 2
+modPBF <- lme(log(chla) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
+modPB8 <- lme(log(chla) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+modPB7 <- lme(log(chla) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+modPB6 <- lme(log(chla) ~ 1 + trophic.level*I(invTi - invTT), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+modPB5 <- lme(log(chla) ~ 1 + I(invTi - invTT) + trophic.level, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+modPB4 <- lme(log(chla) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+modPB3 <- lme(log(chla) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+modPB2 <- lme(log(chla) ~ 1 + I(invTi - invTT), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+modPB1 <- lme(log(chla) ~ 1 + trophic.level, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+modPB0 <- lme(log(chla) ~ 1, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+
+#model.sel(modPB0, modPB1, modPB2, modPB3, modPB4, modPB5, modPB6, modPB7, modPB8, modPBF)
+
+PPres <- data.frame(model.sel(modPB0, modPB1, modPB2, modPB3, modPB4, modPB5, modPB6, modPB7, modPB8, modPBF))
+#[,9:12]
+kable(PPres, digits=2, col.names = c('Int','TL','Tw','Tt', 'Tw*Tt', 'Tw*TL','Tt*TL', 'df', 'logLik','AICc','d','w'), caption = "Table 1.1: Model selection results for Phytoplankton biomass, with 1|Tank as a random effect. Model terms are: intercept (Int), trophic treatment (TL), Temperature - weekly average (Tw), temperature - expt average (Tt), interaction terms and statistical estimates")
+
+```
+
+```{r}
+#### Calculate confidence intervals and model coefficients
+modPB <- modPB7 #modPB7
+
+# slope for PB.PP: 
+SlPB1 <- fixef(modPB)[5]
+
+# slope for PB.ZP: 
+SlPB2 <- fixef(modPB)[5] + fixef(modPB)[6]
+
+# slope for PB.PZN: 
+SlPB3 <- fixef(modPB)[5] + fixef(modPB)[7]
+
+# ints for PB.PP: 
+IPB1 <- fixef(modPB)[1] - fixef(modPB)[5]*mean(data$invTT)
+
+# ints for PB.ZP: modPB includes all int tPBms, but we leave out the invTi tPBm for among group lines; ints hPBe are at mean(invTT) 
+IPB2 <- fixef(modPB)[1] + fixef(modPB)[3] - fixef(modPB)[5]*mean(data$invTT) - fixef(modPB)[6]*mean(data$invTT)
+
+# ints for PB.PZN: 
+IPB3 <- fixef(modPB)[1] + fixef(modPB)[4] - fixef(modPB)[5]*mean(data$invTT) - fixef(modPB)[7]*mean(data$invTT)
+```
+
+```{r}
+PB.funcP <- function(x) {IPB1 + SlPB1*x} # for trophic level 1
+PBvalsP <- PB.funcP(data[(data$trophic.level=="P"),]$invTT)
+
+PB.funcPZ <- function(x) { IPB2 + SlPB2*x } # for trophic level 2
+PBvalsPZ <- PB.funcPZ(data[(data$trophic.level=="PZ"),]$invTT)
+
+PB.funcPZN <- function(x) { IPB3 + SlPB3*x } # for trophic level 3
+PBvalsPZN <- PB.funcPZN(data[(data$trophic.level=="PZN"),]$invTT)
+```
+
+```{r}
+PP.plot <- ggplot(data = data, aes(x = -invTi, y = log(chla), ymin = 0)) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank(),  
+        legend.text=element_text(size=6), 
+        legend.title = element_text(size = 7), 
+        legend.key = element_rect(fill = NA), 
+        strip.background = element_blank(),
+        strip.text.x = element_blank()) +
+  theme(strip.background = element_rect(colour="white", fill="white")) +
+  facet_grid(.~trophic.level, labeller=labeller(trophic.level = labels)) + 
+  geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(week), alpha = Tankn), size = 2) + 
+  scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
+  scale_alpha("Tankn", guide = "none") +
+   xlab("Temperature 1/kTi") +
+  ylab("Phytoplankton Abundance \n ln(ug Chl a / L)") #+
+  #scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*-.))-273), name = xlab)) +
+  #scale_shape(name = "Week", guide = guide_legend(ncol = 2,keywidth = .8,keyheight = .8))+
+
+```
+
+####Figure 2ABC: Phytoplankton biomass and how it varied with temperature within tanks (blue lines) and across tanks (black lines).
+```{r, fig.width=6, fig.height=3}
+Fig2ABC <-
+  PP.plot +
+  geom_smooth(method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTi, y = log(chla), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) +
+  geom_smooth(data = subset(data, trophic.level == "P"), aes(x = -invTT, y = PBvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+  geom_smooth(data = subset(data, trophic.level == "PZ"), aes(x = -invTT, y = PBvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) +
+  geom_smooth(data = subset(data, trophic.level == "PZN"), aes(x = -invTT, y = PBvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) 
+
+Fig2ABC
+  
+ggsave("Fig2ABC.png", device = "png")
+```
+
+
+#
+#### 1.2 Net ecosystem oxygen production
+```{r, fig.width=3, fig.height=3}
+data1 <- data[(data$NPP2 >= 0.00001),] #remove 21 negative values 
+hist(data1$NPP2)
+hist(log(data1$NPP2))
+```
+
+```{r, echo=FALSE}
+# NPP candidate model set -------------------------------------------------
+modNPPF <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+
+modNPP8 <- lme(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+
+modNPP7 <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+
+modNPP6 <- lme(log(NPP2) ~ 1 + trophic.level*I(invTi - invTT), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+
+modNPP5 <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+
+modNPP4 <- lme(log(NPP2) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+
+modNPP3 <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+
+modNPP2 <- lme(log(NPP2) ~ 1 + I(invTi - invTT), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+
+modNPP1 <- lme(log(NPP2) ~ 1 + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+
+modNPP0 <- lme(log(NPP2) ~ 1, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+
+#model.sel(modNPP0, modNPP1, modNPP2, modNPP3, modNPP4, modNPP5, modNPP6, modNPP7, modNPP8, modNPPF)
+
+NPres <- data.frame(model.sel(modNPP0, modNPP1, modNPP2, modNPP3, modNPP4, modNPP5, modNPP6, modNPP7, modNPP8, modNPPF))
+
+#[,9:12]
+kable(NPres, digits=2, col.names = c('Int','TL','Tw','Tt', 'Tw*Tt', 'Tw*TL','Tt*TL', 'df', 'logLik','AICc','d','w'), caption = "Table 1.1: Model selection results for Net Ecosystem Oxygen Production, with 1|Tank as a random effect. Model terms are: intercept (Int), trophic treatment (TL), Temperature - weekly average (Tw), temperature - expt average (Tt), interaction terms and statistical estimates")
+
+```
+
+```{r}
+## Average best models: 
+m.avgN <- model.avg(modNPP8, modNPPF)
+confint(m.avgN) -> ints
+kable(ints, caption = "Table 1.2: Confidence intervals for averaged models for NPP")
+```
+
+#### NPP Coefficients for Figure 2
+```{r}
+# slope for NPP.PP: 
+Sl1 <- coefficients(m.avgN)[5]
+
+# slope for NPP.ZP: 
+Sl2 <- coefficients(m.avgN)[5] + coefficients(m.avgN)[8]
+  
+# slope for NPP.PZN: 
+Sl3 <- coefficients(m.avgN)[5] + coefficients(m.avgN)[9]
+
+# ints for NPP.PP:
+I1 <- coefficients(m.avgN)[1] - coefficients(m.avgN)[5]*mean(data1$invTT)
+
+# ints for NPP.ZP: m.avgN includes all int terms, but we leave out the invTi term for among group lines; ints here are at mean(invTT) 
+I2 <- coefficients(m.avgN)[1] + coefficients(m.avgN)[2] - coefficients(m.avgN)[5]*mean(data1$invTT) - coefficients(m.avgN)[8]*mean(data1$invTT)
+
+# ints for NPP.PZN: 
+I3 <- coefficients(m.avgN)[1] + coefficients(m.avgN)[3] - coefficients(m.avgN)[5]*mean(data1$invTT) - coefficients(m.avgN)[9]*mean(data1$invTT)
+
+## estimating coefficients for PLOT 2A: Raw data and fitted lines from the averaged model. Added the predictions of the model to the original dataset (mod.coefsN), then fit lines to those using linear regressions
+NPP.funcP <- function(x) { I1 + Sl1*x}
+NvalsP <- NPP.funcP(data1[(data1$trophic.level=="P"),]$invTT)
+
+NPP.funcPZ <- function(x) { I2 + Sl2*x }
+NvalsPZ <- NPP.funcPZ(data1[(data1$trophic.level=="PZ"),]$invTT)
+
+NPP.funcPZN <- function(x) { I3 + Sl3*x }
+NvalsPZN <- NPP.funcPZN(data1[(data1$trophic.level=="PZN"),]$invTT)
+
+```
+
+#### FIGURE 2D-F: NPP 
+```{r}
+### plotting within- and among-group regressions and model outputs
+labels <- c(P = "Phytoplankton", PZ = "Phytoplankton + Grazers", PZN = "Phyto. + Grazers + Predators")
+
+NPP.plot <- ggplot(data = data1, aes(x = -invTi, y = log(NPP2), ymin = -11, ymax = -5)) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
+  theme(strip.background = element_rect(colour="white", fill="white")) +
+  facet_grid(.~trophic.level, labeller=labeller(trophic.level = labels)) + 
+  geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(week), alpha = Tankn), size = 2) + 
+  scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
+  scale_alpha("Tankn", guide = "none") +
+  xlab("") + #Temperature 1/kTi
+  ylab("Oxygen Production (NPP) \n ln(umol O2 / L / hr)")
+```
+
+```{r, fig.width=6, fig.height=3}
+# Figure 2A ---------------------------------------------------------------
+# the within-group lines here are lms fitted to the actual data; I think these should be the modeled data too...
+# the among-group lines are model fits based on the best model (so this could be model averaged coefficients too)
+Fig2DEF <- 
+  NPP.plot + 
+  geom_smooth(data = subset(data1), method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTi, y = log(NPP2), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) + 
+  geom_smooth(data = subset(data1, trophic.level == "P"), aes(x = -invTT, y = NvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+ geom_smooth(data = subset(data1, trophic.level == "PZ"), aes(x = -invTT, y = NvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+  geom_smooth(data = subset(data1, trophic.level == "PZN"), aes(x = -invTT, y = NvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) 
+
+Fig2DEF
+#ggsave("Fig2A.png", device = "png", width = 7, height = 3)
+```

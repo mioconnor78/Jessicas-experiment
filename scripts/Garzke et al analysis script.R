@@ -153,7 +153,9 @@ data$ER2a <- -((data$dawn2 - data$dusk))/(z*(data$hours2))# amount of oxygen con
 diffER <- data$ER2 - data$ER2a
 
 
-data <- data[data$week >= '4',]
+Garzkedata <- data[data$week >= '4',]
+data <- Garzkedata
+write.csv(Garzkedata, file = "Garzkedata.csv")
 
 ### data prep complete
 
@@ -411,7 +413,7 @@ PP.plot <- ggplot(data = data, aes(x = -invTi, y = log(chla), min = 0)) +
              size = 2) + 
   scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
   scale_alpha("Tankn", guide = "none") +
-  scale_x_continuous("Temperature (1/kTi)", 
+  #scale_x_continuous("Temperature (1/kTi)", 
                      sec.axis = sec_axis(~((1/(k*-.))-273), 
                                          name = xlab)) +
   scale_shape(name = "Week", 
