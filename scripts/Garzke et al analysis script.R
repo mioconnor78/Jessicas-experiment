@@ -413,7 +413,7 @@ PP.plot <- ggplot(data = data, aes(x = -invTi, y = log(chla), min = 0)) +
              size = 2) + 
   scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
   scale_alpha("Tankn", guide = "none") +
-  #scale_x_continuous("Temperature (1/kTi)", 
+  scale_x_continuous("Temperature (1/kTi)", 
                      sec.axis = sec_axis(~((1/(k*-.))-273), 
                                          name = xlab)) +
   scale_shape(name = "Week", 
@@ -485,7 +485,7 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 
 
 png('Figure2.png', width = 7, height = 7, units = 'in', res = 300)
-multiplot(Fig2A, Fig2D, Fig2G, cols = 1)
+multiplot(Fig2G, Fig2A, Fig2D, cols = 1)
 dev.off()
 
 
