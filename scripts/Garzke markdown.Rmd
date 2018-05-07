@@ -22,6 +22,7 @@ library(lubridate)
 library(hms)
 library(zoo)
 library(knitr)
+library(gridExtra)
 
 ### load data
 data <- read.csv("../data/Garzkedata.csv")
@@ -29,7 +30,7 @@ k <- 8.617342*10^-5  # eV/K
 labels <- c(P = "Algae", PZ = "Algae + Grazers", PZN = "Algae + Grazers + Predators")
 ```
 
-## 1. Figure 3, Table 2
+## 1. Trophic Cascade Results: Figure 2  
 ```{r}
 tc1 <- lme((chla) ~ trophic.level, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
 
@@ -40,6 +41,11 @@ tcR1 <- lme(log(ER2) ~ trophic.level, random = ~ 1 | Tank, data=data, method="ML
 
 summary(tcR1)
 anova(tcR1)
+
+tcN1 <- lme(log(NPP2+1) ~ trophic.level, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
+
+summary(tcN1)
+anova(tcN1)
 ```
 
 ```{r, fig.width=9, fig.height=3}
@@ -53,11 +59,13 @@ TC <- ggplot(data = data, aes(x = trophic.level, y = chla, ymin = 0)) +
         strip.background = element_blank()) +
   theme(strip.background = element_rect(colour="white", fill="white")) +
   geom_boxplot() + 
-  scale_x_discrete("Trophic Treatment", labels = c(P = "Algae", PZ = "Algae + Grazers", PZN = "Alg. + Gr. + Predators")) +
+  annotate("text", label = "*", x = 2, y =14, size = 8) +
+  annotate("text", label = "A", x = 3.4, y = 14, size = 7) +
+  scale_x_discrete("Species Interaction Treatment", labels = c(P = "A", PZ = "AG", PZN = "AGP")) +
   ylab("Phytoplankton Abundance \n ln(ug Chl a / L)")
 
-TC
-ggsave("TC.png", device = "png", width = 3, height = 3)
+#TC
+#ggsave("TC.png", device = "png", width = 3, height = 3)
 
 TC.NPP <- ggplot(data = data, aes(x = trophic.level, y = log(NPP2), ymin = 0)) +
   theme_bw() +
@@ -69,10 +77,12 @@ TC.NPP <- ggplot(data = data, aes(x = trophic.level, y = log(NPP2), ymin = 0)) +
         strip.background = element_blank()) +
   theme(strip.background = element_rect(colour="white", fill="white")) +
   geom_boxplot() + 
-  scale_x_discrete("Trophic Treatment", labels = c(P = "Algae", PZ = "Algae + Grazers", PZN = "Alg. + Gr. + Predators")) +
+  annotate("text", label = "C", x = 3.4, y = -4.2, size = 7) +
+  scale_x_discrete("Species Interaction Treatment", labels = c(P = "A", PZ = "AG", PZN = "AGP")) +
   ylab("Oxygen Production (NPP) \n ln(umol O2 / L / hr)")
 
-ggsave("TC.NPP.png", device = "png", width = 3, height = 3)
+#TC.NPP
+#ggsave("TC.NPP.png", device = "png", width = 3, height = 3)
 
 TC.ER <- ggplot(data = data, aes(x = trophic.level, y = log(ER2), ymin = 0)) +
   theme_bw() +
@@ -84,10 +94,16 @@ TC.ER <- ggplot(data = data, aes(x = trophic.level, y = log(ER2), ymin = 0)) +
         strip.background = element_blank()) +
   theme(strip.background = element_rect(colour="white", fill="white")) +
   geom_boxplot() + 
-  scale_x_discrete("Trophic Treatment", labels = c(P = "Algae", PZ = "Algae + Grazers", PZN = "Alg. + Gr. + Predators")) +
-  ylab("Oxygen Production (ER) \n ln(umol O2 / L / hr)")
+  annotate("text", label = "*", x = 2, y =-4, size = 8) +
+  annotate("text", label = "B", x = 3.4, y = -4, size = 7) +
+  scale_x_discrete("Species Interaction Treatment", labels = c(P = "A", PZ = "AG", PZN = "AGP")) +
+  ylab("Oxygen Consumption (ER) \n ln(umol O2 / L / hr)")
 
-ggsave("TC.ER.png", device = "png", width = 3, height = 3)
+#TC.ER
+
+fig2 <- arrangeGrob(TC, TC.ER, TC.NPP, nrow = 1)
+
+ggsave("fig2.png", plot = fig2, device = "png", width = 9, height = 3)
 ```
 
 ## 2. Figure 3, Table 2
