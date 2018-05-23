@@ -30,7 +30,7 @@ sizes.t$invTT <-  1/((sizes.t$temp.Tmn + 273)*k) # average temp of the tank over
 sizes.t$invTi <- as.numeric(as.character(sizes.t$invTi))
 sizes.t$invTT <- as.numeric(as.character(sizes.t$invTT))
 
-sizes.t2 <- sizes.t[sizes.t$week >= '4',]
+#sizes.t2 <- sizes.t[sizes.t$week >= '4',]
 
 data.N <- as.tibble(data) %>%
   group_by(Tank, trophic.level, week) %>%
@@ -350,18 +350,21 @@ Fig3B
  ## size figure without temperature: 
   
   labels2 <- c("copepod", "daphnia")
+  xlabels <- c("AG", "AGP")
   
-  Fig3B <- ggplot(data = data1, aes(x = trophic.level, y = log(size))) + #, ymax = 1.2)
+Fig3B <- ggplot(data = data1, aes(x = trophic.level, y = log(size))) + #, ymax = 1.2)
     theme_bw() +
-    theme(legend.position = "none") +
-    theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
-    theme(strip.background = element_rect(colour="white", fill="white")) +
+    theme(legend.position = "none",
+          panel.grid.minor = element_blank(), 
+          panel.grid.major = element_blank(),
+          strip.background = element_rect(colour="white", fill="white"),
+          #strip.background = element_blank(), 
+          strip.text = element_blank()) +
     geom_boxplot() +
     facet_grid(.~taxon, labeller=labeller(taxon = labels2)) + ## this sets it up as facets
-    theme(strip.background = element_blank(), strip.text = element_blank()) +
-    #geom_point(aes(group = taxon, shape = taxon, color = taxon), size = 2, alpha = 0.5) + 
     scale_alpha("Tankn", guide = "none") +
     scale_colour_grey(start = 0, end = 0.6, guide = "none") +
+    scale_x_discrete(labels= xlabels) +
     ylab("Length ln(cm)") +
     xlab("Food Chain Length")
 
@@ -430,22 +433,23 @@ confint(modN2)
 mod.coefs <- augment(modN2)  
 mod.coefs1 <- left_join(data1, mod.coefs)
           
-labels <- c(P = "Phytoplankton", PZ = "Phytoplankton + Grazers", PZN = "Phyto. + Grazers + Predators")
+labels <- c(P = "A", PZ = "AG", PZN = "AGP")
 xlab <- expression(paste('Temperature (',~degree,'C)',sep=''))
 
 N.plot <- ggplot(data=mod.coefs1, aes(x = -invTi, y = log.N1., ymin = 0, ymax = 9)) + #
   theme_bw() +
-  theme(legend.position = "none") +
-  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
-  theme(strip.background = element_rect(colour="white", fill="white")) +
-  facet_grid(.~trophic.level, labeller=labeller(trophic.level = labels)) + ## this sets it up as facets
+  theme(legend.position = "none",
+        panel.grid.minor = element_blank(), 
+        panel.grid.major = element_blank(),
+        strip.background = element_rect(colour="white", fill="white")) +
+  #facet_grid(.~trophic.level, labeller=labeller(trophic.level = labels)) + ## this sets it up as facets
   #geom_ribbon(aes(ymin = .fitted - .se.fit, ymax = .fitted + .se.fit), fill = "grey70") +
   geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(trophic.level), alpha = Tankn), size = 4) + 
   geom_smooth(aes(x=-invTi, y = log.N1.), method = "lm") +
   geom_line(aes(x=-invTi, y = .fitted)) +
   scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
   scale_alpha("Tankn", guide = "none") +
-  scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*-.))-273), name = "deg Celcius")) +
+  scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*-.))-273), name = xlab)) +
   #theme(legend.position = c(0.88, 0.15), legend.text=element_text(size=6)) + 
   #scale_shape(name = "Week", guide = guide_legend(ncol = 2, size = 6)) +
   xlab("Temperature 1/kTi") +
@@ -475,4 +479,37 @@ N.plot +
 #geom_smooth(data = subset(data, trophic.level == "PZ"), aes(x = -invTT, y = NvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) +
 #geom_smooth(data = subset(data, trophic.level == "PZN"), aes(x = -invTT, y = NvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) 
 
-ggsave("Fig3A.png", device = "png", width = 4, height = 3)                             
+ggsave("Fig3A.png", device = "png", width = 4, height = 3)     
+
+### abundance by species
+
+data1 <- data[(data$trophic.level != "P" & data$week == "8"),]
+hist(data1$abundance.Daphnia)
+modD3 <- lm(log(abundance.Daphnia) ~ 1 + invTi*trophic.level, data=data1, na.action=na.omit)
+modD2 <- lm(log(abundance.Daphnia) ~ 1 + invTi, data=data1, na.action=na.omit)
+modD1 <- lm(log(abundance.Daphnia) ~ 1 + trophic.level, data=data1, na.action=na.omit)
+modD0 <- lm(log(abundance.Daphnia) ~ 1, data=data1, na.action=na.omit)
+
+results <- model.sel(modD3, modD2, modD1, modD0)
+
+D.plot <- ggplot(data=data[(data$trophic.level != "P"),], aes(x = -invTi, y = log.N1., ymin = 0, ymax = 9)) + #
+  theme_bw() +
+  theme(legend.position = "none",
+        panel.grid.minor = element_blank(), 
+        panel.grid.major = element_blank(),
+        strip.background = element_rect(colour="white", fill="white")) +
+  #facet_grid(.~trophic.level, labeller=labeller(trophic.level = labels)) + ## this sets it up as facets
+  #geom_ribbon(aes(ymin = .fitted - .se.fit, ymax = .fitted + .se.fit), fill = "grey70") +
+  geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(trophic.level), alpha = Tankn), size = 4) + 
+  geom_smooth(aes(x=-invTi, y = log.N1.), method = "lm") +
+  geom_line(aes(x=-invTi, y = .fitted)) +
+  scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
+  scale_alpha("Tankn", guide = "none") +
+  scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*-.))-273), name = xlab)) +
+  #theme(legend.position = c(0.88, 0.15), legend.text=element_text(size=6)) + 
+  #scale_shape(name = "Week", guide = guide_legend(ncol = 2, size = 6)) +
+  xlab("Temperature 1/kTi") +
+  ylab("Density ln((N+1) / 300 L)")
+
+
+N.plot

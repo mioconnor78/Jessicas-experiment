@@ -1,5 +1,5 @@
 ---
-title: "Garzke et al code"
+title: "Supplementary material for Garzke et al manuscript. This file includes analyses and model outputs supporting phytoplankton and oxygen flux results in main text."
 output:
   pdf_document: default
   html_document: default
@@ -23,29 +23,32 @@ library(hms)
 library(zoo)
 library(knitr)
 library(gridExtra)
+library(captioner)
 
 ### load data
-data <- read.csv("../data/Garzkedata.csv")
+data <- read.csv("../data/GarzkedataA.csv")
 k <- 8.617342*10^-5  # eV/K
 labels <- c(P = "Algae", PZ = "Algae + Grazers", PZN = "Algae + Grazers + Predators")
+table_nums <- captioner::captioner(prefix = "Table")
+tab.1_cap <- table_nums(name = "tab_1", caption = "Table S3")
 ```
 
 ## 1. Trophic Cascade Results: Figure 2  
-```{r}
+```{r, echo = FALSE}
 tc1 <- lme((chla) ~ trophic.level, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
 
-summary(tc1)
-anova(tc1)
+#summary(tc1)
+#anova(tc1)
 
 tcR1 <- lme(log(ER2) ~ trophic.level, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
 
-summary(tcR1)
-anova(tcR1)
+#summary(tcR1)
+#anova(tcR1)
 
 tcN1 <- lme(log(NPP2+1) ~ trophic.level, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
 
-summary(tcN1)
-anova(tcN1)
+#summary(tcN1)
+#anova(tcN1)
 ```
 
 ```{r, fig.width=9, fig.height=3}
@@ -60,7 +63,7 @@ TC <- ggplot(data = data, aes(x = trophic.level, y = chla, ymin = 0)) +
   theme(strip.background = element_rect(colour="white", fill="white")) +
   geom_boxplot() + 
   annotate("text", label = "*", x = 2, y =14, size = 8) +
-  annotate("text", label = "A", x = 3.4, y = 14, size = 7) +
+  annotate("text", label = "A", x = 3.4, y = 14) +
   scale_x_discrete("Species Interaction Treatment", labels = c(P = "A", PZ = "AG", PZN = "AGP")) +
   ylab("Phytoplankton Abundance \n ln(ug Chl a / L)")
 
@@ -77,9 +80,9 @@ TC.NPP <- ggplot(data = data, aes(x = trophic.level, y = log(NPP2), ymin = 0)) +
         strip.background = element_blank()) +
   theme(strip.background = element_rect(colour="white", fill="white")) +
   geom_boxplot() + 
-  annotate("text", label = "C", x = 3.4, y = -4.2, size = 7) +
+  annotate("text", label = "C", x = 3.4, y = -4.2, size = 4) +
   scale_x_discrete("Species Interaction Treatment", labels = c(P = "A", PZ = "AG", PZN = "AGP")) +
-  ylab("Oxygen Production (NPP) \n ln(umol O2 / L / hr)")
+  ylab("Oxygen Production (NEP) \n ln(umol O2 / L / hr)")
 
 #TC.NPP
 #ggsave("TC.NPP.png", device = "png", width = 3, height = 3)
@@ -95,7 +98,7 @@ TC.ER <- ggplot(data = data, aes(x = trophic.level, y = log(ER2), ymin = 0)) +
   theme(strip.background = element_rect(colour="white", fill="white")) +
   geom_boxplot() + 
   annotate("text", label = "*", x = 2, y =-4, size = 8) +
-  annotate("text", label = "B", x = 3.4, y = -4, size = 7) +
+  annotate("text", label = "B", x = 3.4, y = -4) +
   scale_x_discrete("Species Interaction Treatment", labels = c(P = "A", PZ = "AG", PZN = "AGP")) +
   ylab("Oxygen Consumption (ER) \n ln(umol O2 / L / hr)")
 
@@ -109,7 +112,7 @@ ggsave("fig2.png", plot = fig2, device = "png", width = 9, height = 3)
 ## 2. Figure 3, Table 2
 
 ### 2.1 Phytoplankton abundance
-```{r, fig.width=3, fig.height=3}
+```{r, FigureS3,fig.width=3, fig.height=3}
 hist(data$chla)
 hist(log(data$chla))
 ```
@@ -127,38 +130,38 @@ modPB3 <- lme(log(chla) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), random 
 modPB2 <- lme(log(chla) ~ 1 + I(invTi - invTT), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
 modPB1 <- lme(log(chla) ~ 1 + trophic.level, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
 modPB0 <- lme(log(chla) ~ 1, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
-```
-
-```{r, echo=FALSE}
-#model.sel(modPB0, modPB1, modPB2, modPB3, modPB4, modPB5, modPB6, modPB7, modPB8, modPBF)
 
 PPres <- data.frame(model.sel(modPB0, modPB1, modPB2, modPB3, modPB4, modPB5, modPB6, modPB7, modPB8, modPBF))
-#[,9:12]
-kable(PPres, digits=2, col.names = c('Int','TL','Tw','Tt', 'Tw*Tt', 'Tw*TL','Tt*TL', 'df', 'logLik','AICc','d','w'), caption = "Table S.1: Model selection results for Phytoplankton biomass, with 1|Tank as a random effect. Model terms are: intercept (Int), trophic treatment (TL), Temperature - weekly average (Tw), temperature - expt average (Tt), interaction terms and statistical estimates")
+```
 
+`r table_nums('tab_1')'
+
+```{r table1, fig.cap = tab.1_cap}
+kable(PPres, digits=2, col.names = c('Int','TL','Tw','Tt', 'Tw*Tt', 'Tw*TL','Tt*TL', 'df', 'logLik','AICc','d','w'))
 ```
 
 ```{r}
 #### Calculate confidence intervals and model coefficients
-modPB <- modPB7 #modPB7
+modPB <- modPB8 #modPB7
 
 # slope for PB.PP: 
 SlPB1 <- fixef(modPB)[5]
 
 # slope for PB.ZP: 
-SlPB2 <- fixef(modPB)[5] + fixef(modPB)[6]
+SlPB2 <- fixef(modPB)[5] + fixef(modPB)[8]
 
 # slope for PB.PZN: 
-SlPB3 <- fixef(modPB)[5] + fixef(modPB)[7]
+SlPB3 <- fixef(modPB)[5] + fixef(modPB)[9]
 
 # ints for PB.PP: 
 IPB1 <- fixef(modPB)[1] - fixef(modPB)[5]*mean(data$invTT)
 
 # ints for PB.ZP: modPB includes all int tPBms, but we leave out the invTi tPBm for among group lines; ints hPBe are at mean(invTT) 
-IPB2 <- fixef(modPB)[1] + fixef(modPB)[3] - fixef(modPB)[5]*mean(data$invTT) - fixef(modPB)[6]*mean(data$invTT)
+IPB2 <- fixef(modPB)[1] + fixef(modPB)[3] - fixef(modPB)[5]*mean(data$invTT) - fixef(modPB)[8]*mean(data$invTT)
 
 # ints for PB.PZN: 
-IPB3 <- fixef(modPB)[1] + fixef(modPB)[4] - fixef(modPB)[5]*mean(data$invTT) - fixef(modPB)[7]*mean(data$invTT)
+IPB3 <- fixef(modPB)[1] + fixef(modPB)[4] - fixef(modPB)[5]*mean(data$invTT) - fixef(modPB)[9]*mean(data$invTT)
+
 ```
 
 ```{r}
@@ -172,53 +175,90 @@ PB.funcPZN <- function(x) { IPB3 + SlPB3*x } # for trophic level 3
 PBvalsPZN <- PB.funcPZN(data[(data$trophic.level=="PZN"),]$invTT)
 ```
 
-```{r}
-PP.plot <- ggplot(data = data, aes(x = -invTi, y = log(chla), ymin = 0)) +
-  theme_bw() +
-  theme(legend.position = "none") +
-  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank(),  
-        legend.text=element_text(size=6), 
-        legend.title = element_text(size = 7), 
-        legend.key = element_rect(fill = NA), 
-        strip.background = element_blank()) +
-  theme(strip.background = element_rect(colour="white", fill="white")) +
-  facet_grid(.~trophic.level, labeller=labeller(trophic.level = labels)) + 
-  geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(week), alpha = Tankn), size = 2) + 
-  scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
-  scale_alpha("Tankn", guide = "none") +
-  xlab("") +
-  ylab("Phytoplankton Abundance \n ln(ug Chl a / L)") #+
-  scale_x_continuous("Temperature (1/kTi)")  
-    #, sec.axis = sec_axis(~((1/(k*-.))-273), name = xlab)) +
-  #scale_shape(name = "Week", guide = guide_legend(ncol = 2,keywidth = .8,keyheight = .8))+
+```{r, echo = FALSE}
+## calculating confidence intervals for activation energies.
+#vcov(modPB) # diagonals of vcov are variances
+#vcov(modPB)[1,1] # intercept variance is:
 
+df <- length(data$chla)-(length(coef(modPB))+1)-1
+t.stat <- qt(0.975, df = df) #calculates critical t-value for the threshold (first value) and df (= n - p - 1)
+
+# slope for PB.PP: 
+#SlPB1 <- fixef(modPB)[5]
+#SlPB1.l <- intervals(modPB)$fixed[1]
+#SlPB1.u <- intervals(modPB)$fixed[3]
+SlPB1.l2 <- SlPB1 - t.stat * sqrt(vcov(modPB)[5,5])
+SlPB1.u2 <- SlPB1 + t.stat * sqrt(vcov(modPB)[5,5])
+
+# slope for PB.ZP: 
+#SlPB2 <- fixef(modPB)[5] + fixef(modPB)[6]
+SlPB2.l <- SlPB2 - t.stat * sqrt(vcov(modPB)[5,5] + vcov(modPB)[8,8] + 2*vcov(modPB)[8,5])
+SlPB2.u <- SlPB2 + t.stat * sqrt(vcov(modPB)[5,5] + vcov(modPB)[8,8] + 2*vcov(modPB)[8,5])
+
+# slope for PB.PZN: 
+#SlPB3 <- fixef(modPB)[5] + fixef(modPB)[7]
+SlPB3.l <- SlPB3 - t.stat * sqrt(vcov(modPB)[5,5] + vcov(modPB)[9,9] + 2*vcov(modPB)[9,5])
+SlPB3.u <- SlPB3 + t.stat * sqrt(vcov(modPB)[5,5] + vcov(modPB)[9,9] + 2*vcov(modPB)[9,5])
+
+slopesPB <- (cbind(c(SlPB1, SlPB2, SlPB3), c(SlPB1.l2, SlPB2.l, SlPB3.l), c(SlPB1.u2, SlPB2.u, SlPB3.u)))
+rownames(slopesPB) <- c("P", "PZ", "PZN")
+colnames(slopesPB) <- c("Ea", "lower", "upper")
+
+kable(slopesPB, caption = "Table S2: Confidence intervals for PB (For MS Table 2)")
 ```
 
-####Figure 2ABC: Phytoplankton biomass and how it varied with temperature within tanks (blue lines) and across tanks (black lines).
-```{r, fig.width=6, fig.height=3}
-Fig2ABC <-
-  PP.plot +
-  geom_smooth(method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTi, y = log(chla), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) +
-  geom_smooth(data = subset(data, trophic.level == "P"), aes(x = -invTT, y = PBvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
-  geom_smooth(data = subset(data, trophic.level == "PZ"), aes(x = -invTT, y = PBvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) +
-  geom_smooth(data = subset(data, trophic.level == "PZN"), aes(x = -invTT, y = PBvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) 
 
-Fig2ABC
+```{r}
+xlab <- expression(paste('Temperature (',~degree,'C)',sep=''))
+PP.plot <- ggplot(data = data, aes(x = -invTi, y = log(chla), ymin = -3, ymax = 3, xmin = -40.2, xmax = -38.2)) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  facet_grid(trophic.level~.) + 
+  geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(week), alpha = Tankn), size = 2) + 
+  theme(panel.grid.minor = element_blank(), 
+        panel.grid.major = element_blank(),  
+        legend.text = element_text(size = 3), 
+        legend.title = element_text(size = 3), 
+        legend.key = element_rect(fill = NA), 
+        strip.text.y = element_blank(),
+        strip.background = element_rect(colour="white", fill="white")) +
+  scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
+  scale_shape_manual(values = c(1,2,22,23,16,17,8,6)) +
+  scale_alpha("Tankn", guide = "none") +
+  ylab("ln(ug Chl a / L)") +
+  labs(title = "A. Phytoplankton \n Abundance") +
+  annotate("text", label = c("i. A", "ii. AG", "iii. AGP"), x = -38.45, y = 2.95) +
+  annotate("text", label = c("Ea = 1.30 (0.85, 1.76)", "Ea = 3.15 (2.76, 3.54)", "Ea = 1.65 (1.19, 2.10)"), x = -39.3, y = -2.95, size = 3) +
+  scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*-.))-273), name = xlab))
+
+#PP.plot
+```
+
+
+```{r, fig.width=6, fig.height=3}
+####Figure 2ABC: Phytoplankton biomass and how it varied with temperature within tanks (blue lines) and across tanks (black lines).
+Fig2ABC <- PP.plot +
+  geom_smooth(method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTi, y = log(chla), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) +
+ geom_smooth(data = subset(data, trophic.level == "P"), aes(x = -invTT, y = PBvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+ geom_smooth(data = subset(data, trophic.level == "PZ"), aes(x = -invTT, y = PBvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) +
+ geom_smooth(data = subset(data, trophic.level == "PZN"), aes(x = -invTT, y = PBvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) 
+
+#Fig2ABC
   
-ggsave("Fig2ABC.png", device = "png")
+#ggsave("Fig2ABC.png", device = "png")
 ```
 
 
 #
 #### 2.2 Net ecosystem oxygen production
-```{r, fig.width=3, fig.height=3}
+```{r, fig.width=3, fig.height=3, echo = FALSE}
 data1 <- data[(data$NPP2 >= 0.00001),] #remove 21 negative values 
 hist(data1$NPP2)
 hist(log(data1$NPP2))
 
 tcp1 <- lme(log(NPP2) ~ 1 + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
 
-summary(tcp1)
+#summary(tcp1)
 anova(tcp1)
 ```
 
@@ -249,7 +289,7 @@ modNPP0 <- lme(log(NPP2) ~ 1, random = ~ 1 | Tank, data=data1, method="ML", na.a
 NPres <- data.frame(model.sel(modNPP0, modNPP1, modNPP2, modNPP3, modNPP4, modNPP5, modNPP6, modNPP7, modNPP8, modNPPF))
 
 #[,9:12]
-kable(NPres, digits=2, col.names = c('Int','TL','Tw','Tt', 'Tw*Tt', 'Tw*TL','Tt*TL', 'df', 'logLik','AICc','d','w'), caption = "Table 1.1: Model selection results for Net Ecosystem Oxygen Production, with 1|Tank as a random effect. Model terms are: intercept (Int), trophic treatment (TL), Temperature - weekly average (Tw), temperature - expt average (Tt), interaction terms and statistical estimates")
+kable(NPres, digits=2, col.names = c('Int','TL','Tw','Tt', 'Tw*Tt', 'Tw*TL','Tt*TL', 'df', 'logLik','AICc','d','w'), caption = "Table S3: Model selection results for Net Ecosystem Oxygen Production, with 1|Tank as a random effect. Model terms are: intercept (Int), trophic treatment (TL), Temperature - weekly average (Tw), temperature - expt average (Tt), interaction terms and statistical estimates")
 
 ```
 
@@ -258,7 +298,7 @@ kable(NPres, digits=2, col.names = c('Int','TL','Tw','Tt', 'Tw*Tt', 'Tw*TL','Tt*
 m.avgN <- model.avg(modNPP8, modNPPF)
 confint(m.avgN) -> ints
 coef(m.avgN) -> coefs
-kable(ints, caption = "Table 1.2: Confidence intervals for averaged models for NPP")
+kable(ints, caption = "Table S4: Confidence intervals for averaged models for NPP")
 
 NP.agp <- exp(coefs[1] - coefs[3])
 NP.ag <- exp(coefs[1] - coefs[2])
@@ -266,7 +306,7 @@ NP.a <- exp(coefs[1])
 
 ```
 
-#### NPP Coefficients for Figure 2DEF
+#### NPP Coefficients for Figure 3B
 ```{r}
 # slope for NPP.PP: 
 Sl1 <- coefficients(m.avgN)[5]
@@ -285,7 +325,36 @@ I2 <- coefficients(m.avgN)[1] + coefficients(m.avgN)[2] - coefficients(m.avgN)[5
 
 # ints for NPP.PZN: 
 I3 <- coefficients(m.avgN)[1] + coefficients(m.avgN)[3] - coefficients(m.avgN)[5]*mean(data1$invTT) - coefficients(m.avgN)[9]*mean(data1$invTT)
+```
 
+```{r}
+## calculating confidence intervals for activation energies.
+#vcov(m.avgN) # diagonals of vcov are variances
+#vcov(m.avgN)[1,1] # intercept variance is:
+
+df <- length(data1$NPP2)-(length(coef(m.avgN))+1)-1
+t.stat <- qt(0.975, df = df) #calculates critical t-value for the threshold (first value) and df (= n - p - 1)
+
+# slope for N.PP: 
+SlN1.l2 <- Sl1 - t.stat * sqrt(vcov(m.avgN)[5,5])
+SlN1.u2 <- Sl1 + t.stat * sqrt(vcov(m.avgN)[5,5])
+
+# slope for N.ZP: 
+SlN2.l <- Sl2 - t.stat * sqrt(vcov(m.avgN)[5,5] + vcov(m.avgN)[6,6] + 2*vcov(m.avgN)[6,5])
+SlN2.u <- Sl2 + t.stat * sqrt(vcov(m.avgN)[5,5] + vcov(m.avgN)[6,6] + 2*vcov(m.avgN)[6,5])
+
+# slope for N.PZN: 
+SlN3.l <- Sl3 - t.stat * sqrt(vcov(m.avgN)[5,5] + vcov(m.avgN)[7,7] + 2*vcov(m.avgN)[7,5])
+SlN3.u <- Sl3 + t.stat * sqrt(vcov(m.avgN)[5,5] + vcov(m.avgN)[7,7] + 2*vcov(m.avgN)[7,5])
+
+slopesN <- (cbind(c(Sl1, Sl2, Sl3), c(SlN1.l2, SlN2.l, SlN3.l), c(SlN1.u2, SlN2.u, SlN3.u)))
+rownames(slopesN) <- c("P", "PZ", "PZN")
+colnames(slopesN) <- c("Ea", "lower", "upper")
+
+kable(slopesN, caption = "Table S5: Confidence intervals for N (For MS Figure 3)")
+```
+
+```{r}
 ## estimating coefficients for PLOT 2A: Raw data and fitted lines from the averaged model. Added the predictions of the model to the original dataset (mod.coefsN), then fit lines to those using linear regressions
 NPP.funcP <- function(x) { I1 + Sl1*x}
 NvalsP <- NPP.funcP(data1[(data1$trophic.level=="P"),]$invTT)
@@ -298,11 +367,10 @@ NvalsPZN <- NPP.funcPZN(data1[(data1$trophic.level=="PZN"),]$invTT)
 
 ```
 
-#### FIGURE 2D-F: NPP 
+#### FIGURE 3B: NPP 
 ```{r}
 ### plotting within- and among-group regressions and model outputs
-xlab <- expression(paste('Temperature (',~degree,'C)',sep=''))
-NPP.plot <- ggplot(data = data1, aes(x = -invTi, y = log(NPP2), ymin = -11, ymax = -5)) +
+NPP.plot1 <- ggplot(data = data1, aes(x = -invTi, y = log(NPP2), ymin = -11, ymax = -5)) +
   theme_bw() +
   theme(legend.position = "none") +
   theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
@@ -315,10 +383,28 @@ NPP.plot <- ggplot(data = data1, aes(x = -invTi, y = log(NPP2), ymin = -11, ymax
   scale_x_continuous("", sec.axis = sec_axis(~((1/(k*-.))-273), name = "")) +
   #xlab("") + #Temperature 1/kTi
   ylab("Oxygen Production (NPP) \n ln(umol O2 / L / hr)")
+
+NPP.plot <- ggplot(data = data1, aes(x = -invTi, y = log(NPP2), ymin = -11, ymax = -4, xmin = -40.2, xmax = -38.2)) +
+  theme_bw() +
+  theme(legend.position = "none",
+    panel.grid.minor = element_blank(), 
+    panel.grid.major = element_blank(),
+    strip.background = element_rect(colour="white", fill="white"),
+    strip.text.y = element_blank()) +
+  facet_grid(trophic.level~.) + 
+  geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(week), alpha = Tankn), size = 2) + 
+  scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
+  scale_alpha("Tankn", guide = "none") +
+  #xlab("Temperature 1/kTi") +
+  ylab("ln(umol O2 / L / hr)") +
+  labs(title = "B. Net Ecosystem \n Production (NEP)") +
+  annotate("text", label = c("i. A", "ii. AG", "iii. AGP"), x = -38.45, y =-4.1) +
+  annotate("text", label = c("Ea = -1.41 (-2.25, -0.58)", "Ea = -1.21 (-2.56, -0.07)", "Ea = -0.99 (-2.10, 0.12)"), x = -39.3, y = -10.8, size = 3) +
+  scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*-.))-273), name = xlab))
 ```
 
 ```{r, fig.width=6, fig.height=3}
-# Figure 2DEF ---------------------------------------------------------------
+# Figure 3B ---------------------------------------------------------------
 # the within-group lines here are lms fitted to the actual data; I think these should be the modeled data too...
 # the among-group lines are model fits based on the best model (so this could be model averaged coefficients too)
 Fig2DEF <- 
@@ -328,7 +414,7 @@ Fig2DEF <-
  geom_smooth(data = subset(data1, trophic.level == "PZ"), aes(x = -invTT, y = NvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
   geom_smooth(data = subset(data1, trophic.level == "PZN"), aes(x = -invTT, y = NvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) 
 
-Fig2DEF
+#Fig2DEF
 #ggsave("Fig2A.png", device = "png", width = 7, height = 3)
 ```
 
@@ -360,7 +446,7 @@ modER0 <- lme(log(ER2) ~ 1, random = ~ 1 | Tank, data=data2, method="ML", na.act
 ERres <- data.frame(model.sel(modER0, modER1, modER2, modER3, modER4, modER5, modER6, modER7, modER8, modERF))
 
 #[,9:12]
-kable(ERres, digits=2, col.names = c('Int','TL','Tw','Tt', 'Tw*Tt', 'Tw*TL','Tt*TL', 'df', 'logLik','AICc','d','w'), caption = "Table 1.1: Model selection results for Net Ecosystem Oxygen Consumption (ER), with 1|Tank as a random effect. Model terms are: intercept (Int), trophic treatment (TL), Temperature - weekly average (Tw), temperature - expt average (Tt), interaction terms and statistical estimates")
+kable(ERres, digits=2, col.names = c('Int','TL','Tw','Tt', 'Tw*Tt', 'Tw*TL','Tt*TL', 'df', 'logLik','AICc','d','w'), caption = "Table S6: Model selection results for Net Ecosystem Oxygen Consumption (ER), with 1|Tank as a random effect. Model terms are: intercept (Int), trophic treatment (TL), Temperature - weekly average (Tw), temperature - expt average (Tt), interaction terms and statistical estimates")
 
 ```
 
@@ -402,20 +488,54 @@ ER.funcPZN <- function(x) { IER3 + SlER3*x } # for trophic level 3
 RvalsPZN <- ER.funcPZN(data2[(data2$trophic.level=="PZN"),]$invTT)
 ```
 
-#### FIGURE 2G-I: ER
 ```{r}
-ER.plot <- ggplot(data = data2, aes(x = -invTi, y = log(ER2), ymin = -8, ymax = -4)) + 
+## calculating confidence intervals for activation energies.
+#vcov(modER) # diagonals of vcov are variances
+#vcov(modER)[1,1] # intercept variance is:
+
+df <- length(data$ER2)-(length(coef(modER))+1)-1
+t.stat <- qt(0.975, df = df) #calculates critical t-value for the threshold (first value) and df (= n - p - 1)
+
+# slope for ER.PP: 
+SlER1.l2 <- SlER1 - t.stat * sqrt(vcov(modER)[5,5])
+SlER1.u2 <- SlER1 + t.stat * sqrt(vcov(modER)[5,5])
+
+# slope for ER.ZP: 
+SlER2.l <- SlER2 - t.stat * sqrt(vcov(modER)[5,5] + vcov(modER)[6,6] + 2*vcov(modER)[6,5])
+SlER2.u <- SlER2 + t.stat * sqrt(vcov(modER)[5,5] + vcov(modER)[6,6] + 2*vcov(modER)[6,5])
+
+# slope for ER.PZN: 
+SlER3.l <- SlER3 - t.stat * sqrt(vcov(modER)[5,5] + vcov(modER)[7,7] + 2*vcov(modER)[7,5])
+SlER3.u <- SlER3 + t.stat * sqrt(vcov(modER)[5,5] + vcov(modER)[7,7] + 2*vcov(modER)[7,5])
+
+slopesER <- (cbind(c(SlER1, SlER2, SlER3), c(SlER1.l2, SlER2.l, SlER3.l), c(SlER1.u2, SlER2.u, SlER3.u)))
+rownames(slopesER) <- c("P", "PZ", "PZN")
+colnames(slopesER) <- c("Ea", "lower", "upper")
+
+kable(slopesER, caption = "Table S7: Confidence intervals for ER (For MS Figure 3)")
+```
+
+#### FIGURE 3C: ER
+```{r}
+ER.plot <- ggplot(data = data2, aes(x = -invTi, y = log(ER2), ymin = -8, ymax = -4, xmin = -40.2, xmax = -38.2)) + 
   theme_bw() +
-  theme(legend.position = "none") +
-  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
-  theme(strip.background = element_blank(), strip.text.x = element_blank()) +
-  facet_grid(.~trophic.level) + 
+  theme(legend.position = "none",
+        panel.grid.minor = element_blank(), 
+        panel.grid.major = element_blank(),
+        strip.background = element_blank(), 
+        strip.text.y = element_blank()) +
+  facet_grid(trophic.level~.) + 
   geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(week), alpha = Tankn), size = 2) + 
   scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
   scale_alpha("Tankn", guide = "none") +
   scale_shape(name = "Week", guide = guide_legend(ncol = 2)) +
-  scale_x_continuous("Temperature 1/kTi", sec.axis = sec_axis(~((1/(k*-.))-273), name = xlab)) + 
-  ylab("Oxygen Consumption (ER) \n ln(umol O2 / L / hr)")
+  xlab("Temperature (1/kTi)") +
+  ylab("ln(umol O2 / L / hr)") +
+  labs(title = "C. Net Ecosystem \n Respiration (ER)") +
+  annotate("text", label = c("i. A", "ii. AG", "iii. AGP"), x = -38.45, y = -4.1) + 
+  annotate("text", label = c("Ea = -1.32 (-1.85, -0.79)", "Ea = -0.88 (-1.32, -0.43)", "Ea = -0.33 (-0.86, 0.20)"), x = -39.3, y = -7.8, size = 3) +
+  scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*-.))-273), name = xlab))
+  
 ```
 
 ```{r, fig.width=6, fig.height=3}
@@ -426,10 +546,10 @@ ER.plot +
   geom_smooth(data = subset(data2, trophic.level == "PZ"), aes(x = -invTT, y = RvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) +
   geom_smooth(data = subset(data2, trophic.level == "PZN"), aes(x = -invTT, y = RvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) 
 
-Fig2GHI
+#Fig2GHI
 ```
 
-##### Figure 2 (Full)
+##### Figure 3 (Full)
 ```{r, fig.width=7, fig.height=7}
 
 multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
@@ -461,10 +581,13 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
   }
 }
 
-multiplot(Fig2ABC, Fig2DEF, Fig2GHI, cols = 1)
+multiplot(Fig2ABC, Fig2DEF, Fig2GHI, cols = 3)
 
-png('Figure2.png', width = 7, height = 7, units = 'in', res = 300)
-multiplot(Fig2ABC, Fig2DEF, Fig2GHI, cols = 1)
+png('Figure3.png', width = 7, height = 7, units = 'in', res = 300)
+multiplot(Fig2ABC, Fig2DEF, Fig2GHI, cols = 3)
 dev.off()
 
 ```
+
+
+

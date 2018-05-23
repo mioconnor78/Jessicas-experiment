@@ -152,13 +152,20 @@ data$ER2 <- -((data$dawn2 - data$dusk) - (C.star(data$temp.d2) - C.star(data$tem
 data$ER2a <- -((data$dawn2 - data$dusk))/(z*(data$hours2))# amount of oxygen consumed per day via respiration. negative to get the change in oxygen umol / L /day; oxygen used in the dark and daylight. MeanER can be greater than meanNPP, because NPP reflects ER already.
 diffER <- data$ER2 - data$ER2a
 
-
 Garzkedata <- data[data$week >= '4',]
+GarzkedataA <- data
 data <- Garzkedata
 write.csv(Garzkedata, file = "Garzkedata.csv")
+write.csv(GarzkedataA, file = "GarzkedataA.csv")
 
 ### data prep complete
 
+### plot of bloom
+hist(data$chla)
+hist(log(data$chla))
+plot(data$chla ~ data$week)
+plot(data$NPP2 ~ data$week)
+levels(data$week)
 
 # analysis begins ---------------------------------------------------------
 
@@ -371,7 +378,7 @@ modPB0 <- lme(log(chla) ~ 1, random = ~ 1 | Tank, data=data, method="ML", na.act
 
 model.sel(modPB0, modPB1, modPB2, modPB3, modPB4, modPB5, modPB6, modPB7, modPB8, modPBF)
 
-## calculating confidence intPBvals for activation enPBgies.
+## calculating confidence intPBvals for activation energies.
 modPB <- modPB7
 
 # slope for PB.PP: 
@@ -386,7 +393,7 @@ SlPB3 <- fixef(modPB)[5] + fixef(modPB)[7]
 # ints for PB.PP: 
 IPB1 <- fixef(modPB)[1] - fixef(modPB)[5]*mean(data$invTT)
 
-# ints for PB.ZP: modPB includes all int tPBms, but we leave out the invTi tPBm for among group lines; ints hPBe are at mean(invTT) 
+# ints for PB.ZP: modPB includes all int terms, but we leave out the invTi term for among group lines; ints here are at mean(invTT) 
 IPB2 <- fixef(modPB)[1] + fixef(modPB)[3] - fixef(modPB)[5]*mean(data$invTT) - fixef(modPB)[6]*mean(data$invTT)
 
 # ints for PB.PZN: 
