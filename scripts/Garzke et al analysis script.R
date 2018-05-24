@@ -71,6 +71,7 @@ temps.Tmn <-
 names(temps.Tmn) <- c("Tank", "temp.Tmn", "temp.Tsd")
 data.t <- left_join(data.t, temps.Tmn, by = c("Tank")) 
 
+#can skip to sizes if you want
 
 ## temperature at the time of measurement of oxygen for oxygen exchange corrections. These temps are only needed for the abiotic corrections on oxygen flux. 
 ## get dates and times so that I can pick the time I want from the temps3 file
@@ -79,9 +80,9 @@ data.t <- tidyr::separate(data.t, dawn1time, c("d1Hour", "d1Min", "d1Sec"), sep 
 data.t <- tidyr::separate(data.t, dusktime, c("dkHour", "dkMin", "dkSec"), sep = ":")
 data.t <- tidyr::separate(data.t, dawn2time, c("d2Hour", "d2Min", "d2Sec"), sep = ":")
 data.t <- tidyr::separate(data.t, date, c("Year", "Month", "Date"), sep = "-")
-data.t <- select(data.t, -contains("Min"))
-data.t <- select(data.t, -contains("Sec"))
-data.t <- select(data.t, -contains("calc"))
+data.t <- dplyr::select(data.t, -contains("Min"))
+data.t <- dplyr::select(data.t, -contains("Sec"))
+data.t <- dplyr::select(data.t, -contains("calc"))
 
 data.t$Month <- as.numeric(data.t$Month)
 data.t$Date <- as.numeric(data.t$Date)
@@ -117,7 +118,7 @@ data.t5 <- as.tibble(data.t4) %>%
   group_by(Tank, trophic.level) %>%
   summarise(., mean.temp = mean(temp.wk)) %>%
   arrange(trophic.level, mean.temp) %>%
-  select(-mean.temp) 
+  dplyr::select(-mean.temp) 
   
 data.t5$Tankn <- rep(c(1:10), 3)
 
@@ -159,6 +160,33 @@ write.csv(Garzkedata, file = "Garzkedata.csv")
 write.csv(GarzkedataA, file = "GarzkedataA.csv")
 
 ### data prep complete
+
+### prepare size datafile
+sizes <- read.csv("./data/CommunitySizes.csv")
+sizes$Tank <- as.character(sizes$Tank)
+sizes$week <- sizes$Week
+sizes.t <- left_join(sizes, temps.wk, by = c("week", "Tank")) # add weekly temps to sizes file
+sizes.t <- sizes.t[,-c(1, 6:7)]
+sizes.t <- left_join(sizes.t, temps.Tmn, by = c("Tank")) 
+
+sizes.t2 <- as.tibble(sizes.t) %>%
+group_by(Tank, trophic.level) %>%
+summarise(., mean.temp = mean(temp.wk)) %>%
+arrange(trophic.level, mean.temp) %>%
+dplyr::select(-(mean.temp)) 
+
+sizes.t2$Tankn <- rep(c(1:9), 2)
+sizes.t3 <- left_join(sizes.t, sizes.t2, by = c("Tank", "trophic.level")) 
+sizes.t <- sizes.t3
+
+sizes.t$invTi <-  1/((sizes.t$temp.wk + 273)*k) # average temp of the tank each week
+sizes.t$invTT <-  1/((sizes.t$temp.Tmn + 273)*k) # average temp of the tank over all weeks
+sizes.t$invTi <- as.numeric(as.character(sizes.t$invTi))
+sizes.t$invTT <- as.numeric(as.character(sizes.t$invTT))
+View(sizes.t)
+GarzkeSizes <- sizes.t
+write.csv(GarzkeSizes, file = "GarzkeSizes.csv")
+
 
 ### plot of bloom
 hist(data$chla)
