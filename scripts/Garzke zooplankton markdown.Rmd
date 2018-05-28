@@ -59,7 +59,7 @@ table_nums(name = "Table_S3.5", caption = "Copepod abundance model coefficients"
 table_nums(name = "Table_S3.6", caption = "Zooplankton body size model selection results", display = FALSE)
 table_nums(name = "Table_S3.7", caption = "Zooplankton body size model selection results", display = FALSE)
 table_nums(name = "Table_S3.8", caption = "Zooplankton body size model selection results. Model terms are: intercept (Int), Temperature - weekly average (Tw), Taxon (Tx), trophic treatment (TL), and statistical estimates", display = FALSE)
-
+table_nums(name = "Table_S3.9", caption = "Zooplankton model estimates (model 2h), rom table S3.8", display = FALSE)
 
 fig_nums <- captioner::captioner(prefix = "Figure S3.")
 fig_nums(name = "Fig_S3.1", caption = "Abundance of zooplankton (Number / 10L) over all tanks and weeks.", display = FALSE)
@@ -391,22 +391,22 @@ m1 <- glm(size ~ trophic.level + invTT, family="poisson", data=data.S)
 
 
 ```{r size model comparison}
-m2a <- lmer(log(size) ~ invTT*trophic.level*taxon + (1|Tank), data = data.S)
+m2a <- lmer(log(size) ~ invTT*trophic.level*taxon + (1|Tank), method = "ML", data = data.S)
 #summary(m2a)
 #shapiro.test(resid(m2a))
 
-m2b <- lmer(log(size) ~ invTT*taxon*trophic.level + (1|Tank), data = data.S)
-m2j <- lmer(log(size) ~ invTT*taxon + trophic.level + (1|Tank), data = data.S)
-m2c <- lmer(log(size) ~ invTT + trophic.level*taxon + (1|Tank), data = data.S)
-m2d <- lmer(log(size) ~ invTT + trophic.level + (1|Tank), data = data.S)
-m2k <- lmer(log(size) ~ invTT*trophic.level + (1|Tank), data = data.S)
-m2m <- lmer(log(size) ~ invTT*trophic.level + taxon + (1|Tank), data = data.S)
-m2e <- lmer(log(size) ~ invTT + taxon + (1|Tank), data = data.S)
-m2l <- lmer(log(size) ~ invTT*taxon + (1|Tank), data = data.S)
-m2f <- lmer(log(size) ~ invTT + (1|Tank), data = data.S)
-m2g <- lmer(log(size) ~ trophic.level*taxon + (1|Tank), data = data.S)
-m2h <- lmer(log(size) ~ taxon + (1|Tank), data = data.S)
-m2i <- lmer(log(size) ~ trophic.level + (1|Tank), data = data.S)
+m2b <- lmer(log(size) ~ invTT*taxon*trophic.level + (1|Tank), method = "ML", data = data.S)
+m2j <- lmer(log(size) ~ invTT*taxon + trophic.level + (1|Tank), method = "ML", data = data.S)
+m2c <- lmer(log(size) ~ invTT + trophic.level*taxon + (1|Tank), method = "ML", data = data.S)
+m2d <- lmer(log(size) ~ invTT + trophic.level + (1|Tank), method = "ML", data = data.S)
+m2k <- lmer(log(size) ~ invTT*trophic.level + (1|Tank), method = "ML", data = data.S)
+m2m <- lmer(log(size) ~ invTT*trophic.level + taxon + (1|Tank), method = "ML", data = data.S)
+m2e <- lmer(log(size) ~ invTT + taxon + (1|Tank), REML = FALSE, data = data.S)
+m2l <- lmer(log(size) ~ invTT*taxon + (1|Tank), method = "ML", data = data.S)
+m2f <- lmer(log(size) ~ invTT + (1|Tank), method = "ML", data = data.S)
+m2g <- lmer(log(size) ~ trophic.level*taxon + (1|Tank), method = "ML", data = data.S)
+m2h <- lmer(log(size) ~ taxon + (1|Tank), method = "ML", data = data.S)
+m2i <- lmer(log(size) ~ trophic.level + (1|Tank), method = "ML", data = data.S)
 
 resS <- model.sel(m2a, m2b, m2c, m2d, m2e, m2f, m2g, m2h, m2i, m2j, m2k, m2l, m2m)
 #summary(m2g)
@@ -422,6 +422,20 @@ kable(resS, digits=2, col.names = c('Int','Tw','Tx','TL','Tw*Tx','Tw*TL','Tx*TL'
 Sd.PZ <- fixef(m2h)[1]
 Sc.PZ <- fixef(m2h)[1] + fixef(m2h)[2]
 confint(m2h) -> SizeInts
+
+df <- length(data.S$size)-(length(coef(m2h))+1)-1
+t.stat <- qt(0.975, df = df)
+D.l2 <- fixef(m2h)[1] - t.stat * sqrt(vcov(m2h)[1,1])
+D.u2 <- fixef(m2h)[1] + t.stat * sqrt(vcov(m2h)[1,1])
+C.l2 <- fixef(m2h)[1] + fixef(m2h)[2] - t.stat * sqrt(vcov(m2h)[1,1] + vcov(m2h)[2,2] + 2*vcov(m2h)[1,2])
+C.u2 <- fixef(m2h)[1] + fixef(m2h)[2] + t.stat * sqrt(vcov(m2h)[1,1] + vcov(m2h)[2,2] + 2*vcov(m2h)[1,2])
+
+S.est <- cbind(Estimate = c(fixef(m2h)[1], fixef(m2h)[1] + fixef(m2h)[2]), Lower = c(D.l2, C.l2), Upper = c(D.u2, C.u2))
+```
+`r table_nums("Table_S3.9")`
+
+```{r Table_S3.9}
+kable(S.est, digits = 2)
 ```
 
 

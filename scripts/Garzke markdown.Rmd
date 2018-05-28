@@ -35,14 +35,20 @@ labels <- c(P = "Algae", PZ = "Algae + Grazers", PZN = "Algae + Grazers + Predat
 
 ```{r captions, echo = FALSE}
 table_nums <- captioner::captioner(prefix = "Table S2.") #sets prefix for all tables
-table_nums(name = "Table_S2.1", caption = "")
+table_nums(name = "Table_S2.1", caption = "Model selection results for Phytoplankton (Chl a) for linear mixed effects model", display = FALSE)
+table_nums(name = "Table_S2.2", caption = "Parameter estimates from model PB8 (Table S2.1) for Phytoplankton (Chl a) for linear mixed effects model", display = FALSE)
+table_nums(name = "Table_S2.3", caption = "Model selection results for Net Ecosystem Oxygen Production, with 1|Tank as a random effect. Model terms are: intercept (Int), trophic treatment (TL), Temperature - weekly average (Tw), temperature - expt average (Tt), interaction terms and statistical estimates", display = FALSE)
+table_nums(name = "Table_S2.4", caption = "Parameter estimates from model NPP8 (Table S2.3) for Net Ecosystem Oxygen Productivity (NEP) for linear mixed effects model(For MS Figure 3)", display = FALSE)
+table_nums(name = "Table_S2.5", caption = "Model selection results for Net Ecosystem Respiration, with 1|Tank as a random effect. Model terms are: intercept (Int), trophic treatment (TL), Temperature - weekly average (Tw), temperature - expt average (Tt), interaction terms and statistical estimates", display = FALSE)
+table_nums(name = "Table_S2.6", caption = "Confidence intervals for model ER7 (Table S2.5) (For MS Figure 3", display = FALSE)
 
 fig_nums <- captioner::captioner(prefix = "Figure S2.")
-fig_nums(name = "Fig_S2.1", caption = "")
-fig_nums(name = "Fig_S2.2", caption = "")
+fig_nums(name = "Fig_S2.1", caption = "Chlorophyll a concentration", display = FALSE)
+fig_nums(name = "Fig_S2.2", caption = "Trophic Treatment Effects on Chlorophyll a, Net Oxygen Ecosystem Production (NEP), and Net Ecosystem Respiration (ER)", display = FALSE)
+fig_nums(name = "Fig_S2.3", caption = "Manuscript figure 3: Effects of temperature on oxygen flux and phytoplankton standing stock", display = FALSE)
 ```
 
-## 1. Trophic Cascade Results: Figure 2  
+## 1. Trophic Cascade Results (Figure 2 Main text)
 ```{r, echo = FALSE}
 tc1 <- lme((chla) ~ trophic.level, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
 
@@ -60,7 +66,7 @@ tcN1 <- lme(log(NPP2+1) ~ trophic.level, random = ~ 1 | Tank, data=data, method=
 #anova(tcN1)
 ```
 
-```{r, fig.width=9, fig.height=3}
+```{r Figure 2 code}
 TC <- ggplot(data = data, aes(x = trophic.level, y = chla, ymin = 0)) +
   theme_bw() +
   theme(legend.position = "none") +
@@ -111,23 +117,28 @@ TC.ER <- ggplot(data = data, aes(x = trophic.level, y = log(ER2), ymin = 0)) +
   scale_x_discrete("Species Interaction Treatment", labels = c(P = "A", PZ = "AG", PZN = "AGP")) +
   ylab("Oxygen Consumption (ER) \n ln(umol O2 / L / hr)")
 
-#TC.ER
-
 fig2 <- arrangeGrob(TC, TC.ER, TC.NPP, nrow = 1)
 
-ggsave("fig2.png", plot = fig2, device = "png", width = 9, height = 3)
 ```
 
-## 2. Figure 3, Table 2
+`r fig_nums("Fig_S2.2")`
 
-### 2.1 Phytoplankton abundance
-```{r, FigureS3,fig.width=3, fig.height=3}
+```{r Fig_S2.2, fig.width=9, fig.height=3 }
+fig2
+#ggsave("fig2.png", plot = fig2, device = "png", width = 9, height = 3)
+```
+
+### 2.1 Phytoplankton abundance (for Figure 3, Table 2 main text)
+
+`r fig_nums("Fig_S2.1")`
+
+```{r, Fig_S2.1,fig.width=3, fig.height=3}
 hist(data$chla)
 hist(log(data$chla))
 ```
 
-#### 2.1.1 Phytoplankton abundance candidate models
-```{r, echo=TRUE}
+## 2.1.1 Phytoplankton abundance candidate models
+```{r, echo=FALSE}
 #### Phytoplankton coefficients for Figure 2
 modPBF <- lme(log(chla) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
 modPB8 <- lme(log(chla) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
@@ -143,9 +154,9 @@ modPB0 <- lme(log(chla) ~ 1, random = ~ 1 | Tank, data=data, method="ML", na.act
 PPres <- data.frame(model.sel(modPB0, modPB1, modPB2, modPB3, modPB4, modPB5, modPB6, modPB7, modPB8, modPBF))
 ```
 
-`r table_nums('tab_1')'
+`r table_nums("Table_S2.1")`
 
-```{r table1, fig.cap = tab.1_cap}
+```{r Table_S2.1}
 kable(PPres, digits=2, col.names = c('Int','TL','Tw','Tt', 'Tw*Tt', 'Tw*TL','Tt*TL', 'df', 'logLik','AICc','d','w'))
 ```
 
@@ -173,7 +184,7 @@ IPB3 <- fixef(modPB)[1] + fixef(modPB)[4] - fixef(modPB)[5]*mean(data$invTT) - f
 
 ```
 
-```{r}
+```{r Model estimates for figur 3}
 PB.funcP <- function(x) {IPB1 + SlPB1*x} # for trophic level 1
 PBvalsP <- PB.funcP(data[(data$trophic.level=="P"),]$invTT)
 
@@ -212,8 +223,12 @@ SlPB3.u <- SlPB3 + t.stat * sqrt(vcov(modPB)[5,5] + vcov(modPB)[9,9] + 2*vcov(mo
 slopesPB <- (cbind(c(SlPB1, SlPB2, SlPB3), c(SlPB1.l2, SlPB2.l, SlPB3.l), c(SlPB1.u2, SlPB2.u, SlPB3.u)))
 rownames(slopesPB) <- c("P", "PZ", "PZN")
 colnames(slopesPB) <- c("Ea", "lower", "upper")
+```
 
-kable(slopesPB, caption = "Table S2: Confidence intervals for PB (For MS Table 2)")
+`r table_nums("Table_S2.2")`
+
+```{r Table S2.2}
+kable(slopesPB, digits = 2)
 ```
 
 
@@ -259,7 +274,7 @@ Fig2ABC <- PP.plot +
 
 
 #
-#### 2.2 Net ecosystem oxygen production
+## 2.2 Net ecosystem oxygen production
 ```{r, fig.width=3, fig.height=3, echo = FALSE}
 data1 <- data[(data$NPP2 >= 0.00001),] #remove 21 negative values 
 hist(data1$NPP2)
@@ -268,10 +283,10 @@ hist(log(data1$NPP2))
 tcp1 <- lme(log(NPP2) ~ 1 + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit) 
 
 #summary(tcp1)
-anova(tcp1)
+#anova(tcp1)
 ```
 
-```{r, echo=FALSE}
+```{r, NEP model selection, echo=FALSE}
 # NPP candidate model set -------------------------------------------------
 modNPPF <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
 
@@ -296,26 +311,27 @@ modNPP0 <- lme(log(NPP2) ~ 1, random = ~ 1 | Tank, data=data1, method="ML", na.a
 #model.sel(modNPP0, modNPP1, modNPP2, modNPP3, modNPP4, modNPP5, modNPP6, modNPP7, modNPP8, modNPPF)
 
 NPres <- data.frame(model.sel(modNPP0, modNPP1, modNPP2, modNPP3, modNPP4, modNPP5, modNPP6, modNPP7, modNPP8, modNPPF))
-
-#[,9:12]
-kable(NPres, digits=2, col.names = c('Int','TL','Tw','Tt', 'Tw*Tt', 'Tw*TL','Tt*TL', 'df', 'logLik','AICc','d','w'), caption = "Table S3: Model selection results for Net Ecosystem Oxygen Production, with 1|Tank as a random effect. Model terms are: intercept (Int), trophic treatment (TL), Temperature - weekly average (Tw), temperature - expt average (Tt), interaction terms and statistical estimates")
-
 ```
 
-```{r}
+`r table_nums("Table_S2.3")`
+
+```{r Table S2.3}
+kable(NPres, digits=2, col.names = c('Int','TL','Tw','Tt', 'Tw*Tt', 'Tw*TL','Tt*TL', 'df', 'logLik','AICc','d','w'))
+```
+
+```{r NEP model coefs}
 ## Average best models: 
 m.avgN <- model.avg(modNPP8, modNPPF)
 confint(m.avgN) -> ints
 coef(m.avgN) -> coefs
-kable(ints, caption = "Table S4: Confidence intervals for averaged models for NPP")
+#kable(ints, caption = "Table S4: Confidence intervals for averaged models for NPP")
 
 NP.agp <- exp(coefs[1] - coefs[3])
 NP.ag <- exp(coefs[1] - coefs[2])
 NP.a <- exp(coefs[1])
-
 ```
 
-#### NPP Coefficients for Figure 3B
+#### NPP Coefficients
 ```{r}
 # slope for NPP.PP: 
 Sl1 <- coefficients(m.avgN)[5]
@@ -359,11 +375,15 @@ SlN3.u <- Sl3 + t.stat * sqrt(vcov(m.avgN)[5,5] + vcov(m.avgN)[7,7] + 2*vcov(m.a
 slopesN <- (cbind(c(Sl1, Sl2, Sl3), c(SlN1.l2, SlN2.l, SlN3.l), c(SlN1.u2, SlN2.u, SlN3.u)))
 rownames(slopesN) <- c("P", "PZ", "PZN")
 colnames(slopesN) <- c("Ea", "lower", "upper")
-
-kable(slopesN, caption = "Table S5: Confidence intervals for N (For MS Figure 3)")
 ```
 
-```{r}
+`r table_nums("Table_S2.4")`
+
+```{r Table S2.4}
+kable(slopesN, digits = 2)
+```
+
+```{r lines for NEP figure}
 ## estimating coefficients for PLOT 2A: Raw data and fitted lines from the averaged model. Added the predictions of the model to the original dataset (mod.coefsN), then fit lines to those using linear regressions
 NPP.funcP <- function(x) { I1 + Sl1*x}
 NvalsP <- NPP.funcP(data1[(data1$trophic.level=="P"),]$invTT)
@@ -376,8 +396,8 @@ NvalsPZN <- NPP.funcPZN(data1[(data1$trophic.level=="PZN"),]$invTT)
 
 ```
 
-#### FIGURE 3B: NPP 
-```{r}
+
+```{r NPP plot code}
 ### plotting within- and among-group regressions and model outputs
 NPP.plot1 <- ggplot(data = data1, aes(x = -invTi, y = log(NPP2), ymin = -11, ymax = -5)) +
   theme_bw() +
@@ -412,7 +432,7 @@ NPP.plot <- ggplot(data = data1, aes(x = -invTi, y = log(NPP2), ymin = -11, ymax
   scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*-.))-273), name = xlab))
 ```
 
-```{r, fig.width=6, fig.height=3}
+```{r}
 # Figure 3B ---------------------------------------------------------------
 # the within-group lines here are lms fitted to the actual data; I think these should be the modeled data too...
 # the among-group lines are model fits based on the best model (so this could be model averaged coefficients too)
@@ -422,19 +442,21 @@ Fig2DEF <-
   geom_smooth(data = subset(data1, trophic.level == "P"), aes(x = -invTT, y = NvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
  geom_smooth(data = subset(data1, trophic.level == "PZ"), aes(x = -invTT, y = NvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
   geom_smooth(data = subset(data1, trophic.level == "PZN"), aes(x = -invTT, y = NvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) 
+```
 
+```{r, fig.width=6, fig.height=3}
 #Fig2DEF
 #ggsave("Fig2A.png", device = "png", width = 7, height = 3)
 ```
 
 
-#
-#### 2.2 Net ecosystem oxygen consumption (ER)
-```{r, fig.width=3, fig.height=3}
+##### 2.2 Net ecosystem oxygen consumption (ER)
+
+```{r, Table_2.3, fig.width=3, fig.height=3}
 hist(data$ER2)
+hist(log(data$ER2))
 data2 <- data[(data$ER2 >= 0),] #no values removed
 data2 <- data[!is.na(data$ER2),]
-hist(log(data2$ER2))
 ```
 
 ```{r, echo=FALSE}
@@ -453,13 +475,15 @@ modER0 <- lme(log(ER2) ~ 1, random = ~ 1 | Tank, data=data2, method="ML", na.act
 #model.sel(modER0, modER1, modER2, modER3, modER4, modER5, modER6, modER7, modER8, modERF)
 
 ERres <- data.frame(model.sel(modER0, modER1, modER2, modER3, modER4, modER5, modER6, modER7, modER8, modERF))
-
-#[,9:12]
-kable(ERres, digits=2, col.names = c('Int','TL','Tw','Tt', 'Tw*Tt', 'Tw*TL','Tt*TL', 'df', 'logLik','AICc','d','w'), caption = "Table S6: Model selection results for Net Ecosystem Oxygen Consumption (ER), with 1|Tank as a random effect. Model terms are: intercept (Int), trophic treatment (TL), Temperature - weekly average (Tw), temperature - expt average (Tt), interaction terms and statistical estimates")
-
 ```
 
-## ER coefficients for Figure GHI
+`r table_nums("Table_S2.5")`
+
+```{r Table S5}
+kable(ERres, digits=2, col.names = c('Int','TL','Tw','Tt', 'Tw*Tt', 'Tw*TL','Tt*TL', 'df', 'logLik','AICc','d','w'))
+```
+
+## ER coefficients
 
 ```{r}
 modER <- modER7
@@ -520,12 +544,16 @@ SlER3.u <- SlER3 + t.stat * sqrt(vcov(modER)[5,5] + vcov(modER)[7,7] + 2*vcov(mo
 slopesER <- (cbind(c(SlER1, SlER2, SlER3), c(SlER1.l2, SlER2.l, SlER3.l), c(SlER1.u2, SlER2.u, SlER3.u)))
 rownames(slopesER) <- c("P", "PZ", "PZN")
 colnames(slopesER) <- c("Ea", "lower", "upper")
-
-kable(slopesER, caption = "Table S7: Confidence intervals for ER (For MS Figure 3)")
 ```
 
-#### FIGURE 3C: ER
-```{r}
+`r table_nums("Table_S2.6")`
+
+```{r Table_S7}
+kable(slopesER)
+```
+
+
+```{r ER plot}
 ER.plot <- ggplot(data = data2, aes(x = -invTi, y = log(ER2), ymin = -8, ymax = -4, xmin = -40.2, xmax = -38.2)) + 
   theme_bw() +
   theme(legend.position = "none",
@@ -589,13 +617,18 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
     }
   }
 }
+```
 
+`r fig_nums("Fig_S2.3")`
+
+```{r Fig_2.3}
 multiplot(Fig2ABC, Fig2DEF, Fig2GHI, cols = 3)
+```
 
+```{r}
 png('Figure3.png', width = 7, height = 7, units = 'in', res = 300)
 multiplot(Fig2ABC, Fig2DEF, Fig2GHI, cols = 3)
 dev.off()
-
 ```
 
 
