@@ -1,5 +1,6 @@
 ---
-title: "Supplementary material for Garzke et al manuscript. This file includes analyses and model outputs supporting zooplankton results in main text."
+title: "Temperature dependence of biomass and ecosystem function depend on species interactions. Supplementary File 3: Zooplankton figures and tables."
+
 output:
   pdf_document: default
   html_document: default
@@ -19,9 +20,7 @@ library(plyr)
 library(tidyverse) 
 library(broom)
 library(reshape2)
-#library(lubridate)
-#library(hms)
-#library(zoo)
+library(captioner)
 library(knitr)
 library(gridExtra)
 library(glmmADMB)
@@ -32,7 +31,7 @@ library(tinytex)
 ```{r load data}
 data <- read.csv("../data/GarzkedataA.csv")
 k <- 8.617342*10^-5  # eV/K
-labels <- c(P = "Algae", PZ = "Algae + Grazers", PZN = "Algae + Grazers + Predators")
+#labels <- c(P = "Algae", PZ = "Algae + Grazers", PZN = "Algae + Grazers + Predators")
 ```
 
 ```{r write functions}
@@ -50,11 +49,31 @@ overdisp_fun <- function(model) {
 } 
 ```
 
+```{r captions}
+table_nums <- captioner::captioner(prefix = "Table S3.") #sets prefix for all tables
+table_nums(name = "Table_1", caption = "Model selection results for zooplankton abundance, with 1|Tank as a random effect. Model terms are: intercept (Int), Temperature - weekly average (Tw), trophic treatment (TL), statistical estimates", display = FALSE)
+table_nums(name = "Table_S3.2", caption = "Daphnia abundance model selection results for Poisson regression. Model terms are: intercept (Int), trophic treatment (TL), Temperature - weekly average (Tw), and statistical estimates", display = FALSE)
+table_nums(name = "Table_S3.3", caption = "Daphnia abundance model coefficients", display = FALSE)
+table_nums(name = "Table_S3.4", caption = "Copepod abundance model selection results for Poisson regression. Model terms are: intercept (Int), trophic treatment (TL), Temperature - weekly average (Tw), temperature - expt average (Tt), interaction terms and statistical estimates", display = FALSE)
+table_nums(name = "Table_S3.5", caption = "Copepod abundance model coefficients", display = FALSE)
+table_nums(name = "Table_S3.6", caption = "Zooplankton body size model selection results", display = FALSE)
+table_nums(name = "Table_S3.7", caption = "Zooplankton body size model selection results", display = FALSE)
+table_nums(name = "Table_S3.8", caption = "Zooplankton body size model selection results. Model terms are: intercept (Int), Temperature - weekly average (Tw), Taxon (Tx), trophic treatment (TL), and statistical estimates", display = FALSE)
 
-### Zooplankton analysis
-####Abundance data over whole experiment
+
+fig_nums <- captioner::captioner(prefix = "Figure S3.")
+fig_nums(name = "Fig_S3.1", caption = "Abundance of zooplankton (Number / 10L) over all tanks and weeks.", display = FALSE)
+fig_nums(name = "Fig_S3.2", caption = "Residual plot for linear model of abundance with normally distributed errors", display = FALSE)
+fig_nums(name = "Fig_S3.3", caption = "Total Zooplankton abundance and modeled temperature dependence from negative binomial regression", display = FALSE)
+fig_nums(name = "Fig_S3.4", caption = "Abundance of Daphnia and Copepods (Number / 10L) over all tanks and weeks.", display = FALSE)
+fig_nums(name = "Fig_S3.5", caption = "Daphnia abundance with modeled temperature dependence from poisson regression; estimates and confidence intervals given in Table S3.3", display = FALSE)
+fig_nums(name = "Fig_S3.6", caption = "Copepod abundance with modeled temperature dependence from poisson regression", display = FALSE)
+fig_nums(name = "Fig_S3.7", caption = "Zooplankton body size (length) over all tanks and weeks.", display = FALSE)
+fig_nums(name = "Fig_S3.8", caption = "Zooplankton body size (length) and modeled effects of predation", display = FALSE)
+```
+
+#### Section S3.1: Zooplankton Abundance data over whole experiment
 ```{r Total Zooplankton analysis, echo = FALSE}
-
 data.N <- as.tibble(data) %>%
   group_by(Tank, trophic.level, week) %>%
   filter(trophic.level != 'P', week > 3) %>%
@@ -66,33 +85,39 @@ data.N$week <- as.factor(data.N$week)
 data.N$Tank <- as.factor(data.N$Tank)
 ```
 
-```{r Histogram of total ZP, echo=FALSE, fig.width=4,fig.height=4,fig.cap="\\label{fig:figs} Histogram of abundance of zooplankton (Number / 10L) over all tanks and weeks."}
+`r fig_nums("Fig_S3.1")`
+
+```{r Fig_S3.1: Histogram ZP Abundance, echo=FALSE, fig.width=3, fig.height=3}
 hist(data.N$Nt, main = " ")
 ```
 
 ```{r Testing ZP model options, echo = FALSE}
 # first try: poisson regression
-m1 <- glm(Nt ~ trophic.level + average.temp, family="poisson", data=data.N)
+m1 <- glm(Nt ~ trophic.level + invTT, family="poisson", data=data.N)
 
 ## second try: lm random effects models with normally distributed errors
 m2 <- lmer(Nt ~ invTT + trophic.level + (1|Tank), data = data.N)
 #summary(m2)
-shapiro.test(resid(m2))
+#shapiro.test(resid(m2))
 ```
 
-```{r resid plot of linear model, echo=FALSE, fig.width=4,fig.height=4,fig.cap="\\label{fig:figs} Resid plot of linear model zooplankton (Number / 10L) over all tanks and weeks."}
+
+
+`r fig_nums("Fig_S3.2")`
+
+```{r resid_plot_lm, echo=FALSE, fig.width=3,fig.height=3}
 qqnorm(resid(m2))
 qqline(resid(m2)) ## ok, shapiro test + this plot show that the linear model is not right.
 ```
 
 ```{r poison errors, echo = FALSE}
-## third dry: glm with poisson errors.
+## third try: glm with poisson errors.
 poismod <- glmmadmb(Nt ~ average.temp + trophic.level + (1|Tank), family = "poisson", data = data.N)
 # for poisson analysis and plotting, this is helpful: https://stats.idre.ucla.edu/r/dae/poisson-regression/
 # they point out that negative binomial for zero-inflated data is a generalized version of poisson, so I will follow these methods here for the nb model.
 
 ## test for overdispersion:
-overdisp_fun(poismod) 
+#overdisp_fun(poismod) 
 
 # overdispersed, so:
 nbinommod1 <- glmmadmb(Nt ~ invTT + trophic.level + (1|Tank), family = "nbinom", zeroInflation = T, data = data.N)
@@ -105,9 +130,13 @@ nbinommod1b <- glmmadmb(Nt ~ invTT + (1|Tank), family = "nbinom", zeroInflation 
 nbinommod1c <- glmmadmb(Nt ~ 1 + (1|Tank), family = "nbinom", zeroInflation = T, data = data.N)
 
 res <- model.sel(nbinommod1, nbinommod1a, nbinommod1b, nbinommod1c)
-anova(nbinommod1, nbinommod1b) # so proceed wtih nbionmmod1b
+#anova(nbinommod1, nbinommod1b) # so proceed wtih nbionmmod1b
+```
 
-kable(res, digits=2, col.names = c('Int','Tw','TL','df', 'logLik', 'AICc', 'd', 'w'), caption = "Table S8: Model selection results for zooplankton abundance, with 1|Tank as a random effect. Model terms are: intercept (Int), trophic treatment (TL), Temperature - weekly average (Tw), temperature - expt average (Tt), interaction terms and statistical estimates")
+
+`r table_nums("Table_1")`
+```{r Table_S1}
+kable(res, digits=2, col.names = c('Int','Tw','TL','df', 'logLik', 'AICc', 'd', 'w'))
 ```
 
 ```{r summarize best model}
@@ -119,7 +148,7 @@ r.est <- cbind(Estimate = coef(m1), se = stdEr(m1),
             UL = coef(m1) + 1.96 * stdEr(m1))
 ```
 
-### Plotting data and model results
+
 ```{r plotting total zooplankton results}
 ### use model coefficients to estimate lines for later plotting; transformation in the negative binomial is log, so exponentiating the estimates reverses that. BUT, in this case we are interested in the response of the log (to get an Ea value) so I will not back transform, but instead plot on logged axes.
 
@@ -148,16 +177,20 @@ N.plot3 <- N.plot2 +
   #geom_ribbon(data = subset(data.N, trophic.level == "PZ"), aes(ymin = N.PZL(invTT), ymax = N.PZU(invTT)), fill = "blue", alpha = .25)
 ```
 
-```{r N plot, fig.width=4,fig.height=4,fig.cap="\\label{fig:figs} Total Zooplankton abundance and modeled temperature dependence from negative binomial regression."}
-N.plot3 #for legend, mention that these are untransformed data and backtransformed lines, so the slopes given in main text are the fitted versions.
-#ggsave("ZPabundance.png", device = "png")
+`r fig_nums("Fig_S3.3")`
+
+```{r N_plot, fig.width=4,fig.height=4}
+N.plot3
 ```
 
-##### Trends within zooplankton species: Daphnia
-```{r Daphnia abundance, fig.width=4,fig.height=4}
-hist(data.N$abundance.Daphnia)
-hist(data.N$abundance.copepods)
-hist(data.N$Daphnia.Copepod.Ratio)
+####
+### Section S3.2: Daphnia and Copepods
+`r fig_nums("Fig_S3.4")`
+
+```{r Daphnia_abundance, fig.width=3,fig.height=3}
+hist(data.N$abundance.Daphnia, main = "Daphnia")
+hist(data.N$abundance.copepods, main = "Copepods")
+#hist(data.N$Daphnia.Copepod.Ratio)
 ```
 
 ```{r Daphnia modeling}
@@ -166,17 +199,19 @@ poismod.D <- glmmadmb(abundance.Daphnia ~ invTT + trophic.level + (1|Tank), fami
 #summary(poismod.D)
 
 ## test for overdispersion:
-overdisp_fun(poismod.D) ## not overdispersed, so stop here.
+#overdisp_fun(poismod.D) ## not overdispersed, so stop here.
 
 ## model selection: 
 poismod.Da <- glmmadmb(abundance.Daphnia ~ 1 + invTT*trophic.level + (1|Tank), family = "poisson", data = data.N)
-poismod.Db <- glmmadmb(abundance.Daphnia ~ 1 + invTT + trophic.level + (1|Tank), family = "poisson", zeroInflation = T, data = data.N)
+poismod.Db <- glmmadmb(abundance.Daphnia ~ 1 + invTT + trophic.level + (1|Tank), family = "poisson", data = data.N)
 poismod.Dc <- glmmadmb(abundance.Daphnia ~ 1 + invTT + (1|Tank), family = "poisson", data = data.N)
 poismod.Dd <- glmmadmb(abundance.Daphnia ~ 1 + (1|Tank), family = "poisson", data = data.N)
 resD <- model.sel(poismod.Da, poismod.Db, poismod.Dc, poismod.Dd)
+```
 
-kable(resD, digits=2)
-
+`r table_nums("Table_S3.2")`
+```{r Daphnia table}
+kable(resD, digits=2, col.names = c('Int','Tw','TL','Tw*TL','df', 'logLik', 'AICc', 'd', 'w'))
 ```
 
 ```{r Daphnia poisson model and model selection}
@@ -186,11 +221,16 @@ D.est <- cbind(Estimate = coef(m1D), se = stdEr(m1D),
             "Pr(>|z|)" = 2 * pnorm(abs(coef(m1D)/stdEr(m1D)), lower.tail=FALSE),
             LL = coef(m1D) - 1.96 * stdEr(m1D),
             UL = coef(m1D) + 1.96 * stdEr(m1D))
-D.est
 ```
 
 
-### Plotting data and model results
+`r table_nums("Table_S3.3")`
+```{r Table S3.3: Daphnia coefs and confints}
+kable(D.est, digits=2)
+```
+
+
+
 ```{r Daphnia predicted values}
 ### use model coefficients to estimate lines for later plotting
 D.PZ <- function(x) { exp(fixef(m1D)[1] + fixef(m1D)[2]*x) } # for trophic level 3
@@ -216,13 +256,16 @@ D.plot2 <- ggplot(data = data.N, aes(x = -invTT, y = abundance.Daphnia, xmin = -
 D.plot3 <- D.plot2 +
   geom_smooth(data = subset(data.N, trophic.level == "PZ"), aes(x = -invTT, y = D.PZ(invTT)), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'blue', size = 1.5) +
   geom_smooth(data = subset(data.N, trophic.level == "PZN"), aes(x = -invTT, y = D.PZN(invTT)), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'salmon', size = 1.5)
+```
 
+`r fig_nums("Fig_S3.5")`
+
+```{r Fig_S3.5: Daphnia abundance plot}
 D.plot3
 #ggsave("Dabundance.png", device = "png")
 ```
 
 
-##### Trends within zooplankton species: Copepods
 
 ```{r Copepod analysis}
 ##glm with poisson errors.
@@ -230,7 +273,7 @@ poismod.C <- glmmadmb(abundance.copepods ~ invTT + trophic.level + (1|Tank), fam
 #summary(poismod.C)
 
 ## test for overdispersion:
-overdisp_fun(poismod.C) ## overdispersed
+#overdisp_fun(poismod.C) ## overdispersed
 
 nbC1 <- glmmadmb(abundance.copepods ~ invTT + trophic.level + (1|Tank), family = "nbinom", zeroInflation = F, data = data.N)
 #summary(nbC1)
@@ -239,19 +282,30 @@ nbC1 <- glmmadmb(abundance.copepods ~ invTT + trophic.level + (1|Tank), family =
 ## model selection: 
 poismod.Ca <- glmmadmb(abundance.copepods ~ 1 + invTT*trophic.level + (1|Tank), family = "nbinom", zeroInflation = F, data = data.N)
 poismod.Cb <- glmmadmb(abundance.copepods ~ 1 + invTT + trophic.level + (1|Tank), family = "nbinom", zeroInflation = F, data = data.N)
-poismod.Cc <- glmmadmb(abundance.copepods ~ 1 + invTT + (1|Tank), family = "nbinom", zeroInflation = T, data = data.N)
+poismod.Cc <- glmmadmb(abundance.copepods ~ 1 + invTT + (1|Tank), family = "nbinom", zeroInflation = F, data = data.N)
 poismod.Cd <- glmmadmb(abundance.copepods ~ 1 + (1|Tank), family = "nbinom", zeroInflation = F, data = data.N)
 resC <- model.sel(poismod.Ca, poismod.Cb, poismod.Cc, poismod.Cd)
 #summary(poismod.Cc)
-kable(resC, digits=2) #col.names = c('Int','Tw','TL','Tw*TL','df', 'logLik', 'AICc', 'd', 'w')
+```
 
+`r table_nums("Table_S3.4")`
+
+```{r Copepod abundance results}
+kable(resC, digits=2, col.names = c('Int','Tw','TL','Tw*TL','df', 'logLik', 'AICc', 'd', 'w'))
+```
+
+```{r Copepod abundance model coefs}
 m1C <- poismod.Cc
 C.est <- cbind(Estimate = coef(m1C), se = stdEr(m1C), 
             "Pr(>|z|)" = 2 * pnorm(abs(coef(m1C)/stdEr(m1C)), lower.tail=FALSE),
             LL = coef(m1C) - 1.96 * stdEr(m1C),
             UL = coef(m1C) + 1.96 * stdEr(m1C))
-C.est
+```
 
+
+`r table_nums("Table_S3.5")`
+```{r Table_S3.5}
+kable(C.est, digits = 2)
 ```
 
 
@@ -259,7 +313,7 @@ C.est
 ### use model coefficients to estimate lines for later plotting
 C.PZ <- function(x) { exp(fixef(poismod.Cc)[1] + fixef(poismod.Cc)[2]*x) } # for trophic level 3
 
-data.N$Chat <- predict(poismod.Cc)
+#data.N$Chat <- predict(poismod.Cc)
 
 C.plot2 <- ggplot(data = data.N, aes(x = -invTT, y = abundance.copepods, xmin = -40.2, xmax = -38.2)) +
   theme_bw() +
@@ -278,18 +332,125 @@ C.plot2 <- ggplot(data = data.N, aes(x = -invTT, y = abundance.copepods, xmin = 
 
 C.plot3 <- C.plot2 +
   geom_smooth(data = data.N, aes(x = -invTT, y = C.PZ(invTT)), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'blue', size = 1.5)
+```
 
+`r fig_nums("Fig_S3.6")`
+```{r copepod abundance figure}
 C.plot3
 #ggsave("Dabundance.png", device = "png")
 ```
 
-##### Zooplankton size analysis
+### Section S3.4: Zooplankton size analysis
 ```{r Size analysis}
 sizes <- read.csv("../data/GarzkeSizes.csv")
+#View(sizes)
 
+sizes$week <- as.factor(sizes$week)
+sizes$Tank <- as.factor(sizes$Tank)
+
+sizes$taxon <- sizes$species
+levels(sizes$taxon)[levels(sizes$taxon)== "calanoid"] <- "Copepod"
+levels(sizes$taxon)[levels(sizes$taxon)== "cyclopoid"] <- "Copepod"
+levels(sizes$taxon)[levels(sizes$taxon)== "Bosmina"] <- "Daphnia"
 ```
 
 ```{r}
-
+data.S <- as.tibble(sizes) %>%
+  group_by(Tank, trophic.level, week) %>%
+  filter(trophic.level != 'P') %>%
+  arrange(trophic.level, week) 
+  #dplyr::select(., Tank, trophic.level, week, invTT, average.temp, abundance.Daphnia, abundance.copepods, Daphnia.Copepod.Ratio, total.zoo.abundance.liter) %>%
 ```
 
+`r fig_nums("Fig_S3.7")`
+
+```{r Fig_S3.7 Zooplankton size data, fig.width = 3, fig.height = 3}  
+hist(data.S$size)
+hist(log(data.S$size))
+```
+
+```{r size model}
+## tried with untransformed data, and truncated models would not converge. So trying again with log transformed data. 
+# first try: lm random effects models with normally distributed errors
+m2 <- lmer(log(size) ~ invTT + trophic.level + (1|Tank), data = data.S)
+#shapiro.test(resid(m2)) # very non-normal (both raw and log trasnformed)
+
+# poisson regression
+m1 <- glm(size ~ trophic.level + invTT, family="poisson", data=data.S)
+#shapiro.test(resid(m1)) # very non-normal; probably need a zero-truncated poisson
+
+#qqnorm(resid(m2)) # but not too bad; go ahead with this.
+#qqline(resid(m2))
+
+#m3 <- glmmadmb(size ~ invTT + trophic.level + (1|Tank), family = "poisson", data = data.S)
+#shapiro.test(resid(m3)) # very non-normal
+
+#m4 <- glmmadmb(size ~ invTT + trophic.level + (1|Tank), family = "truncnbinom1", data = data.S)
+#shapiro.test(resid(m4)) # very non-normal
+```
+
+
+```{r size model comparison}
+m2a <- lmer(log(size) ~ invTT*trophic.level*taxon + (1|Tank), data = data.S)
+#summary(m2a)
+#shapiro.test(resid(m2a))
+
+m2b <- lmer(log(size) ~ invTT*taxon*trophic.level + (1|Tank), data = data.S)
+m2j <- lmer(log(size) ~ invTT*taxon + trophic.level + (1|Tank), data = data.S)
+m2c <- lmer(log(size) ~ invTT + trophic.level*taxon + (1|Tank), data = data.S)
+m2d <- lmer(log(size) ~ invTT + trophic.level + (1|Tank), data = data.S)
+m2k <- lmer(log(size) ~ invTT*trophic.level + (1|Tank), data = data.S)
+m2m <- lmer(log(size) ~ invTT*trophic.level + taxon + (1|Tank), data = data.S)
+m2e <- lmer(log(size) ~ invTT + taxon + (1|Tank), data = data.S)
+m2l <- lmer(log(size) ~ invTT*taxon + (1|Tank), data = data.S)
+m2f <- lmer(log(size) ~ invTT + (1|Tank), data = data.S)
+m2g <- lmer(log(size) ~ trophic.level*taxon + (1|Tank), data = data.S)
+m2h <- lmer(log(size) ~ taxon + (1|Tank), data = data.S)
+m2i <- lmer(log(size) ~ trophic.level + (1|Tank), data = data.S)
+
+resS <- model.sel(m2a, m2b, m2c, m2d, m2e, m2f, m2g, m2h, m2i, m2j, m2k, m2l, m2m)
+#summary(m2g)
+```
+
+`r table_nums("Table_S3.8")`
+
+```{r Table_S3.8: Size model comparison}
+kable(resS, digits=2, col.names = c('Int','Tw','Tx','TL','Tw*Tx','Tw*TL','Tx*TL','Tw*Tx*Tl', 'df', 'logLik', 'AICc', 'd', 'w'))
+```
+
+```{r zooplankton size coefficients}
+Sd.PZ <- fixef(m2h)[1]
+Sc.PZ <- fixef(m2h)[1] + fixef(m2h)[2]
+confint(m2h) -> SizeInts
+```
+
+
+
+```{r size_plot}
+S.plot <- ggplot(data = data.S, aes(x = -invTT, y = log(size), xmin = -40.2, xmax = -38.2)) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  geom_point(aes(group = as.character(Tank), color = as.character(trophic.level))) +
+  facet_grid(.~taxon) +
+  theme(panel.grid.minor = element_blank(), 
+        panel.grid.major = element_blank(),  
+        legend.text = element_text(size = 3), 
+        legend.title = element_text(size = 3), 
+        legend.key = element_rect(fill = NA), 
+        strip.text.y = element_blank(),
+        strip.background = element_rect(colour="white", fill="white")) +
+  ylab("Zooplankton body size (log(mm))") + 
+  scale_x_continuous("Mean Tank Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*-.))-273), name = "Temperature C"))
+
+S.plot2 <- S.plot +
+  geom_ribbon(data = subset(data.S[(data.S$taxon == 'Daphnia'),]), aes(ymin = Sd.PZ-SizeInts[1], ymax = Sd.PZ+SizeInts[1]), fill = "gray", alpha = .5) +
+    geom_smooth(data = subset(data.S[(data.S$taxon == 'Daphnia'),]), aes(x = -invTT, y = Sd.PZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'blue', size = 1) +
+   geom_ribbon(data = subset(data.S[(data.S$taxon == 'Copepod'),]), aes(ymin = Sc.PZ-SizeInts[1], ymax = Sc.PZ+SizeInts[1]), fill = "gray", alpha = .5) +  
+  geom_smooth(data = subset(data.S[(data.S$taxon == 'Copepod'),]), aes(x = -invTT, y = Sc.PZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'blue', size = 1.5)
+```
+
+`r fig_nums("Fig_S3.8")`
+
+```{r size plot}
+S.plot2
+```

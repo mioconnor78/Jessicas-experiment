@@ -17,8 +17,8 @@ library(zoo)
 ## first set of code (to line 152) is processing
 
 ### set working directory and load data
-data <- read.csv("./data/temporal_dataFEB12.csv")
-temps <- read.csv("./data/dailytemps.csv")
+data <- read.csv("../data/temporal_dataFEB12.csv")
+temps <- read.csv("../data/dailytemps.csv")
 
 data <- data[-(241:255),]
 data$Tank <- as.character(data$Tank)
@@ -162,7 +162,7 @@ write.csv(GarzkedataA, file = "GarzkedataA.csv")
 ### data prep complete
 
 ### prepare size datafile
-sizes <- read.csv("./data/CommunitySizes.csv")
+sizes <- read.csv("../data/CommunitySizes.csv")
 sizes$Tank <- as.character(sizes$Tank)
 sizes$week <- sizes$Week
 sizes.t <- left_join(sizes, temps.wk, by = c("week", "Tank")) # add weekly temps to sizes file

@@ -1,5 +1,5 @@
 ---
-title: "Supplementary material for Garzke et al manuscript. This file includes analyses and model outputs supporting phytoplankton and oxygen flux results in main text."
+title: "Temperature dependence of biomass and ecosystem function depend on species interactions. Supplementary File 2: Phytoplankton and oxygen flux results in main text."
 output:
   pdf_document: default
   html_document: default
@@ -24,13 +24,22 @@ library(zoo)
 library(knitr)
 library(gridExtra)
 library(captioner)
+```
 
+```{r load data}
 ### load data
 data <- read.csv("../data/GarzkedataA.csv")
 k <- 8.617342*10^-5  # eV/K
 labels <- c(P = "Algae", PZ = "Algae + Grazers", PZN = "Algae + Grazers + Predators")
-table_nums <- captioner::captioner(prefix = "Table")
-tab.1_cap <- table_nums(name = "tab_1", caption = "Table S3")
+```
+
+```{r captions, echo = FALSE}
+table_nums <- captioner::captioner(prefix = "Table S2.") #sets prefix for all tables
+table_nums(name = "Table_S2.1", caption = "")
+
+fig_nums <- captioner::captioner(prefix = "Figure S2.")
+fig_nums(name = "Fig_S2.1", caption = "")
+fig_nums(name = "Fig_S2.2", caption = "")
 ```
 
 ## 1. Trophic Cascade Results: Figure 2  

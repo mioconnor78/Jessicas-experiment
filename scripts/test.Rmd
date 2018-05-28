@@ -1,0 +1,84 @@
+---
+title: "Supplementary material for Garzke et al manuscript. This file includes analyses and model outputs supporting zooplankton results in main text."
+output:
+  pdf_document: default
+  html_document: default
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+```{r load librares, echo=FALSE}
+
+### load libraries
+library(MuMIn)
+library(lme4)
+library(plyr)
+library(tidyverse) 
+library(broom)
+library(reshape2)
+library(captioner)
+library(knitr)
+library(gridExtra)
+library(glmmADMB)
+library(sandwich)
+library(tinytex)
+```
+
+```{r load data}
+data <- read.csv("../data/GarzkedataA.csv")
+k <- 8.617342*10^-5  # eV/K
+#labels <- c(P = "Algae", PZ = "Algae + Grazers", PZN = "Algae + Grazers + Predators")
+```
+
+```{r write functions}
+overdisp_fun <- function(model) {
+  vpars <- function(m) {
+    nrow(m)*(nrow(m)+1)/2
+  } 
+  model.df <- sum(sapply(VarCorr(model), vpars)) + length(fixef(model))
+  rdf <- nrow(model.frame(model))-model.df
+  rp <- residuals(model, type = "pearson") # computes pearson residuals
+  Pearson.chisq <- sum(rp^2)
+  prat <- Pearson.chisq/rdf
+  pval <- pchisq(Pearson.chisq, df = rdf, lower.tail = FALSE)
+  c(chisq = Pearson.chisq, ratio = prat, rdf = rdf, p = pval)
+} 
+```
+
+### Zooplankton analysis
+####Abundance data over whole experiment
+```{r Total Zooplankton analysis, echo = FALSE}
+
+data.N <- as.tibble(data) %>%
+  group_by(Tank, trophic.level, week) %>%
+  filter(trophic.level != 'P', week > 3) %>%
+  dplyr::select(., Tank, trophic.level, week, invTT, average.temp, abundance.Daphnia, abundance.copepods, Daphnia.Copepod.Ratio, total.zoo.abundance.liter) %>%
+  arrange(trophic.level, week) 
+
+data.N$Nt <- 10*(data.N$total.zoo.abundance.liter)
+data.N$week <- as.factor(data.N$week)
+data.N$Tank <- as.factor(data.N$Tank)
+```
+
+```{r}
+nbinommod1b <- glmmadmb(Nt ~ invTT + (1|Tank), family = "nbinom", zeroInflation = T, data = data.N)
+nbinommod1c <- glmmadmb(Nt ~ 1 + (1|Tank), family = "nbinom", zeroInflation = T, data = data.N)
+
+res <- model.sel(nbinommod1b, nbinommod1c)
+```
+
+```{r captions}
+table_nums <- captioner::captioner(prefix = "Table S")
+table_nums(name = "Table_1", caption = "please work table 1")
+PW <- table_nums("Table_1")
+Tabs_2 <- captioner(levels = 2, type = c("C", "n"), infix = "-")
+Tab1cap <- Tabs_2("C", "model selection results")
+#table_nums(name = "Table S1", caption = "Table S8: Model selection results for zooplankton abundance, with 1|Tank as a random effect. Model terms are: intercept (Int), trophic treatment (TL), Temperature - weekly average (Tw), temperature - expt average (Tt), interaction terms and statistical estimates")
+```
+`r table_nums("Table_1")`
+```{r Table_S1}
+kable(res, digits=2)
+```
