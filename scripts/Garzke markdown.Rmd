@@ -29,6 +29,7 @@ library(captioner)
 ```{r load data}
 ### load data
 data <- read.csv("../data/GarzkedataA.csv")
+alldata <- read.csv("../data/GarzkeAllwks.csv")
 k <- 8.617342*10^-5  # eV/K
 labels <- c(P = "Algae", PZ = "Algae + Grazers", PZN = "Algae + Grazers + Predators")
 ```
@@ -46,6 +47,40 @@ fig_nums <- captioner::captioner(prefix = "Figure S2.")
 fig_nums(name = "Fig_S2.1", caption = "Chlorophyll a concentration", display = FALSE)
 fig_nums(name = "Fig_S2.2", caption = "Trophic Treatment Effects on Chlorophyll a, Net Oxygen Ecosystem Production (NEP), and Net Ecosystem Respiration (ER)", display = FALSE)
 fig_nums(name = "Fig_S2.3", caption = "Manuscript figure 3: Effects of temperature on oxygen flux and phytoplankton standing stock", display = FALSE)
+```
+
+##. temporal results
+```{r, echo = FALSE}
+Chl.time <- ggplot(data = alldata, aes(x = week, y = log(chla), ymin = 0)) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  geom_point() +
+  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank(),  
+        legend.text = element_text(size=6), 
+        legend.title = element_text(size = 7), 
+        strip.background = element_blank()) +
+  ylab("Phytoplankton Abundance \n ln(ug Chl a / L)")
+
+Chl.time
+
+CT1 <- lme(I(log(chla)) ~ week, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
+```
+
+```{r, echo = FALSE}
+Chl.temp <- ggplot(data = alldata, aes(x = temp.wk, y = log(chla), ymin = 0)) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  geom_point() +
+  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank(),  
+        legend.text = element_text(size=6), 
+        legend.title = element_text(size = 7), 
+        strip.background = element_blank()) +
+  ylab("Phytoplankton Abundance \n ln(ug Chl a / L)")
+
+Chl.temp
+
+CT2 <- lme(I(log(chla)) ~ temp.wk, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
+
 ```
 
 ## 1. Trophic Cascade Results (Figure 2 Main text)

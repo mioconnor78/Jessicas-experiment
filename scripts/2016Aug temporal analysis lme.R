@@ -177,12 +177,12 @@ data <- data[data$week >= '4',]
 #data1 <- data[(data$NPP2 >= 0.5),] # three negative values and one very small value now, not sure what to do about them.
 hist(data[(data$NPP2 >= 0.05),]$NPP2)
 hist(log(data$NPP2))
-hist((data1$NPP2))
+hist((data$NPP2))
 
-plot(log(data1$NPP2)~data1$Tank, pch = 19, col = data1$trophic.level)
-plot(log(data1$NPP2)~data1$week, pch = 19, col = data1$trophic.level)
-plot(log(data1$NPP2)~I(data1$invTi-data1$invTT), pch = 19, col = data1$Tank, ylim = c(0,6))
-plot(log(data1$NPP2)~I(data1$invTi-data1$invTT), pch = 19, col = data1$Tank, ylim = c(0,6))
+plot(log(data$NPP2)~data$Tank, pch = 19, col = data$trophic.level)
+plot(log(data$NPP2)~data$week, pch = 19, col = data$trophic.level)
+plot(log(data$NPP2)~I(data$invTi-data$invTT), pch = 19, col = data1$Tank, ylim = c(0,6))
+plot(log(data$NPP2)~I(data$invTi-data$invTT), pch = 19, col = data1$Tank, ylim = c(0,6))
 abline(3.5435395, -0.6159088, lwd = 2, col = 1)
 plot(log(data1$NPP2)~data1$invTi, pch = data1$Tank, col = data1$Tank)
 

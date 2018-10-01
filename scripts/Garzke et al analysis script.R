@@ -1,5 +1,5 @@
 ### Garzke et al temperature experiment
-### scripts for final manuscript
+### scripts for PLOSBiology R1
 ### Mary O'Connor 
 
 
@@ -153,6 +153,8 @@ data$ER2 <- -((data$dawn2 - data$dusk) - (C.star(data$temp.d2) - C.star(data$tem
 data$ER2a <- -((data$dawn2 - data$dusk))/(z*(data$hours2))# amount of oxygen consumed per day via respiration. negative to get the change in oxygen umol / L /day; oxygen used in the dark and daylight. MeanER can be greater than meanNPP, because NPP reflects ER already.
 diffER <- data$ER2 - data$ER2a
 
+allweeks <- data
+write.csv(allweeks, file = "GarzkeAllwks.csv")
 Garzkedata <- data[data$week >= '4',]
 GarzkedataA <- data
 data <- Garzkedata
