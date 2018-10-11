@@ -84,6 +84,71 @@ CT2 <- lme(I(log(chla)) ~ temp.wk, random = ~ 1 | Tank, data=data, method="ML", 
 ```
 
 ## 1. Trophic Cascade Results (Figure 2 Main text)
+### Calculate strength of grazing and strength of the trophic cascade on chla
+```{r, echo = FALSE}
+#estimate mean temp for each power level
+alldata$week <- factor(alldata$week)
+alldata$power <- factor(alldata$power)
+
+temps.pwr <- alldata %>%
+  group_by(week, power) %>%
+  dplyr::summarize(avgTemp = mean(average.temp, na.rm = TRUE))
+View(temps.pwr)
+
+TCchla <- as.tibble(alldata) %>%
+group_by(week) %>%
+select(., week, power, trophic.level, chla) %>%
+spread(., trophic.level, chla) %>%
+left_join(., temps.pwr, by = c("week", "power")) %>%
+mutate(., invTavg = 1/((avgTemp + 273)*k)) %>%
+mutate(., TC = log(PZN/PZ)) 
+
+hist(TCchla$TC)
+
+TC <- ggplot(data = TCchla, aes(x = avgTemp, y = TC, ymin = 0)) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank(),  
+        legend.text=element_text(size=6), 
+        legend.title = element_text(size = 7), 
+        legend.key = element_rect(fill = NA), 
+        strip.background = element_blank()) +
+  theme(strip.background = element_rect(colour="white", fill="white")) +
+  geom_point(aes(group = week, shape = as.factor(week)), size = 2) 
+
+TC
+```
+
+### Calculate strength of grazing and strength of the trophic cascade on NPP2
+```{r, echo = FALSE}
+#estimate mean temp for each power level
+alldata$week <- factor(alldata$week)
+alldata$power <- factor(alldata$power)
+
+TCNPP <- as.tibble(alldata) %>%
+group_by(week) %>%
+select(., week, power, trophic.level, NPP2) %>%
+spread(., trophic.level, NPP2) %>%
+left_join(., temps.pwr, by = c("week", "power")) %>%
+mutate(., TC = log(PZN/PZ)) 
+
+hist(TCNPP$TC)
+
+TCNPP <- ggplot(data = TCNPP, aes(x = avgTemp, y = TC, ymin = 0)) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank(),  
+        legend.text=element_text(size=6), 
+        legend.title = element_text(size = 7), 
+        legend.key = element_rect(fill = NA), 
+        strip.background = element_blank()) +
+  theme(strip.background = element_rect(colour="white", fill="white")) +
+  geom_point(aes(group = week, shape = as.factor(week)), size = 2) 
+
+TCNPP
+```
+
+### estimate of TC pooled across treatments; cut this now
 ```{r, echo = FALSE}
 tc1 <- lme((chla) ~ trophic.level, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
 
@@ -175,6 +240,7 @@ hist(log(data$chla))
 ## 2.1.1 Phytoplankton abundance candidate models
 ```{r, echo=FALSE}
 #### Phytoplankton coefficients for Figure 2
+data <- alldata
 modPBF <- lme(log(chla) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
 modPB8 <- lme(log(chla) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
 modPB7 <- lme(log(chla) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
