@@ -391,25 +391,26 @@ m1 <- glm(size ~ trophic.level + invTT, family="poisson", data=data.S)
 
 
 ```{r size model comparison}
-m2a <- lmer(log(size) ~ invTT*trophic.level*taxon + (1|Tank), method = "ML", data = data.S)
+m2a <- lmer(log(size) ~ invTT*trophic.level*taxon + (1|Tank), REML = FALSE, data = data.S)
 #summary(m2a)
 #shapiro.test(resid(m2a))
 
-m2b <- lmer(log(size) ~ invTT*taxon*trophic.level + (1|Tank), method = "ML", data = data.S)
-m2j <- lmer(log(size) ~ invTT*taxon + trophic.level + (1|Tank), method = "ML", data = data.S)
-m2c <- lmer(log(size) ~ invTT + trophic.level*taxon + (1|Tank), method = "ML", data = data.S)
-m2d <- lmer(log(size) ~ invTT + trophic.level + (1|Tank), method = "ML", data = data.S)
-m2k <- lmer(log(size) ~ invTT*trophic.level + (1|Tank), method = "ML", data = data.S)
-m2m <- lmer(log(size) ~ invTT*trophic.level + taxon + (1|Tank), method = "ML", data = data.S)
+m2b <- lmer(log(size) ~ invTT*taxon*trophic.level + (1|Tank), REML = FALSE, data = data.S)
+m2j <- lmer(log(size) ~ invTT*taxon + trophic.level + (1|Tank), REML = FALSE, data = data.S)
+m2c <- lmer(log(size) ~ invTT + trophic.level*taxon + (1|Tank), REML = FALSE, data = data.S)
+m2d <- lmer(log(size) ~ invTT + trophic.level + (1|Tank), REML = FALSE, data = data.S)
+m2k <- lmer(log(size) ~ invTT*trophic.level + (1|Tank), REML = FALSE, data = data.S)
+m2m <- lmer(log(size) ~ invTT*trophic.level + taxon + (1|Tank), REML = FALSE, data = data.S)
 m2e <- lmer(log(size) ~ invTT + taxon + (1|Tank), REML = FALSE, data = data.S)
-m2l <- lmer(log(size) ~ invTT*taxon + (1|Tank), method = "ML", data = data.S)
-m2f <- lmer(log(size) ~ invTT + (1|Tank), method = "ML", data = data.S)
-m2g <- lmer(log(size) ~ trophic.level*taxon + (1|Tank), method = "ML", data = data.S)
-m2h <- lmer(log(size) ~ taxon + (1|Tank), method = "ML", data = data.S)
-m2i <- lmer(log(size) ~ trophic.level + (1|Tank), method = "ML", data = data.S)
+m2l <- lmer(log(size) ~ invTT*taxon + (1|Tank), REML = FALSE, data = data.S)
+m2f <- lmer(log(size) ~ invTT + (1|Tank), REML = FALSE, data = data.S)
+m2g <- lmer(log(size) ~ trophic.level*taxon + (1|Tank), REML = FALSE, data = data.S)
+m2h <- lmer(log(size) ~ taxon + (1|Tank), REML = FALSE, data = data.S)
+m2i <- lmer(log(size) ~ trophic.level + (1|Tank), REML = FALSE, data = data.S)
 
 resS <- model.sel(m2a, m2b, m2c, m2d, m2e, m2f, m2g, m2h, m2i, m2j, m2k, m2l, m2m)
-#summary(m2g)
+summary(m2b)
+m.avg <- model.avg(m2b, m2a, m2g)
 ```
 
 `r table_nums("Table_S3.8")`
