@@ -44,13 +44,15 @@ table_nums(name = "Table_S2.5", caption = "Model selection results for Net Ecosy
 table_nums(name = "Table_S2.6", caption = "Confidence intervals for model ER7 (Table S2.5) (For MS Figure 3", display = FALSE)
 
 fig_nums <- captioner::captioner(prefix = "Figure S2.")
+fig_nums(name = "Fig_S2.01", caption = "Chlorophyll a concentration over time", display = FALSE)
 fig_nums(name = "Fig_S2.1", caption = "Chlorophyll a concentration", display = FALSE)
 fig_nums(name = "Fig_S2.2", caption = "Trophic Treatment Effects on Chlorophyll a, Net Oxygen Ecosystem Production (NEP), and Net Ecosystem Respiration (ER)", display = FALSE)
 fig_nums(name = "Fig_S2.3", caption = "Manuscript figure 3: Effects of temperature on oxygen flux and phytoplankton standing stock", display = FALSE)
 ```
 
-##. temporal results
-```{r, echo = FALSE}
+## 0.5. Temporal Results 
+
+```{r, echo = FALSE, Fig_S2.01,fig.width=5, fig.height=3}
 Chl.time <- ggplot(data = alldata, aes(x = week, y = log(chla), ymin = 0)) +
   theme_bw() +
   theme(legend.position = "none") +
@@ -66,7 +68,7 @@ Chl.time
 CT1 <- lme(I(log(chla)) ~ week, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
 ```
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, Fig_S2.02, fig.width=5, fig.height=3}
 Chl.temp <- ggplot(data = alldata, aes(x = temp.wk, y = log(chla), ymin = 0)) +
   theme_bw() +
   theme(legend.position = "none") +
@@ -85,7 +87,7 @@ CT2 <- lme(I(log(chla)) ~ temp.wk, random = ~ 1 | Tank, data=data, method="ML", 
 
 ## 1. Trophic Cascade Results (Figure 2 Main text)
 ### Calculate strength of grazing and strength of the trophic cascade on chla
-```{r, echo = FALSE}
+```{r, echo = FALSE, Fig_S2.03, fig.width=3, fig.height=3}
 #estimate mean temp for each power level
 alldata$week <- factor(alldata$week)
 alldata$power <- factor(alldata$power)
@@ -104,7 +106,9 @@ mutate(., invTavg = 1/((avgTemp + 273)*k)) %>%
 mutate(., TC = log(PZN/PZ)) 
 
 hist(TCchla$TC)
+```
 
+```{r, echo = FALSE, Fig_S2.04, fig.width=5, fig.height=3}
 TC <- ggplot(data = TCchla, aes(x = avgTemp, y = TC, ymin = 0)) +
   theme_bw() +
   theme(legend.position = "none") +
@@ -120,7 +124,7 @@ TC
 ```
 
 ### Calculate strength of grazing and strength of the trophic cascade on NPP2
-```{r, echo = FALSE}
+```{r, echo = FALSE, Fig_S2.05, fig.width=3, fig.height=3}
 #estimate mean temp for each power level
 alldata$week <- factor(alldata$week)
 alldata$power <- factor(alldata$power)
@@ -133,6 +137,9 @@ left_join(., temps.pwr, by = c("week", "power")) %>%
 mutate(., TC = log(PZN/PZ)) 
 
 hist(TCNPP$TC)
+```
+
+```{r, Fig_S2.06, fig.width=3, fig.height=3}
 
 TCNPP <- ggplot(data = TCNPP, aes(x = avgTemp, y = TC, ymin = 0)) +
   theme_bw() +
@@ -148,85 +155,6 @@ TCNPP <- ggplot(data = TCNPP, aes(x = avgTemp, y = TC, ymin = 0)) +
 TCNPP
 ```
 
-### estimate of TC pooled across treatments; cut this now
-```{r, echo = FALSE}
-tc1 <- lme((chla) ~ trophic.level, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
-
-#summary(tc1)
-#anova(tc1)
-
-tcR1 <- lme(log(ER2) ~ trophic.level, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
-
-#summary(tcR1)
-#anova(tcR1)
-
-tcN1 <- lme(log(NPP2+1) ~ trophic.level, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
-
-#summary(tcN1)
-#anova(tcN1)
-```
-
-```{r Figure 2 code}
-TC <- ggplot(data = data, aes(x = trophic.level, y = chla, ymin = 0)) +
-  theme_bw() +
-  theme(legend.position = "none") +
-  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank(),  
-        legend.text=element_text(size=6), 
-        legend.title = element_text(size = 7), 
-        legend.key = element_rect(fill = NA), 
-        strip.background = element_blank()) +
-  theme(strip.background = element_rect(colour="white", fill="white")) +
-  geom_boxplot() + 
-  annotate("text", label = "*", x = 2, y =14, size = 8) +
-  annotate("text", label = "A", x = 3.4, y = 14) +
-  scale_x_discrete("Species Interaction Treatment", labels = c(P = "A", PZ = "AG", PZN = "AGP")) +
-  ylab("Phytoplankton Abundance \n ln(ug Chl a / L)")
-
-#TC
-#ggsave("TC.png", device = "png", width = 3, height = 3)
-
-TC.NPP <- ggplot(data = data, aes(x = trophic.level, y = log(NPP2), ymin = 0)) +
-  theme_bw() +
-  theme(legend.position = "none") +
-  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank(),  
-        legend.text=element_text(size=6), 
-        legend.title = element_text(size = 7), 
-        legend.key = element_rect(fill = NA), 
-        strip.background = element_blank()) +
-  theme(strip.background = element_rect(colour="white", fill="white")) +
-  geom_boxplot() + 
-  annotate("text", label = "C", x = 3.4, y = -4.2, size = 4) +
-  scale_x_discrete("Species Interaction Treatment", labels = c(P = "A", PZ = "AG", PZN = "AGP")) +
-  ylab("Oxygen Production (NEP) \n ln(umol O2 / L / hr)")
-
-#TC.NPP
-#ggsave("TC.NPP.png", device = "png", width = 3, height = 3)
-
-TC.ER <- ggplot(data = data, aes(x = trophic.level, y = log(ER2), ymin = 0)) +
-  theme_bw() +
-  theme(legend.position = "none") +
-  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank(),  
-        legend.text=element_text(size=6), 
-        legend.title = element_text(size = 7), 
-        legend.key = element_rect(fill = NA), 
-        strip.background = element_blank()) +
-  theme(strip.background = element_rect(colour="white", fill="white")) +
-  geom_boxplot() + 
-  annotate("text", label = "*", x = 2, y =-4, size = 8) +
-  annotate("text", label = "B", x = 3.4, y = -4) +
-  scale_x_discrete("Species Interaction Treatment", labels = c(P = "A", PZ = "AG", PZN = "AGP")) +
-  ylab("Oxygen Consumption (ER) \n ln(umol O2 / L / hr)")
-
-fig2 <- arrangeGrob(TC, TC.ER, TC.NPP, nrow = 1)
-
-```
-
-`r fig_nums("Fig_S2.2")`
-
-```{r Fig_S2.2, fig.width=9, fig.height=3 }
-fig2
-#ggsave("fig2.png", plot = fig2, device = "png", width = 9, height = 3)
-```
 
 ### 2.1 Phytoplankton abundance (for Figure 3, Table 2 main text)
 
