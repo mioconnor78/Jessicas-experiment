@@ -89,8 +89,8 @@ CT2 <- lme(I(log(chla)) ~ temp.wk, random = ~ 1 | Tank, data=data, method="ML", 
 ### Calculate strength of grazing and strength of the trophic cascade on chla
 ```{r, echo = FALSE, Fig_S2.03, fig.width=3, fig.height=3}
 #estimate mean temp for each power level
-alldata$week <- factor(alldata$week)
-alldata$power <- factor(alldata$power)
+#alldata$week <- factor(alldata$week)
+#alldata$power <- factor(alldata$power)
 
 temps.pwr <- alldata %>%
   group_by(week, power) %>%
@@ -105,22 +105,64 @@ left_join(., temps.pwr, by = c("week", "power")) %>%
 mutate(., invTavg = 1/((avgTemp + 273)*k)) %>%
 mutate(., TC = log(PZN/PZ)) 
 
+data <- TCchla
+
 hist(TCchla$TC)
 ```
 
 ```{r, echo = FALSE, Fig_S2.04, fig.width=5, fig.height=3}
-TC <- ggplot(data = TCchla, aes(x = avgTemp, y = TC, ymin = 0)) +
+TC <- ggplot(data = TCchla, aes(x = invTavg, y = TC, ymin = 0)) +
   theme_bw() +
-  theme(legend.position = "none") +
+  #theme(legend.position = "none") +
   theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank(),  
         legend.text=element_text(size=6), 
         legend.title = element_text(size = 7), 
         legend.key = element_rect(fill = NA), 
         strip.background = element_blank()) +
   theme(strip.background = element_rect(colour="white", fill="white")) +
-  geom_point(aes(group = week, shape = as.factor(week)), size = 2) 
+  geom_point(aes(group = week, color = as.factor(week)), size = 2) 
 
 TC
+```
+
+```{r, echo = FALSE}
+## power constitutes the group here, and we have 8 observations for each 'power'; however, our question is about whether the effect of temperature varies by week. that's why i want the week to be the group; but that goes against how we need to model the variance, grouped among the units (= 'power' levels) that are repeatedly sampled. SO, look for examples of aging subjects for repeated measures. we are looking here at an across-subject effect of interst, and we want to know whether it changes with subject age. 
+data$power <- as.factor(data$power)
+data$week <- as.numeric(data$week)
+
+## let's model just week 9
+TCmod9 <- lm(TC ~ invTavg, data=TCchla[TCchla$week == '9',], method="ML", na.action=na.omit)
+
+TCmod8 <- lm(TC ~ invTavg, data=TCchla[TCchla$week == '8',], method="ML", na.action=na.omit)
+
+TCmod7 <- lm(TC ~ invTavg, data=TCchla[TCchla$week == '7',], method="ML", na.action=na.omit)
+
+TCmod6 <- lm(TC ~ invTavg, data=TCchla[TCchla$week == '6',], method="ML", na.action=na.omit)
+
+TCmod5 <- lm(TC ~ invTavg, data=TCchla[TCchla$week == '5',], method="ML", na.action=na.omit)
+
+TCmod4 <- lm(TC ~ invTavg, data=TCchla[TCchla$week == '4',], method="ML", na.action=na.omit)
+
+TCmod3 <- lm(TC ~ invTavg, data=TCchla[TCchla$week == '3',], method="ML", na.action=na.omit)
+
+TCmod2 <- lm(TC ~ invTavg, data=TCchla[TCchla$week == '2',], method="ML", na.action=na.omit)
+
+## so this could work: 
+TCmoda <- lme(TC ~ 1 + invTavg*week, random = ~ 1 + invTavg|power, data=TCchla, method="REML", na.action=na.omit)
+
+#promising - high correlations so centre on T again?
+TCmodJ <- lme(TC ~ invTavg*week, random = ~ 1|power + invTavg|week, data=TCchla, method="REML", na.action=na.omit)
+
+TCmodb <- lme(TC ~ 1 + invTavg*week, random = ~ 1 + 1|power, data=TCchla, method="REML", na.action=na.omit)
+TCmodc <- lme(TC ~ 1 + invTavg + week, random = ~ 1 + invTavg|power, data=TCchla, method="REML", na.action=na.omit)
+TCres <- data.frame(model.sel(TCmoda, TCmodb, TCmodc))
+
+```
+
+`r table_nums("Table_S2.0")`
+
+```{r Table_S2.1}
+kable(TCmod, digits=2, col.names = c('Int','TL','Tw','Tt', 'Tw*Tt', 'Tw*TL','Tt*TL', 'df', 'logLik','AICc','d','w'))
 ```
 
 ### Calculate strength of grazing and strength of the trophic cascade on NPP2
@@ -154,6 +196,9 @@ TCNPP <- ggplot(data = TCNPP, aes(x = avgTemp, y = TC, ymin = 0)) +
 
 TCNPP
 ```
+
+
+
 
 
 ### 2.1 Phytoplankton abundance (for Figure 3, Table 2 main text)
