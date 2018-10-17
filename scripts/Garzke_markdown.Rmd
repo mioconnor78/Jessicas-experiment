@@ -94,7 +94,7 @@ alldata$power <- factor(alldata$power)
 temps.pwr <- alldata %>%
   group_by(week, power) %>%
   dplyr::summarize(avgTemp = mean(average.temp, na.rm = TRUE))
-View(temps.pwr)
+#View(temps.pwr)
 
 TCchla <- as.tibble(alldata) %>%
 group_by(week) %>%
@@ -105,7 +105,9 @@ mutate(., invTavg = 1/((avgTemp + 273)*k)) %>%
 mutate(., TC = log(PZN/PZ)) 
 
 hist(TCchla$TC)
+```
 
+```{r, ech= FALSE}
 TC <- ggplot(data = TCchla, aes(x = avgTemp, y = TC, ymin = 0)) +
   theme_bw() +
   theme(legend.position = "none") +
@@ -115,7 +117,7 @@ TC <- ggplot(data = TCchla, aes(x = avgTemp, y = TC, ymin = 0)) +
         legend.key = element_rect(fill = NA), 
         strip.background = element_blank()) +
   theme(strip.background = element_rect(colour="white", fill="white")) +
-  geom_point(aes(group = week, shape = as.factor(week)), size = 2) 
+  geom_point(aes(group = week, color = as.factor(week)), size = 2) 
 
 TC
 ```
@@ -145,7 +147,9 @@ left_join(., temps.pwr, by = c("week", "power")) %>%
 mutate(., TC = log(PZN/PZ)) 
 
 hist(TCNPP$TC)
+```
 
+```{r, echo=FALSE}
 TCNPP <- ggplot(data = TCNPP, aes(x = avgTemp, y = TC, ymin = 0)) +
   theme_bw() +
   theme(legend.position = "none") +
