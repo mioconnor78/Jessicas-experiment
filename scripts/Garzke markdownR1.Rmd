@@ -3,6 +3,7 @@ title: "Temperature dependence of biomass and ecosystem function depend on speci
 output:
   pdf_document: default
   html_document: default
+  theme: "lumen"
 ---
 
 ```{r setup, include=FALSE}
@@ -52,9 +53,9 @@ fig_nums(name = "Fig_S2.2", caption = "Trophic Treatment Effects on Chlorophyll 
 fig_nums(name = "Fig_S2.3", caption = "Manuscript figure 3: Effects of temperature on oxygen flux and phytoplankton standing stock", display = FALSE)
 ```
 
-## 0.5. Temporal Results 
+## 0.5. Temporal Results: Chlorophyll over time (8 weeks)
 
-```{r Plot Chla over time, echo = FALSE, Fig_S2.01,fig.width=5, fig.height=3}
+```{r, echo = FALSE, Fig_S2.01, fig.width=5, fig.height=3}
 Chl.time <- ggplot(data = alldata, aes(x = week, y = log(chla), ymin = 0)) +
   theme_bw() +
   theme(legend.position = "none") +
@@ -70,7 +71,9 @@ Chl.time
 CT1 <- lme(I(log(chla)) ~ week, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
 ```
 
-```{r Plot Chla over temps, echo = FALSE, Fig_S2.02, fig.width=5, fig.height=3}
+## 0.5. Temporal Results: Chlorophyll over temperatures 
+
+```{r, echo = FALSE, Fig_S2.02, fig.width=5, fig.height=3}
 Chl.temp <- ggplot(data = alldata, aes(x = temp.wk, y = log(chla), ymin = 0)) +
   theme_bw() +
   theme(legend.position = "none") +
@@ -88,8 +91,8 @@ CT2 <- lme(I(log(chla)) ~ temp.wk, random = ~ 1 | Tank, data=data, method="ML", 
 ```
 
 # 1. Trophic Cascade Results (Figure 2 Main text)
-## Trophic cascade (TC) is defined as log(PZN/PZ) for Chlorophyll a
-```{r Calculate TC, echo = FALSE, Fig_S2.03, fig.width=2, fig.height=2}
+## 1.1 Trophic cascade (TC) is defined as log(PZN/PZ) for Chlorophyll a
+```{r, echo = FALSE, Fig_S2.03, fig.width=3, fig.height=3}
 ### Calculate strength of grazing and strength of the trophic cascade on chla
 #estimate mean temp for each power level
 #alldata$week <- factor(alldata$week)
@@ -115,7 +118,7 @@ hist(TCchla$TC)
 ```
 
 
-```{r lmer ranef model comparison, echo = FALSE}
+```{r, echo = FALSE}
 
 TCchla$week <- as.integer(TCchla$week) 
 
@@ -146,8 +149,9 @@ TCchla$week <- as.integer(TCchla$week)
 #summary(TCmodi, ddf = c("Satterthwaite"))
 ```
 
+## 1.1.2 Use nlme to compare fixed and ranefs
 
-```{r nlme model comparisons, echo = FALSE}
+```{r, echo = FALSE}
 ## in nlme
 #library(nlme)
 #TCmoda <- lme(TC ~ I(invTavg-mean(invTavg))*week, random = ~ 1|power + I(invTavg-mean(invTavg))|week, data=TCchla, method = "REML")
@@ -155,12 +159,12 @@ TCchla$week <- as.integer(TCchla$week)
 TCmodb <- lme(TC ~ I(invTavg-mean(invTavg))*week, random = ~ 1|power + 1|week, data=TCchla, method = "REML")
 TCmodc <- lme(TC ~ I(invTavg-mean(invTavg))*week, random = ~ 1|power, data=TCchla, method = "REML")
 
-anova(TCmodc, TCmodb)
+#anova(TCmodc, TCmodb)
 # contrary to lme4 output, b wins here, with lower aic and significant chi squared ratio.
 # for the same model (TCmodc), the outputs and inferences are similar between lmer and lme. the problem is that the model comparisons give different 'best models'; I think modc makes the most sense, i'm having a hard time understanding the 1|week random effect on intercept, when we already have a fixed effect 
 ```
 
-```{r nlme fixed effects comparison}
+```{r}
 ## fixed effects model:
 TCmodb <- lme(TC ~ 1 + I(invTavg-mean(invTavg))*week, random = ~ 1|power, data=TCchla, method="ML", na.action=na.omit)
 TCmodc <- lme(TC ~ 1 + I(invTavg-mean(invTavg)) + week, random = ~ 1|power, data=TCchla, method="ML", na.action=na.omit)
@@ -169,18 +173,24 @@ TCmode <- lme(TC ~ 1 + week, random = ~ 1|power, data=TCchla, method="ML", na.ac
 TCmodf <- lme(TC ~ 1 + week, random = ~ 1|power, data=TCchla, method="ML", na.action=na.omit)
 
 TCres <- data.frame(model.sel(TCmodb, TCmodc, TCmodd, TCmode, TCmodf))
-
-summary(TCmodb)
 ```
 
 `r table_nums("Table_S2.01")`
 
-```{r Table_S2.01}
+```{r Table_S2.01 TC model comparison results}
 kable(TCres, digits=2, col.names = c('Int','T','Wk','T*Wk','df', 'logLik','AICc','d','w'))
+```
+
+## Summary of best model: trophic cascade strength
+```{r}
+summary(TCmodb)
+
+intervals(TCmodb)
 ```
 
 ```{r}
 #### Calculate confidence intervals and model coefficients for TC figure
+## I"m very sure there is a better way to do this - predict values from the model. i should learn that.
 mod <- TCmodb
 
 # slopes
@@ -193,7 +203,7 @@ Slw7 <- fixef(mod)[2] + fixef(mod)[4]*5
 Slw8 <- fixef(mod)[2] + fixef(mod)[4]*6
 Slw9 <- fixef(mod)[2] + fixef(mod)[4]*7
 
-# ints for TC wk 2: 
+# ints 
 IPw2 <- fixef(mod)[1] + fixef(mod)[3]*0
 IPw3 <- fixef(mod)[1] + fixef(mod)[3]*1
 IPw4 <- fixef(mod)[1] + fixef(mod)[3]*2
@@ -204,7 +214,7 @@ IPw8 <- fixef(mod)[1] + fixef(mod)[3]*6
 IPw9 <- fixef(mod)[1] + fixef(mod)[3]*7
 ```
 
-```{r Model estimates for TC figure}
+```{r}
 TC.func2 <- function(x) {IPw2 + Slw2*x} 
 TCvals2 <- TC.func2(TCchla[(TCchla$week=="2"),]$invTavg-mean(TCchla$invTavg))
 
@@ -230,34 +240,40 @@ TC.func9 <- function(x) {IPw9 + Slw9*x}
 TCvals9 <- TC.func9(TCchla[(TCchla$week=="9"),]$invTavg-mean(TCchla$invTavg))
 ```
 
+
 `r fig_nums("Fig_S2.03")`
 
-```{r, echo = FALSE, Fig_S2.04, fig.width=5, fig.height=3}
-TC <- ggplot(data = TCchla, aes(x = I(invTavg-mean(invTavg)), y = TC, ymin = 0)) +
+```{r Fig_S2.04 TC Strength, fig.width=4, fig.height=3}
+TC <- ggplot(data = TCchla, aes(x = I(invTavg-mean(invTavg)), y = TC, ymin = 0, group = week, shape = as.factor(week), alpha = week)) +
   theme_bw() +
   #theme(legend.position = "none") +
-  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank(),  
-        legend.text=element_text(size=6), 
+  theme(panel.grid.minor = element_blank(), 
+        panel.grid.major = element_blank(),
+        legend.text = element_text(size = 6), 
         legend.title = element_text(size = 7), 
         legend.key = element_rect(fill = NA), 
-        strip.background = element_blank()) +
-  theme(strip.background = element_rect(colour="white", fill="white")) +
-  geom_point(aes(group = week, shape = as.factor(week), alpha = week)) +
-  scale_shape_manual(values = c(1,2,22,23,8,15,16,17)) +
-  scale_alpha("week", guide = "none")
+        strip.background = element_rect(colour="white", fill="white")) +
+  geom_point() +
+  scale_alpha(guide = "none") +
+  scale_shape_manual(guide = guide_legend(title = "Week"), values = c(1,2,22,23,8,15,16,17)) +
+  ylab(bquote(~"Trophic Cascade"~"ln(chla"[+P]~")/(chla"[-P]~")")) +
+    #paste("Trophic Cascade Strength \n", "", expression(chla[+P]), ")")) + #) ln(PZN / PZ[Chla])" +
+  xlab("Temperature \n Weekly average T - grand mean T") 
 
 TC +
-  geom_smooth(data = TCchla[(TCchla$week == '2'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals2, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray80') +
-  geom_smooth(data = TCchla[(TCchla$week == '3'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals3, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray70') +
-  geom_smooth(data = TCchla[(TCchla$week == '4'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals4, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray60') +
-  geom_smooth(data = TCchla[(TCchla$week == '5'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals5, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray50') +
-  geom_smooth(data = TCchla[(TCchla$week == '6'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals6, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray40') +
-  geom_smooth(data = TCchla[(TCchla$week == '7'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals7, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray30') +
-  geom_smooth(data = TCchla[(TCchla$week == '8'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals8, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray20') +
-  geom_smooth(data = TCchla[(TCchla$week == '9'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals9, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black') 
+  geom_smooth(data = TCchla[(TCchla$week == '2'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals2, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray80', size = 0.5) +
+  geom_smooth(data = TCchla[(TCchla$week == '3'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals3, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray70', size = 0.5) +
+  geom_smooth(data = TCchla[(TCchla$week == '4'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals4, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray60', size = 0.5) +
+  geom_smooth(data = TCchla[(TCchla$week == '5'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals5, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray50', size = 0.5) +
+  geom_smooth(data = TCchla[(TCchla$week == '6'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals6, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray40', size = 0.5) +
+  geom_smooth(data = TCchla[(TCchla$week == '7'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals7, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray30', size = 0.5) +
+  geom_smooth(data = TCchla[(TCchla$week == '8'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals8, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray20', size = 0.5) +
+  geom_smooth(data = TCchla[(TCchla$week == '9'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals9, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 0.5) 
+
+ggsave("Fig1.png", device = "png")
 ```
 
-### Calculate strength of grazing and strength of the trophic cascade on NPP2
+### 1.2. Strength of trophic cascade on NPP2
 ```{r, echo = FALSE, Fig_S2.05, fig.width=3, fig.height=3}
 #estimate mean temp for each power level
 #alldata$week <- factor(alldata$week)
