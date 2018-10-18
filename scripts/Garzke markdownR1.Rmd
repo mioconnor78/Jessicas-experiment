@@ -56,12 +56,14 @@ fig_nums(name = "Fig_S2.3", caption = "Manuscript figure 3: Effects of temperatu
 ## 0.5. Temporal Results: Chlorophyll over time (8 weeks)
 
 ```{r, echo = FALSE, Fig_S2.01, fig.width=5, fig.height=3}
-Chl.time <- ggplot(data = alldata, aes(x = week, y = log(chla), ymin = 0)) +
+Chl.time <- ggplot(data = alldata, aes(x = week, y = log(chla), ymin = 0, shape = trophic.level, alpha = trophic.level)) +
   theme_bw() +
-  theme(legend.position = "none") +
+  #theme(legend.position = "none") +
   geom_point() +
-  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank(),  
-        legend.text = element_text(size=6), 
+  facet_grid(trophic.level ~ .) +
+  theme(panel.grid.minor = element_blank(), 
+        panel.grid.major = element_blank(),  
+        legend.text = element_text(size = 6), 
         legend.title = element_text(size = 7), 
         strip.background = element_blank()) +
   ylab("Phytoplankton Abundance \n ln(ug Chl a / L)")
@@ -69,6 +71,10 @@ Chl.time <- ggplot(data = alldata, aes(x = week, y = log(chla), ymin = 0)) +
 Chl.time
 
 CT1 <- lme(I(log(chla)) ~ week, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
+CT2 <- lme(I(log(chla)) ~ week*trophic.level, random = ~ 1 | Tank, data=alldata, method="ML", na.action=na.omit)
+CT3 <- lme(I(log(chla)) ~ week+trophic.level, random = ~ 1 | Tank, data=alldata, method="ML", na.action=na.omit)
+CT4 <- lme(I(log(chla)) ~ week, random = ~ 1 | Tank, data=alldata, method="ML", na.action=na.omit)
+model.sel(CT2, CT3, CT4)
 ```
 
 ## 0.5. Temporal Results: Chlorophyll over temperatures 
