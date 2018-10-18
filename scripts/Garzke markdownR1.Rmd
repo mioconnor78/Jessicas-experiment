@@ -54,7 +54,7 @@ fig_nums(name = "Fig_S2.3", caption = "Manuscript figure 3: Effects of temperatu
 
 ## 0.5. Temporal Results 
 
-```{r, echo = FALSE, Fig_S2.01,fig.width=5, fig.height=3}
+```{r Plot Chla over time, echo = FALSE, Fig_S2.01,fig.width=5, fig.height=3}
 Chl.time <- ggplot(data = alldata, aes(x = week, y = log(chla), ymin = 0)) +
   theme_bw() +
   theme(legend.position = "none") +
@@ -70,7 +70,7 @@ Chl.time
 CT1 <- lme(I(log(chla)) ~ week, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
 ```
 
-```{r, echo = FALSE, Fig_S2.02, fig.width=5, fig.height=3}
+```{r Plot Chla over temps, echo = FALSE, Fig_S2.02, fig.width=5, fig.height=3}
 Chl.temp <- ggplot(data = alldata, aes(x = temp.wk, y = log(chla), ymin = 0)) +
   theme_bw() +
   theme(legend.position = "none") +
@@ -87,12 +87,10 @@ CT2 <- lme(I(log(chla)) ~ temp.wk, random = ~ 1 | Tank, data=data, method="ML", 
 
 ```
 
-## 1. Trophic Cascade Results (Figure 2 Main text)
+# 1. Trophic Cascade Results (Figure 2 Main text)
+## Trophic cascade (TC) is defined as log(PZN/PZ) for Chlorophyll a
+```{r Calculate TC, echo = FALSE, Fig_S2.03, fig.width=2, fig.height=2}
 ### Calculate strength of grazing and strength of the trophic cascade on chla
-
-
-
-```{r, echo = FALSE, Fig_S2.03, fig.width=3, fig.height=3}
 #estimate mean temp for each power level
 #alldata$week <- factor(alldata$week)
 #alldata$power <- factor(alldata$power)
@@ -113,35 +111,14 @@ mutate(., TC = log(PZN/PZ))
 data <- TCchla
 
 hist(TCchla$TC)
-hist(log(TCchla$TC))
+#hist(log(TCchla$TC))
 ```
 
-`r fig_nums("Fig_S2.03")`
 
-```{r, echo = FALSE, Fig_S2.04, fig.width=5, fig.height=3}
-TC <- ggplot(data = TCchla, aes(x = I(invTavg-mean(invTavg)), y = TC, ymin = 0)) +
-  theme_bw() +
-  #theme(legend.position = "none") +
-  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank(),  
-        legend.text=element_text(size=6), 
-        legend.title = element_text(size = 7), 
-        legend.key = element_rect(fill = NA), 
-        strip.background = element_blank()) +
-  theme(strip.background = element_rect(colour="white", fill="white")) +
-  geom_point(aes(group = week, shape = as.factor(week), alpha = week)) +
-  scale_shape_manual(values = c(1,2,22,23,8,15,16,17)) +
-  scale_alpha("week", guide = "none")
+```{r lmer ranef model comparison, echo = FALSE}
 
-TC
-```
+TCchla$week <- as.integer(TCchla$week) 
 
-```{r, echo = FALSE}
-
-#promising - high correlations so centre on T again?
-TCchla$week <- as.integer(TCchla$week)
-```
-
-```{r}
 ## in LMER; i'm going to comment this out so it doesn't wreck normal runs.
 #library(lmerTest)
 #library(pbkrtest)
@@ -170,7 +147,7 @@ TCchla$week <- as.integer(TCchla$week)
 ```
 
 
-```{r}
+```{r nlme model comparisons, echo = FALSE}
 ## in nlme
 #library(nlme)
 #TCmoda <- lme(TC ~ I(invTavg-mean(invTavg))*week, random = ~ 1|power + I(invTavg-mean(invTavg))|week, data=TCchla, method = "REML")
@@ -183,7 +160,7 @@ anova(TCmodc, TCmodb)
 # for the same model (TCmodc), the outputs and inferences are similar between lmer and lme. the problem is that the model comparisons give different 'best models'; I think modc makes the most sense, i'm having a hard time understanding the 1|week random effect on intercept, when we already have a fixed effect 
 ```
 
-```{r}
+```{r nlme fixed effects comparison}
 ## fixed effects model:
 TCmodb <- lme(TC ~ 1 + I(invTavg-mean(invTavg))*week, random = ~ 1|power, data=TCchla, method="ML", na.action=na.omit)
 TCmodc <- lme(TC ~ 1 + I(invTavg-mean(invTavg)) + week, random = ~ 1|power, data=TCchla, method="ML", na.action=na.omit)
@@ -253,8 +230,22 @@ TC.func9 <- function(x) {IPw9 + Slw9*x}
 TCvals9 <- TC.func9(TCchla[(TCchla$week=="9"),]$invTavg-mean(TCchla$invTavg))
 ```
 
+`r fig_nums("Fig_S2.03")`
 
-```{r}
+```{r, echo = FALSE, Fig_S2.04, fig.width=5, fig.height=3}
+TC <- ggplot(data = TCchla, aes(x = I(invTavg-mean(invTavg)), y = TC, ymin = 0)) +
+  theme_bw() +
+  #theme(legend.position = "none") +
+  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank(),  
+        legend.text=element_text(size=6), 
+        legend.title = element_text(size = 7), 
+        legend.key = element_rect(fill = NA), 
+        strip.background = element_blank()) +
+  theme(strip.background = element_rect(colour="white", fill="white")) +
+  geom_point(aes(group = week, shape = as.factor(week), alpha = week)) +
+  scale_shape_manual(values = c(1,2,22,23,8,15,16,17)) +
+  scale_alpha("week", guide = "none")
+
 TC +
   geom_smooth(data = TCchla[(TCchla$week == '2'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals2, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray80') +
   geom_smooth(data = TCchla[(TCchla$week == '3'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals3, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray70') +
