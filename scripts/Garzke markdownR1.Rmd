@@ -423,7 +423,7 @@ kable(slopesPB, digits = 2)
 
 ```{r}
 xlab <- expression(paste('Temperature (',~degree,'C)',sep=''))
-PP.plot <- ggplot(data = data, aes(x = -invTi, y = log(chla), ymin = -3, ymax = 3, xmin = -40.2, xmax = -38.2)) +
+PP.plot <- ggplot(data = data, aes(x = invTi, y = log(chla), ymin = -5, ymax = 3)) + #, xmin = -40.2, xmax = -38.2
   theme_bw() +
   theme(legend.position = "none") +
   facet_grid(trophic.level~.) + 
@@ -439,10 +439,10 @@ PP.plot <- ggplot(data = data, aes(x = -invTi, y = log(chla), ymin = -3, ymax = 
   scale_shape_manual(values = c(1,2,22,23,16,17,8,6)) +
   scale_alpha("Tankn", guide = "none") +
   ylab("ln(ug Chl a / L)") +
-  labs(title = "A. Phytoplankton \n Abundance") +
-  annotate("text", label = c("i. A", "ii. AG", "iii. AGP"), x = -38.45, y = 2.95) +
-  annotate("text", label = c("Ea = 1.30 (0.85, 1.76)", "Ea = 3.15 (2.76, 3.54)", "Ea = 1.65 (1.19, 2.10)"), x = -39.3, y = -2.95, size = 3) +
-  scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*-.))-273), name = xlab))
+  labs(title = "A. Phytoplankton \n Abundance", size = 3) +
+  annotate("text", label = c("i. A", "ii. AG", "iii. AGP"), x = 38.45, y = 2.95, size = 3) +
+  annotate("text", label = c("Ea = 1.30 (0.85, 1.76)", "Ea = 3.15 (2.76, 3.54)", "Ea = 1.65 (1.19, 2.10)"), x = 39.3, y = -3.95, size = 3) +
+  scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*+.))-273), name = xlab))
 
 #PP.plot
 ```
@@ -451,10 +451,10 @@ PP.plot <- ggplot(data = data, aes(x = -invTi, y = log(chla), ymin = -3, ymax = 
 ```{r, fig.width=6, fig.height=3}
 ####Figure 2ABC: Phytoplankton biomass and how it varied with temperature within tanks (blue lines) and across tanks (black lines).
 Fig2ABC <- PP.plot +
-  geom_smooth(method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTi, y = log(chla), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) +
- geom_smooth(data = subset(data, trophic.level == "P"), aes(x = -invTT, y = PBvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
- geom_smooth(data = subset(data, trophic.level == "PZ"), aes(x = -invTT, y = PBvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) +
- geom_smooth(data = subset(data, trophic.level == "PZN"), aes(x = -invTT, y = PBvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) 
+  geom_smooth(method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = invTi, y = log(chla), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) +
+ geom_smooth(data = subset(data, trophic.level == "P"), aes(x = invTT, y = PBvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+ geom_smooth(data = subset(data, trophic.level == "PZ"), aes(x = invTT, y = PBvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) +
+ geom_smooth(data = subset(data, trophic.level == "PZN"), aes(x = invTT, y = PBvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) 
 
 #Fig2ABC
   
@@ -588,7 +588,7 @@ NvalsPZN <- NPP.funcPZN(data1[(data1$trophic.level=="PZN"),]$invTT)
 
 ```{r NPP plot code}
 ### plotting within- and among-group regressions and model outputs
-NPP.plot1 <- ggplot(data = data1, aes(x = -invTi, y = log(NPP2), ymin = -11, ymax = -5)) +
+NPP.plot1 <- ggplot(data = data1, aes(x = invTi, y = log(NPP2), ymin = -11, ymax = -5)) +
   theme_bw() +
   theme(legend.position = "none") +
   theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
@@ -598,11 +598,11 @@ NPP.plot1 <- ggplot(data = data1, aes(x = -invTi, y = log(NPP2), ymin = -11, yma
   geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(week), alpha = Tankn), size = 2) + 
   scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
   scale_alpha("Tankn", guide = "none") +
-  scale_x_continuous("", sec.axis = sec_axis(~((1/(k*-.))-273), name = "")) +
+  scale_x_continuous("", sec.axis = sec_axis(~((1/(k*+.))-273), name = "")) +
   #xlab("") + #Temperature 1/kTi
   ylab("Oxygen Production (NPP) \n ln(umol O2 / L / hr)")
 
-NPP.plot <- ggplot(data = data1, aes(x = -invTi, y = log(NPP2), ymin = -11, ymax = -4, xmin = -40.2, xmax = -38.2)) +
+NPP.plot <- ggplot(data = data1, aes(x = invTi, y = log(NPP2), ymin = -12, ymax = -4, xmin = 40.2, xmax = 38.2)) +
   theme_bw() +
   theme(legend.position = "none",
     panel.grid.minor = element_blank(), 
@@ -613,12 +613,11 @@ NPP.plot <- ggplot(data = data1, aes(x = -invTi, y = log(NPP2), ymin = -11, ymax
   geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(week), alpha = Tankn), size = 2) + 
   scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
   scale_alpha("Tankn", guide = "none") +
-  #xlab("Temperature 1/kTi") +
   ylab("ln(umol O2 / L / hr)") +
-  labs(title = "B. Net Ecosystem \n Production (NEP)") +
-  annotate("text", label = c("i. A", "ii. AG", "iii. AGP"), x = -38.45, y =-4.1) +
-  annotate("text", label = c("Ea = -1.41 (-2.25, -0.58)", "Ea = -1.21 (-2.56, -0.07)", "Ea = -0.99 (-2.10, 0.12)"), x = -39.3, y = -10.8, size = 3) +
-  scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*-.))-273), name = xlab))
+  labs(title = "B. Net Ecosystem \n Production (NEP)", size = 3) +
+  annotate("text", label = c("i. A", "ii. AG", "iii. AGP"), x = 38.45, y =-4.1, size = 3) +
+  annotate("text", label = c("Ea = -1.41 (-2.25, -0.58)", "Ea = -1.21 (-2.56, -0.07)", "Ea = -0.99 (-2.10, 0.12)"), x = 39.3, y = -11, size = 3) +
+  scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*+.))-273), name = xlab))
 ```
 
 ```{r}
@@ -627,10 +626,10 @@ NPP.plot <- ggplot(data = data1, aes(x = -invTi, y = log(NPP2), ymin = -11, ymax
 # the among-group lines are model fits based on the best model (so this could be model averaged coefficients too)
 Fig2DEF <- 
   NPP.plot + 
-  geom_smooth(data = subset(data1), method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTi, y = log(NPP2), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) + 
-  geom_smooth(data = subset(data1, trophic.level == "P"), aes(x = -invTT, y = NvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
- geom_smooth(data = subset(data1, trophic.level == "PZ"), aes(x = -invTT, y = NvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
-  geom_smooth(data = subset(data1, trophic.level == "PZN"), aes(x = -invTT, y = NvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) 
+  geom_smooth(data = subset(data1), method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = invTi, y = log(NPP2), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) + 
+  geom_smooth(data = subset(data1, trophic.level == "P"), aes(x = invTT, y = NvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+ geom_smooth(data = subset(data1, trophic.level == "PZ"), aes(x = invTT, y = NvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+  geom_smooth(data = subset(data1, trophic.level == "PZN"), aes(x = invTT, y = NvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) 
 ```
 
 ```{r, fig.width=6, fig.height=3}
@@ -743,7 +742,7 @@ kable(slopesER)
 
 
 ```{r ER plot}
-ER.plot <- ggplot(data = data2, aes(x = -invTi, y = log(ER2), ymin = -8, ymax = -4, xmin = -40.2, xmax = -38.2)) + 
+ER.plot <- ggplot(data = data2, aes(x = invTi, y = log(ER2), ymin = -10, ymax = -4, xmin = 38.2, xmax = 40.2)) + 
   theme_bw() +
   theme(legend.position = "none",
         panel.grid.minor = element_blank(), 
@@ -757,20 +756,21 @@ ER.plot <- ggplot(data = data2, aes(x = -invTi, y = log(ER2), ymin = -8, ymax = 
   scale_shape(name = "Week", guide = guide_legend(ncol = 2)) +
   xlab("Temperature (1/kTi)") +
   ylab("ln(umol O2 / L / hr)") +
-  labs(title = "C. Net Ecosystem \n Respiration (ER)") +
-  annotate("text", label = c("i. A", "ii. AG", "iii. AGP"), x = -38.45, y = -4.1) + 
-  annotate("text", label = c("Ea = -1.32 (-1.85, -0.79)", "Ea = -0.88 (-1.32, -0.43)", "Ea = -0.33 (-0.86, 0.20)"), x = -39.3, y = -7.8, size = 3) +
-  scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*-.))-273), name = xlab))
+  labs(title = "C. Net Ecosystem \n Respiration (ER)", size = 3) +
+  annotate("text", label = c("i. A", "ii. AG", "iii. AGP"), x = 38.45, y = -4.1, size = 3) + 
+  annotate("text", label = c("Ea = -1.32 (-1.85, -0.79)", "Ea = -0.88 (-1.32, -0.43)", "Ea = -0.33 (-0.86, 0.20)"), x = 39.3, y = -9.5, size = 3) +
+  scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~((1/(k*+.))-273), name = xlab))
+
   
 ```
 
 ```{r, fig.width=6, fig.height=3}
 Fig2GHI <- 
 ER.plot +
-  geom_smooth(method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = -invTi, y = log(ER2), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) +
-  geom_smooth(data = subset(data2, trophic.level == "P"), aes(x = -invTT, y = RvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
-  geom_smooth(data = subset(data2, trophic.level == "PZ"), aes(x = -invTT, y = RvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) +
-  geom_smooth(data = subset(data2, trophic.level == "PZN"), aes(x = -invTT, y = RvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) 
+  geom_smooth(method = "lm", se = FALSE, inherit.aes = FALSE, aes(x = invTi, y = log(ER2), group = Tank),  size = .8, color = alpha("steelblue", 0.5)) +
+  geom_smooth(data = subset(data2, trophic.level == "P"), aes(x = invTT, y = RvalsP), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5) +
+  geom_smooth(data = subset(data2, trophic.level == "PZ"), aes(x = invTT, y = RvalsPZ), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) +
+  geom_smooth(data = subset(data2, trophic.level == "PZN"), aes(x = invTT, y = RvalsPZN), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', linetype = 1, size = 1.5) 
 
 #Fig2GHI
 ```
