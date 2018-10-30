@@ -18,7 +18,7 @@ library(zoo)
 
 ### set working directory and load data
 data <- read.csv("../data/temporal_dataFEB12.csv")
-temps <- read.csv("../data/dailytemps.csv")
+temps <- read.csv("./data/dailytemps.csv")
 
 data <- data[-(241:255),]
 data$Tank <- as.character(data$Tank)
