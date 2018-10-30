@@ -505,40 +505,47 @@ tcp1 <- lme(log(NPP2) ~ 1 + trophic.level, random = ~ 1 | Tank, data=data1, meth
 # chlorophyll scales with m^0.75, so if we include chla, we don't need it to scale allometrically
 # if we use chla to estimate total biomass (Mt), we get PPbiomass. 
 ## can draw on Natalie's data for observed declines in cell size, and relationships between [chla], size and temp. 
+# we could add the mass corrected term if we have average sizes for the cells - diatoms vs not? that would effectively increase biomass's contribution to ecosystem fluxes with temperature.
+# NEXT STEPS: add in a term for size variation, if we can
+# ask Sean about modeling it; how do i interpret those TL terms for intercepts, when we have a size term? I guess it means the intercpt is changing in ways not captured by size. So much so that the best model doesn't even include pp biomass, at least at the moment when we don't have a correction.
 #-------------------------------------------------
 
-modNPPF <- lme(log(NPP2) ~ 1 + chla + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+#modNPPF <- lme(log(NPP2) ~ 1 + chla + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
 
-modNPPF <- lme(log(NPP2) ~ 1 + I(log(2*Pcarbon)) + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+modNPPF <- lme(log(NPP2) ~ 1 + trophic.level*I(log(chla)) + I(invTi - invTT) +  trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
 
-modNPPFa <- lme(log(NPP2) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+modNPPFa <- lme(log(NPP2) ~ 1 + trophic.level + I(invTi - invTT) + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
 ```
 
 ```{r, NEP model selection, echo=FALSE}
 # NPP candidate model set -------------------------------------------------
-modNPPF <- lme(log(NPP2) ~ 1 + I(log(2*Pcarbon)) + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+modNPPFb <- lme(log(NPP2) ~ 1 + I(log(chla)) + I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
 
-modNPP8 <- lme(log(NPP2) ~ 1 + I(log(2*Pcarbon)) + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+modNPP9 <- lme(log(NPP2) ~ 1 + I(log(chla)) + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
 
-modNPP7 <- lme(log(NPP2) ~ 1 + I(log(2*Pcarbon)) + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+modNPP8 <- lme(log(NPP2) ~ 1 + trophic.level*I(log(chla)) + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
 
-modNPP6 <- lme(log(NPP2) ~ 1 + I(log(2*Pcarbon)) + trophic.level*I(invTi - invTT), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+modNPP7 <- lme(log(NPP2) ~ 1 + trophic.level*I(log(chla)) + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
 
-modNPP5 <- lme(log(NPP2) ~ 1 + I(log(2*Pcarbon)) + I(invTi - invTT) + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+modNPP6 <- lme(log(NPP2) ~ 1 + trophic.level*I(log(chla)) + trophic.level*I(invTi - invTT), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
 
-modNPP4 <- lme(log(NPP2) ~ 1 + I(log(2*Pcarbon)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+modNPP5 <- lme(log(NPP2) ~ 1 + trophic.level*I(log(chla)) + I(invTi - invTT) + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
 
-modNPP3 <- lme(log(NPP2) ~ 1 + I(log(2*Pcarbon)) + I(invTi - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+modNPP4 <- lme(log(NPP2) ~ 1 + trophic.level*I(log(chla)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
 
-modNPP2 <- lme(log(NPP2) ~ 1 + I(log(2*Pcarbon)) + I(invTi - invTT), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+modNPP3 <- lme(log(NPP2) ~ 1 + trophic.level*I(log(chla)) + I(invTi - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
 
-modNPP1 <- lme(log(NPP2) ~ 1 + I(log(2*Pcarbon)) + trophic.level, random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+modNPP2 <- lme(log(NPP2) ~ 1 + trophic.level*I(log(chla)) + I(invTi - invTT), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
 
-modNPP0 <- lme(log(NPP2) ~ 1 + I(log(2*Pcarbon)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+modNPP1 <- lme(log(NPP2) ~ 1 + trophic.level*I(log(chla)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+
+modNPP1.5 <- lme(log(NPP2) ~ 1 + I(log(chla)) + I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
+
+modNPP0 <- lme(log(NPP2) ~ 1 + I(log(chla)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
 
 #model.sel(modNPP0, modNPP1, modNPP2, modNPP3, modNPP4, modNPP5, modNPP6, modNPP7, modNPP8, modNPPF)
 
-NPres <- data.frame(model.sel(modNPP0, modNPP1, modNPP2, modNPP3, modNPP4, modNPP5, modNPP6, modNPP7, modNPP8, modNPPF, modNPPFa))
+NPres <- data.frame(model.sel(modNPP0, modNPP1, modNPP2, modNPP3, modNPP4, modNPP5, modNPP6, modNPP7, modNPP8, modNPPF, modNPPFa, modNPP9, modNPP1.5))
 ```
 
 ```{r, NEP model selection, echo=FALSE}
