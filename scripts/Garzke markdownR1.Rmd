@@ -31,7 +31,7 @@ library(captioner)
 ### load data
 data <- read.csv("../data/GarzkedataA.csv")
 alldata <- read.csv("../data/GarzkeAllwks.csv")
-pptaxa <- read.csv("../data/pptaxa.csv")
+ppsizes <- read.csv("../data/PPsizes.csv")
 k <- 8.617342*10^-5  # eV/K
 labels <- c(P = "Algae", PZ = "Algae + Grazers", PZN = "Algae + Grazers + Predators")
 ```

@@ -51,7 +51,7 @@ temps4 <- temps4 %>%
 # calculate mean weekly temps
 temps.wk <- temps4 %>%
   group_by(week, Tank) %>%
-  summarise(., avg = mean(temp, na.rm = TRUE))
+  dplyr::summarise(., avg = mean(temp, na.rm = TRUE))
 
 names(temps.wk) <- c("week","Tank", "temp.wk")
 temps.wk <- temps.wk[!is.na(temps.wk$week),]
@@ -65,7 +65,7 @@ data.t <- left_join(data, temps.wk, by = c("week", "Tank"))
 temps.Tmn <- 
   temps4 %>% 
   group_by(Tank) %>%
-  summarise(., avg = mean(temp, na.rm = TRUE), sd = sd(temp, na.rm = TRUE)) %>%
+  dplyr::summarise(., avg = mean(temp, na.rm = TRUE), sd = sd(temp, na.rm = TRUE)) %>%
   arrange(as.numeric(Tank))
 
 names(temps.Tmn) <- c("Tank", "temp.Tmn", "temp.Tsd")
@@ -97,8 +97,9 @@ data.t2 <- data.t2 %>%
   unite(date_complete, Year, Month, Date, sep = "-") %>%
   mutate(date_formatted = ymd(date_complete)) 
 
+### NOV 2018: I'M SEEING DUPLICATED COLUMNS (DATE_COMPLETE) AND COLUMNS NOT DUBPLICATED (TEMP), AND WANT TO NOT HAVE THESE.
 ## join temps4 and data by the date, time and tank for each oxygen sampling time (hour)
-data.t3 <- left_join(data.t2, temps4, by = c("date_formatted", "week", "Tank", "d1Hour" = "time")) #, suffix = c(".x", ".d1")
+data.t3 <- left_join(data.t2, temps4, by = c("date_formatted" ,"week", "Tank", "d1Hour" = "time")) #, suffix = c(".x", ".d1")
 data.t3 <- dplyr::rename(data.t3, temp.d1 = T4hrs)
 
 data.t3 <- left_join(data.t3, temps4, by = c("date_formatted", "week", "Tank", "dkHour" = "time")) #, suffix = c(".x", ".dk")

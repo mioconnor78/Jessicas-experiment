@@ -10,11 +10,11 @@ ppinfo <- read.csv("./data/phytoinfo.csv")
 View(pptaxa)
 View(ppinfo)
 
-###PROBLEM TO SOLVE: PPTAXA AND PPINFO BOTH HAVE AN IND.L COLUMN, BUT VALS ARE DIFFERENT. WHY?
-
 ## clean up names
 pptaxa <- pptaxa %>%
   mutate(`taxon` = str_replace(`taxon`, "Coleosphaerium", "Coelosphaerium"))
+
+pptaxa$taxon <- as.factor(pptaxa$taxon)
   
 ## create a cell mass column for each taxon. first in ppinfo, then it can be joined to pptaxa
 ## first will do it by estimating volume from length information - done below, now check 
@@ -27,7 +27,7 @@ oval = function(d, l, w) (4/3)*pi*(d*l*w)
   ppinfo <- ppinfo %>%
     mutate(., d = ifelse(shape == "sphere", 0.5*(min.length.um + max.length.um), min.length.um)) %>%
     mutate(., cellvol = ifelse(shape == "sphere", sphere(d), cylinder(d, max.length.um))) %>%
-    mutate(., cellvol = ifelse(shape == "oval", oval(d/2, max.length.um/2, d/2), vol)) #%>% #produces volum in um^3
+    mutate(., cellvol = ifelse(shape == "oval", oval(d/2, max.length.um/2, d/2), cellvol)) #%>% #produces volum in um^3
     # mutate(., colvol = ifelse(colonial != "no", oval(d, max.length.um, d), vol)) #need to go back and check whether colonies are sheets, spheres or filaments
     
     
@@ -37,9 +37,32 @@ pptaxa1 <- pptaxa %>%
  
 ## create vector of sizes for each tank and date
 pptaxa2 <- pptaxa1 %>%
+  filter(., ind.L > 0)
+
+pptaxa3 <- pptaxa2[rep(seq(nrow(pptaxa2)), pptaxa2$ind.L),]   
+
+## ok, now if we group by week and tank, we will have the list of sizes
+## using functions from below in the 'proof of concept' part
+pptaxaMb <- pptaxa3 %>%
+  group_by(tank, week) %>%
+  dplyr::summarize(., Mb = Mb(cellvol))
+
+pptaxamba <- pptaxa3 %>%
+  group_by(tank, week) %>%   
+  dplyr::summarize(., mba = mba(cellvol))
+
+pptaxamba1 <- pptaxa3 %>%
+  group_by(tank, week) %>%
+  dplyr::summarize(., mba1 = mba1(cellvol))
   
-   
- 
+size.data <- pptaxaMb %>%
+  left_join(., pptaxamba, by = c("week", "tank")) %>%
+  left_join(., pptaxamba1, by = c("week", "tank"))
+  
+plot(size.data$mba1 ~ size.data$mba)
+
+write.csv(size.data, file = "PPsizes.csv")
+
 ##### metabolic biomass
 ## proof of concept:
 sizes <- c(2,2,3,2.5,1.2, 1, 1.1, 1.2, 1, 4)

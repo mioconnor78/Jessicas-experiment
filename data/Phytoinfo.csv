@@ -1,28 +1,29 @@
-﻿taxon,group,ind.L,min.length.um,max length.um,typical.um,shape,colonial,col.diameter.um,BNF
-Gloeocystis,Chlorophyta,0,6,23,,sphere,yes,55,
-Microcystis,Cyanobacteria,1,3,5,,sphere,sometimes,150,no
-Oscillatoria,Cyanobacteria,0,8,60,,filament,yes,20000,yes
-Chrysosphaerella,Cryptophyte,0,10,10,,sphere,sometimes,80,
-Anabaena,Cyanobacteria,0,2,4,,filament,yes,250,
-Dinobryon,Cryptophyte,0,6,20,,oval,yes,200,
-Coelosphaerium,Cyanobacteria,2,4,6,,sphere,yes,70,yes
-Fragilaria,Cryptophyte,0,2,60,,cylinder,sometimes,,
-Tabellaria,Diatom,1,5,40,,cylinder,sometimes,,
-Fragilaria,Cryptophyte,1,4,50,,cylinder,yes,250,
-Euglenid,Euglenophyta,0,10,30,,oval,no,,
-Arthrodesmus,Chlorophyta,0,10,30,,oval,yes,40,
-Planktothrix,Cyanobacteria,0,2,100,,filament,no,,yes
-Phacus,Euglenophyta,0,35,50,,sphere,no,,
-Merismopedia,Cyanobacteria,0,10,10,,sphere,yes,80,yes
-Chroococcus,Cyanobacteria,0,5,40,10,sphere,yes,40,no
-Chlamydomonas,Chlorophyta,0,10,10,,sphere,no,,no
-Synechococcus,Cyanobacteria,0,0.8,1.5,,sphere,,,no
-Gymnodinium,Dinoflagelate,0,30,60,,sphere,no,,
-Mallomonas,Synurophyta,0,18,50,,oval,no,,
-Merismopedia,Cyanobacteria,0,10,10,,sphere,yes,80,yes
-Paramecium,ciliate,0,40,200,,oval,no,,
-Fischerella,Cyanobacteria,0,10,500,,filament,yes,20000,yes
-Amoeboid ,Amoeboid ,0,12,40,,sphere,no,,
-Eunotia,Diatom,0,10,100,,cylinder,no,,
-Melosira,Diatom,0,20,200,,filament,yes,400,
-Diatom3,Diatom,0,10,60,,cylinder,no,,
+﻿taxon,group,min.length.um,max length.um,typical.um,shape,colonial,col.diameter.um,BNF
+Gloeocystis,Chlorophyta,6,23,,sphere,yes,55,no
+Microcystis,Cyanobacteria,3,5,,sphere,sometimes,150,no
+Oscillatoria,Cyanobacteria,8,60,,filament,yes,20000,yes
+Chrysosphaerella,Cryptophyte,10,10,,sphere,sometimes,80,no
+Anabaena,Cyanobacteria,2,4,,filament,yes,250,no
+Dinobryon,Cryptophyte,6,20,,oval,yes,200,no
+Coelosphaerium,Cyanobacteria,4,6,,sphere,yes,70,yes
+Fragilaria,Cryptophyte,2,60,,cylinder,sometimes,,no
+Tabellaria,Diatom,5,40,,cylinder,sometimes,,no
+Fragilaria,Cryptophyte,4,50,,cylinder,yes,250,no
+Euglenid,Euglenophyta,10,30,,oval,no,,no
+Arthrodesmus,Chlorophyta,10,30,,oval,yes,40,no
+Planktothrix,Cyanobacteria,2,100,,filament,no,,yes
+Phacus,Euglenophyta,35,50,,sphere,no,,no
+Merismopedia,Cyanobacteria,10,10,,sphere,yes,80,yes
+Chroococcus,Cyanobacteria,5,40,10,oval,yes,40,no
+Chlamydomonas,Chlorophyta,10,10,,sphere,no,,no
+Synechococcus,Cyanobacteria,0.8,1.5,,sphere,,,no
+Gymnodinium,Dinoflagelate,30,60,,sphere,no,,no
+Mallomonas,Synurophyta,18,50,,oval,no,,no
+Merismopedia,Cyanobacteria,10,10,,sphere,yes,80,yes
+Paramecium,Ciliate,40,200,,oval,no,,no
+Fischerella,Cyanobacteria,10,500,,filament,yes,20000,yes
+Amoeboid ,Amoeboid,12,40,,sphere,no,,no
+Eunotia,Diatom,10,100,,cylinder,no,,no
+Melosira,Diatom,20,200,,filament,yes,400,no
+Diatom3,Diatom,10,60,,cylinder,no,,no
+Chrysophyte,Cryptophyte,5,8,,oval,no,,no

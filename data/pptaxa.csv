@@ -21,9 +21,9 @@
 1,25,P,0,Gymnodinium,Dinoflagelate,0,55
 1,25,P,0,Mallomonas,Synurophyta,0,18
 1,25,P,0,Merismopedia,Cyanobacteria,0,3
-1,25,P,0,Paramecium,Cilliate,0,120
+1,25,P,0,Paramecium,Ciliate,0,120
 1,25,P,0,Fischerella,Cyanobacteria,0,80
-1,25,P,0,Amoeboid ,Amoeboid ,0,3
+1,25,P,0,Amoeboid ,Amoeboid,0,3
 1,25,P,0,Eunotia,Diatom,0,150
 1,25,P,0,Melosira,Diatom,0,40
 1,25,P,0,Diatom3,Diatom,0,60
@@ -49,9 +49,9 @@
 2,25,P,0,Gymnodinium,Dinoflagelate,0,55
 2,25,P,0,Mallomonas,Synurophyta,0,18
 2,25,P,0,Merismopedia,Cyanobacteria,0,3
-2,25,P,0,Paramecium,Cilliate,0,120
+2,25,P,0,Paramecium,Ciliate,0,120
 2,25,P,0,Fischerella,Cyanobacteria,50,80
-2,25,P,0,Amoeboid ,Amoeboid ,0,3
+2,25,P,0,Amoeboid ,Amoeboid,0,3
 2,25,P,0,Eunotia,Diatom,0,150
 2,25,P,0,Melosira,Diatom,0,40
 2,25,P,0,Diatom3,Diatom,0,60
@@ -77,9 +77,9 @@
 3,25,P,0,Gymnodinium,Dinoflagelate,0,55
 3,25,P,0,Mallomonas,Synurophyta,1,18
 3,25,P,0,Merismopedia,Cyanobacteria,0,3
-3,25,P,0,Paramecium,Cilliate,0,120
+3,25,P,0,Paramecium,Ciliate,0,120
 3,25,P,0,Fischerella,Cyanobacteria,0,80
-3,25,P,0,Amoeboid ,Amoeboid ,0,3
+3,25,P,0,Amoeboid ,Amoeboid,0,3
 3,25,P,0,Eunotia,Diatom,0,150
 3,25,P,0,Melosira,Diatom,0,40
 3,25,P,0,Diatom3,Diatom,0,60
@@ -105,9 +105,9 @@
 7,25,P,0,Gymnodinium,Dinoflagelate,0,55
 7,25,P,0,Mallomonas,Synurophyta,6,18
 7,25,P,0,Merismopedia,Cyanobacteria,0,3
-7,25,P,0,Paramecium,Cilliate,1,120
+7,25,P,0,Paramecium,Ciliate,1,120
 7,25,P,0,Fischerella,Cyanobacteria,0,80
-7,25,P,0,Amoeboid ,Amoeboid ,0,3
+7,25,P,0,Amoeboid ,Amoeboid,0,3
 7,25,P,0,Eunotia,Diatom,0,150
 7,25,P,0,Melosira,Diatom,0,40
 7,25,P,0,Diatom3,Diatom,0,60
@@ -133,9 +133,9 @@
 8,25,P,0,Gymnodinium,Dinoflagelate,2,55
 8,25,P,0,Mallomonas,Synurophyta,0,18
 8,25,P,0,Merismopedia,Cyanobacteria,0,3
-8,25,P,0,Paramecium,Cilliate,0,120
+8,25,P,0,Paramecium,Ciliate,0,120
 8,25,P,0,Fischerella,Cyanobacteria,0,80
-8,25,P,0,Amoeboid ,Amoeboid ,0,3
+8,25,P,0,Amoeboid ,Amoeboid,0,3
 8,25,P,0,Eunotia,Diatom,0,150
 8,25,P,0,Melosira,Diatom,0,40
 8,25,P,0,Diatom3,Diatom,0,60
@@ -161,9 +161,9 @@
 1,6,P,50,Gymnodinium,Dinoflagelate,0,55
 1,6,P,50,Mallomonas,Synurophyta,0,18
 1,6,P,50,Merismopedia,Cyanobacteria,0,3
-1,6,P,50,Paramecium,Cilliate,0,120
+1,6,P,50,Paramecium,Ciliate,0,120
 1,6,P,50,Fischerella,Cyanobacteria,0,80
-1,6,P,50,Amoeboid ,Amoeboid ,0,3
+1,6,P,50,Amoeboid ,Amoeboid,0,3
 1,6,P,50,Eunotia,Diatom,0,150
 1,6,P,50,Melosira,Diatom,0,40
 1,6,P,50,Diatom3,Diatom,0,60
@@ -189,9 +189,9 @@
 2,6,P,50,Gymnodinium,Dinoflagelate,4,55
 2,6,P,50,Mallomonas,Synurophyta,0,18
 2,6,P,50,Merismopedia,Cyanobacteria,0,3
-2,6,P,50,Paramecium,Cilliate,0,120
+2,6,P,50,Paramecium,Ciliate,0,120
 2,6,P,50,Fischerella,Cyanobacteria,0,80
-2,6,P,50,Amoeboid ,Amoeboid ,0,3
+2,6,P,50,Amoeboid ,Amoeboid,0,3
 2,6,P,50,Eunotia,Diatom,0,150
 2,6,P,50,Melosira,Diatom,0,40
 2,6,P,50,Diatom3,Diatom,0,60
@@ -217,9 +217,9 @@
 3,6,P,50,Gymnodinium,Dinoflagelate,0,55
 3,6,P,50,Mallomonas,Synurophyta,1,18
 3,6,P,50,Merismopedia,Cyanobacteria,0,3
-3,6,P,50,Paramecium,Cilliate,0,120
+3,6,P,50,Paramecium,Ciliate,0,120
 3,6,P,50,Fischerella,Cyanobacteria,0,80
-3,6,P,50,Amoeboid ,Amoeboid ,0,3
+3,6,P,50,Amoeboid ,Amoeboid,0,3
 3,6,P,50,Eunotia,Diatom,0,150
 3,6,P,50,Melosira,Diatom,0,40
 3,6,P,50,Diatom3,Diatom,0,60
@@ -245,9 +245,9 @@
 7,6,P,50,Gymnodinium,Dinoflagelate,0,55
 7,6,P,50,Mallomonas,Synurophyta,1,18
 7,6,P,50,Merismopedia,Cyanobacteria,0,3
-7,6,P,50,Paramecium,Cilliate,0,120
+7,6,P,50,Paramecium,Ciliate,0,120
 7,6,P,50,Fischerella,Cyanobacteria,0,80
-7,6,P,50,Amoeboid ,Amoeboid ,0,3
+7,6,P,50,Amoeboid ,Amoeboid,0,3
 7,6,P,50,Eunotia,Diatom,0,150
 7,6,P,50,Melosira,Diatom,0,40
 7,6,P,50,Diatom3,Diatom,0,60
@@ -273,9 +273,9 @@
 8,6,P,50,Gymnodinium,Dinoflagelate,0,55
 8,6,P,50,Mallomonas,Synurophyta,0,18
 8,6,P,50,Merismopedia,Cyanobacteria,0,3
-8,6,P,50,Paramecium,Cilliate,0,120
+8,6,P,50,Paramecium,Ciliate,0,120
 8,6,P,50,Fischerella,Cyanobacteria,0,80
-8,6,P,50,Amoeboid ,Amoeboid ,0,3
+8,6,P,50,Amoeboid ,Amoeboid,0,3
 8,6,P,50,Eunotia,Diatom,0,150
 8,6,P,50,Melosira,Diatom,0,40
 8,6,P,50,Diatom3,Diatom,0,60
@@ -301,9 +301,9 @@
 1,15,P,100,Gymnodinium,Dinoflagelate,4,55
 1,15,P,100,Mallomonas,Synurophyta,0,18
 1,15,P,100,Merismopedia,Cyanobacteria,0,3
-1,15,P,100,Paramecium,Cilliate,0,120
+1,15,P,100,Paramecium,Ciliate,0,120
 1,15,P,100,Fischerella,Cyanobacteria,0,80
-1,15,P,100,Amoeboid ,Amoeboid ,0,3
+1,15,P,100,Amoeboid ,Amoeboid,0,3
 1,15,P,100,Eunotia,Diatom,0,150
 1,15,P,100,Melosira,Diatom,0,40
 1,15,P,100,Diatom3,Diatom,0,60
@@ -329,9 +329,9 @@
 2,15,P,100,Gymnodinium,Dinoflagelate,3,55
 2,15,P,100,Mallomonas,Synurophyta,0,18
 2,15,P,100,Merismopedia,Cyanobacteria,0,3
-2,15,P,100,Paramecium,Cilliate,0,120
+2,15,P,100,Paramecium,Ciliate,0,120
 2,15,P,100,Fischerella,Cyanobacteria,0,80
-2,15,P,100,Amoeboid ,Amoeboid ,0,3
+2,15,P,100,Amoeboid ,Amoeboid,0,3
 2,15,P,100,Eunotia,Diatom,0,150
 2,15,P,100,Melosira,Diatom,2,40
 2,15,P,100,Diatom3,Diatom,0,60
@@ -357,9 +357,9 @@
 3,15,P,100,Gymnodinium,Dinoflagelate,1,55
 3,15,P,100,Mallomonas,Synurophyta,18,18
 3,15,P,100,Merismopedia,Cyanobacteria,0,3
-3,15,P,100,Paramecium,Cilliate,0,120
+3,15,P,100,Paramecium,Ciliate,0,120
 3,15,P,100,Fischerella,Cyanobacteria,0,80
-3,15,P,100,Amoeboid ,Amoeboid ,0,3
+3,15,P,100,Amoeboid ,Amoeboid,0,3
 3,15,P,100,Eunotia,Diatom,0,150
 3,15,P,100,Melosira,Diatom,0,40
 3,15,P,100,Diatom3,Diatom,0,60
@@ -385,9 +385,9 @@
 7,15,P,100,Gymnodinium,Dinoflagelate,0,55
 7,15,P,100,Mallomonas,Synurophyta,73,18
 7,15,P,100,Merismopedia,Cyanobacteria,0,3
-7,15,P,100,Paramecium,Cilliate,0,120
+7,15,P,100,Paramecium,Ciliate,0,120
 7,15,P,100,Fischerella,Cyanobacteria,0,80
-7,15,P,100,Amoeboid ,Amoeboid ,0,3
+7,15,P,100,Amoeboid ,Amoeboid,0,3
 7,15,P,100,Eunotia,Diatom,0,150
 7,15,P,100,Melosira,Diatom,0,40
 7,15,P,100,Diatom3,Diatom,0,60
@@ -413,9 +413,9 @@
 8,15,P,100,Gymnodinium,Dinoflagelate,5,55
 8,15,P,100,Mallomonas,Synurophyta,0,18
 8,15,P,100,Merismopedia,Cyanobacteria,0,3
-8,15,P,100,Paramecium,Cilliate,0,120
+8,15,P,100,Paramecium,Ciliate,0,120
 8,15,P,100,Fischerella,Cyanobacteria,0,80
-8,15,P,100,Amoeboid ,Amoeboid ,0,3
+8,15,P,100,Amoeboid ,Amoeboid,0,3
 8,15,P,100,Eunotia,Diatom,0,150
 8,15,P,100,Melosira,Diatom,0,40
 8,15,P,100,Diatom3,Diatom,0,60
@@ -441,9 +441,9 @@
 1,3,P,150,Gymnodinium,Dinoflagelate,1,55
 1,3,P,150,Mallomonas,Synurophyta,0,18
 1,3,P,150,Merismopedia,Cyanobacteria,0,3
-1,3,P,150,Paramecium,Cilliate,0,120
+1,3,P,150,Paramecium,Ciliate,0,120
 1,3,P,150,Fischerella,Cyanobacteria,0,80
-1,3,P,150,Amoeboid ,Amoeboid ,0,3
+1,3,P,150,Amoeboid ,Amoeboid,0,3
 1,3,P,150,Eunotia,Diatom,0,150
 1,3,P,150,Melosira,Diatom,0,40
 1,3,P,150,Diatom3,Diatom,0,60
@@ -469,9 +469,9 @@
 2,3,P,150,Gymnodinium,Dinoflagelate,0,55
 2,3,P,150,Mallomonas,Synurophyta,0,18
 2,3,P,150,Merismopedia,Cyanobacteria,0,3
-2,3,P,150,Paramecium,Cilliate,0,120
+2,3,P,150,Paramecium,Ciliate,0,120
 2,3,P,150,Fischerella,Cyanobacteria,0,80
-2,3,P,150,Amoeboid ,Amoeboid ,0,3
+2,3,P,150,Amoeboid ,Amoeboid,0,3
 2,3,P,150,Eunotia,Diatom,0,150
 2,3,P,150,Melosira,Diatom,0,40
 2,3,P,150,Diatom3,Diatom,0,60
@@ -497,9 +497,9 @@
 3,3,P,150,Gymnodinium,Dinoflagelate,0,55
 3,3,P,150,Mallomonas,Synurophyta,0,18
 3,3,P,150,Merismopedia,Cyanobacteria,0,3
-3,3,P,150,Paramecium,Cilliate,0,120
+3,3,P,150,Paramecium,Ciliate,0,120
 3,3,P,150,Fischerella,Cyanobacteria,0,80
-3,3,P,150,Amoeboid ,Amoeboid ,0,3
+3,3,P,150,Amoeboid ,Amoeboid,0,3
 3,3,P,150,Eunotia,Diatom,0,150
 3,3,P,150,Melosira,Diatom,0,40
 3,3,P,150,Diatom3,Diatom,0,60
@@ -525,9 +525,9 @@
 7,3,P,150,Gymnodinium,Dinoflagelate,0,55
 7,3,P,150,Mallomonas,Synurophyta,0,18
 7,3,P,150,Merismopedia,Cyanobacteria,0,3
-7,3,P,150,Paramecium,Cilliate,0,120
+7,3,P,150,Paramecium,Ciliate,0,120
 7,3,P,150,Fischerella,Cyanobacteria,0,80
-7,3,P,150,Amoeboid ,Amoeboid ,0,3
+7,3,P,150,Amoeboid ,Amoeboid,0,3
 7,3,P,150,Eunotia,Diatom,0,150
 7,3,P,150,Melosira,Diatom,0,40
 7,3,P,150,Diatom3,Diatom,0,60
@@ -553,9 +553,9 @@
 8,3,P,150,Gymnodinium,Dinoflagelate,0,55
 8,3,P,150,Mallomonas,Synurophyta,0,18
 8,3,P,150,Merismopedia,Cyanobacteria,0,3
-8,3,P,150,Paramecium,Cilliate,0,120
+8,3,P,150,Paramecium,Ciliate,0,120
 8,3,P,150,Fischerella,Cyanobacteria,0,80
-8,3,P,150,Amoeboid ,Amoeboid ,0,3
+8,3,P,150,Amoeboid ,Amoeboid,0,3
 8,3,P,150,Eunotia,Diatom,0,150
 8,3,P,150,Melosira,Diatom,0,40
 8,3,P,150,Diatom3,Diatom,0,60
@@ -581,9 +581,9 @@
 1,29,P,200,Gymnodinium,Dinoflagelate,0,55
 1,29,P,200,Mallomonas,Synurophyta,0,18
 1,29,P,200,Merismopedia,Cyanobacteria,0,3
-1,29,P,200,Paramecium,Cilliate,0,120
+1,29,P,200,Paramecium,Ciliate,0,120
 1,29,P,200,Fischerella,Cyanobacteria,0,80
-1,29,P,200,Amoeboid ,Amoeboid ,10,3
+1,29,P,200,Amoeboid ,Amoeboid,10,3
 1,29,P,200,Eunotia,Diatom,1,150
 1,29,P,200,Melosira,Diatom,10,40
 1,29,P,200,Diatom3,Diatom,1,60
@@ -609,9 +609,9 @@
 2,29,P,200,Gymnodinium,Dinoflagelate,0,55
 2,29,P,200,Mallomonas,Synurophyta,1,18
 2,29,P,200,Merismopedia,Cyanobacteria,0,3
-2,29,P,200,Paramecium,Cilliate,0,120
+2,29,P,200,Paramecium,Ciliate,0,120
 2,29,P,200,Fischerella,Cyanobacteria,0,80
-2,29,P,200,Amoeboid ,Amoeboid ,0,3
+2,29,P,200,Amoeboid ,Amoeboid,0,3
 2,29,P,200,Eunotia,Diatom,0,150
 2,29,P,200,Melosira,Diatom,0,40
 2,29,P,200,Diatom3,Diatom,0,60
@@ -637,9 +637,9 @@
 3,29,P,200,Gymnodinium,Dinoflagelate,0,55
 3,29,P,200,Mallomonas,Synurophyta,2,18
 3,29,P,200,Merismopedia,Cyanobacteria,0,3
-3,29,P,200,Paramecium,Cilliate,0,120
+3,29,P,200,Paramecium,Ciliate,0,120
 3,29,P,200,Fischerella,Cyanobacteria,0,80
-3,29,P,200,Amoeboid ,Amoeboid ,0,3
+3,29,P,200,Amoeboid ,Amoeboid,0,3
 3,29,P,200,Eunotia,Diatom,0,150
 3,29,P,200,Melosira,Diatom,0,40
 3,29,P,200,Diatom3,Diatom,0,60
@@ -665,9 +665,9 @@
 7,29,P,200,Gymnodinium,Dinoflagelate,0,55
 7,29,P,200,Mallomonas,Synurophyta,6,18
 7,29,P,200,Merismopedia,Cyanobacteria,0,3
-7,29,P,200,Paramecium,Cilliate,0,120
+7,29,P,200,Paramecium,Ciliate,0,120
 7,29,P,200,Fischerella,Cyanobacteria,2,80
-7,29,P,200,Amoeboid ,Amoeboid ,0,3
+7,29,P,200,Amoeboid ,Amoeboid,0,3
 7,29,P,200,Eunotia,Diatom,0,150
 7,29,P,200,Melosira,Diatom,0,40
 7,29,P,200,Diatom3,Diatom,0,60
@@ -693,9 +693,9 @@
 8,29,P,200,Gymnodinium,Dinoflagelate,0,55
 8,29,P,200,Mallomonas,Synurophyta,0,18
 8,29,P,200,Merismopedia,Cyanobacteria,0,3
-8,29,P,200,Paramecium,Cilliate,0,120
+8,29,P,200,Paramecium,Ciliate,0,120
 8,29,P,200,Fischerella,Cyanobacteria,0,80
-8,29,P,200,Amoeboid ,Amoeboid ,0,3
+8,29,P,200,Amoeboid ,Amoeboid,0,3
 8,29,P,200,Eunotia,Diatom,0,150
 8,29,P,200,Melosira,Diatom,0,40
 8,29,P,200,Diatom3,Diatom,0,60
@@ -721,9 +721,9 @@
 1,17,P,250,Gymnodinium,Dinoflagelate,0,55
 1,17,P,250,Mallomonas,Synurophyta,0,18
 1,17,P,250,Merismopedia,Cyanobacteria,0,3
-1,17,P,250,Paramecium,Cilliate,0,120
+1,17,P,250,Paramecium,Ciliate,0,120
 1,17,P,250,Fischerella,Cyanobacteria,0,80
-1,17,P,250,Amoeboid ,Amoeboid ,0,3
+1,17,P,250,Amoeboid ,Amoeboid,0,3
 1,17,P,250,Eunotia,Diatom,0,150
 1,17,P,250,Melosira,Diatom,0,40
 1,17,P,250,Diatom3,Diatom,0,60
@@ -749,9 +749,9 @@
 2,17,P,250,Gymnodinium,Dinoflagelate,2,55
 2,17,P,250,Mallomonas,Synurophyta,0,18
 2,17,P,250,Merismopedia,Cyanobacteria,0,3
-2,17,P,250,Paramecium,Cilliate,0,120
+2,17,P,250,Paramecium,Ciliate,0,120
 2,17,P,250,Fischerella,Cyanobacteria,0,80
-2,17,P,250,Amoeboid ,Amoeboid ,0,3
+2,17,P,250,Amoeboid ,Amoeboid,0,3
 2,17,P,250,Eunotia,Diatom,0,150
 2,17,P,250,Melosira,Diatom,0,40
 2,17,P,250,Diatom3,Diatom,0,60
@@ -777,9 +777,9 @@
 3,17,P,250,Gymnodinium,Dinoflagelate,0,55
 3,17,P,250,Mallomonas,Synurophyta,0,18
 3,17,P,250,Merismopedia,Cyanobacteria,0,3
-3,17,P,250,Paramecium,Cilliate,0,120
+3,17,P,250,Paramecium,Ciliate,0,120
 3,17,P,250,Fischerella,Cyanobacteria,0,80
-3,17,P,250,Amoeboid ,Amoeboid ,0,3
+3,17,P,250,Amoeboid ,Amoeboid,0,3
 3,17,P,250,Eunotia,Diatom,0,150
 3,17,P,250,Melosira,Diatom,0,40
 3,17,P,250,Diatom3,Diatom,0,60
@@ -805,9 +805,9 @@
 7,17,P,250,Gymnodinium,Dinoflagelate,0,55
 7,17,P,250,Mallomonas,Synurophyta,1,18
 7,17,P,250,Merismopedia,Cyanobacteria,0,3
-7,17,P,250,Paramecium,Cilliate,0,120
+7,17,P,250,Paramecium,Ciliate,0,120
 7,17,P,250,Fischerella,Cyanobacteria,0,80
-7,17,P,250,Amoeboid ,Amoeboid ,0,3
+7,17,P,250,Amoeboid ,Amoeboid,0,3
 7,17,P,250,Eunotia,Diatom,0,150
 7,17,P,250,Melosira,Diatom,0,40
 7,17,P,250,Diatom3,Diatom,0,60
@@ -833,9 +833,9 @@
 8,17,P,250,Gymnodinium,Dinoflagelate,0,55
 8,17,P,250,Mallomonas,Synurophyta,0,18
 8,17,P,250,Merismopedia,Cyanobacteria,0,3
-8,17,P,250,Paramecium,Cilliate,0,120
+8,17,P,250,Paramecium,Ciliate,0,120
 8,17,P,250,Fischerella,Cyanobacteria,0,80
-8,17,P,250,Amoeboid ,Amoeboid ,0,3
+8,17,P,250,Amoeboid ,Amoeboid,0,3
 8,17,P,250,Eunotia,Diatom,0,150
 8,17,P,250,Melosira,Diatom,0,40
 8,17,P,250,Diatom3,Diatom,0,60
@@ -861,9 +861,9 @@
 1,27,P,300,Gymnodinium,Dinoflagelate,0,55
 1,27,P,300,Mallomonas,Synurophyta,1,18
 1,27,P,300,Merismopedia,Cyanobacteria,0,3
-1,27,P,300,Paramecium,Cilliate,0,120
+1,27,P,300,Paramecium,Ciliate,0,120
 1,27,P,300,Fischerella,Cyanobacteria,0,80
-1,27,P,300,Amoeboid ,Amoeboid ,0,3
+1,27,P,300,Amoeboid ,Amoeboid,0,3
 1,27,P,300,Eunotia,Diatom,0,150
 1,27,P,300,Melosira,Diatom,0,40
 1,27,P,300,Diatom3,Diatom,0,60
@@ -889,9 +889,9 @@
 2,27,P,300,Gymnodinium,Dinoflagelate,0,55
 2,27,P,300,Mallomonas,Synurophyta,0,18
 2,27,P,300,Merismopedia,Cyanobacteria,0,3
-2,27,P,300,Paramecium,Cilliate,0,120
+2,27,P,300,Paramecium,Ciliate,0,120
 2,27,P,300,Fischerella,Cyanobacteria,3,80
-2,27,P,300,Amoeboid ,Amoeboid ,0,3
+2,27,P,300,Amoeboid ,Amoeboid,0,3
 2,27,P,300,Eunotia,Diatom,0,150
 2,27,P,300,Melosira,Diatom,4,40
 2,27,P,300,Diatom3,Diatom,0,60
@@ -917,9 +917,9 @@
 3,27,P,300,Gymnodinium,Dinoflagelate,0,55
 3,27,P,300,Mallomonas,Synurophyta,0,18
 3,27,P,300,Merismopedia,Cyanobacteria,0,3
-3,27,P,300,Paramecium,Cilliate,0,120
+3,27,P,300,Paramecium,Ciliate,0,120
 3,27,P,300,Fischerella,Cyanobacteria,0,80
-3,27,P,300,Amoeboid ,Amoeboid ,0,3
+3,27,P,300,Amoeboid ,Amoeboid,0,3
 3,27,P,300,Eunotia,Diatom,0,150
 3,27,P,300,Melosira,Diatom,0,40
 3,27,P,300,Diatom3,Diatom,0,60
@@ -945,9 +945,9 @@
 7,27,P,300,Gymnodinium,Dinoflagelate,0,55
 7,27,P,300,Mallomonas,Synurophyta,3,18
 7,27,P,300,Merismopedia,Cyanobacteria,0,3
-7,27,P,300,Paramecium,Cilliate,0,120
+7,27,P,300,Paramecium,Ciliate,0,120
 7,27,P,300,Fischerella,Cyanobacteria,1,80
-7,27,P,300,Amoeboid ,Amoeboid ,0,3
+7,27,P,300,Amoeboid ,Amoeboid,0,3
 7,27,P,300,Eunotia,Diatom,0,150
 7,27,P,300,Melosira,Diatom,0,40
 7,27,P,300,Diatom3,Diatom,0,60
@@ -973,9 +973,9 @@
 8,27,P,300,Gymnodinium,Dinoflagelate,4,55
 8,27,P,300,Mallomonas,Synurophyta,1,18
 8,27,P,300,Merismopedia,Cyanobacteria,0,3
-8,27,P,300,Paramecium,Cilliate,0,120
+8,27,P,300,Paramecium,Ciliate,0,120
 8,27,P,300,Fischerella,Cyanobacteria,0,80
-8,27,P,300,Amoeboid ,Amoeboid ,0,3
+8,27,P,300,Amoeboid ,Amoeboid,0,3
 8,27,P,300,Eunotia,Diatom,0,150
 8,27,P,300,Melosira,Diatom,0,40
 8,27,P,300,Diatom3,Diatom,0,60
@@ -1001,9 +1001,9 @@
 1,14,P,350,Gymnodinium,Dinoflagelate,0,55
 1,14,P,350,Mallomonas,Synurophyta,0,18
 1,14,P,350,Merismopedia,Cyanobacteria,0,3
-1,14,P,350,Paramecium,Cilliate,0,120
+1,14,P,350,Paramecium,Ciliate,0,120
 1,14,P,350,Fischerella,Cyanobacteria,0,80
-1,14,P,350,Amoeboid ,Amoeboid ,0,3
+1,14,P,350,Amoeboid ,Amoeboid,0,3
 1,14,P,350,Eunotia,Diatom,0,150
 1,14,P,350,Melosira,Diatom,0,40
 1,14,P,350,Diatom3,Diatom,0,60
@@ -1029,9 +1029,9 @@
 2,14,P,350,Gymnodinium,Dinoflagelate,0,55
 2,14,P,350,Mallomonas,Synurophyta,0,18
 2,14,P,350,Merismopedia,Cyanobacteria,0,3
-2,14,P,350,Paramecium,Cilliate,0,120
+2,14,P,350,Paramecium,Ciliate,0,120
 2,14,P,350,Fischerella,Cyanobacteria,5,80
-2,14,P,350,Amoeboid ,Amoeboid ,0,3
+2,14,P,350,Amoeboid ,Amoeboid,0,3
 2,14,P,350,Eunotia,Diatom,0,150
 2,14,P,350,Melosira,Diatom,0,40
 2,14,P,350,Diatom3,Diatom,0,60
@@ -1057,9 +1057,9 @@
 3,14,P,350,Gymnodinium,Dinoflagelate,0,55
 3,14,P,350,Mallomonas,Synurophyta,0,18
 3,14,P,350,Merismopedia,Cyanobacteria,0,3
-3,14,P,350,Paramecium,Cilliate,0,120
+3,14,P,350,Paramecium,Ciliate,0,120
 3,14,P,350,Fischerella,Cyanobacteria,0,80
-3,14,P,350,Amoeboid ,Amoeboid ,0,3
+3,14,P,350,Amoeboid ,Amoeboid,0,3
 3,14,P,350,Eunotia,Diatom,0,150
 3,14,P,350,Melosira,Diatom,0,40
 3,14,P,350,Diatom3,Diatom,0,60
@@ -1085,9 +1085,9 @@
 7,14,P,350,Gymnodinium,Dinoflagelate,0,55
 7,14,P,350,Mallomonas,Synurophyta,0,18
 7,14,P,350,Merismopedia,Cyanobacteria,0,3
-7,14,P,350,Paramecium,Cilliate,0,120
+7,14,P,350,Paramecium,Ciliate,0,120
 7,14,P,350,Fischerella,Cyanobacteria,1,80
-7,14,P,350,Amoeboid ,Amoeboid ,0,3
+7,14,P,350,Amoeboid ,Amoeboid,0,3
 7,14,P,350,Eunotia,Diatom,0,150
 7,14,P,350,Melosira,Diatom,0,40
 7,14,P,350,Diatom3,Diatom,0,60
@@ -1113,9 +1113,9 @@
 8,14,P,350,Gymnodinium,Dinoflagelate,1,55
 8,14,P,350,Mallomonas,Synurophyta,0,18
 8,14,P,350,Merismopedia,Cyanobacteria,0,3
-8,14,P,350,Paramecium,Cilliate,0,120
+8,14,P,350,Paramecium,Ciliate,0,120
 8,14,P,350,Fischerella,Cyanobacteria,0,80
-8,14,P,350,Amoeboid ,Amoeboid ,0,3
+8,14,P,350,Amoeboid ,Amoeboid,0,3
 8,14,P,350,Eunotia,Diatom,0,150
 8,14,P,350,Melosira,Diatom,0,40
 8,14,P,350,Diatom3,Diatom,0,60
@@ -1141,9 +1141,9 @@
 1,1,P,400,Gymnodinium,Dinoflagelate,0,55
 1,1,P,400,Mallomonas,Synurophyta,0,18
 1,1,P,400,Merismopedia,Cyanobacteria,0,3
-1,1,P,400,Paramecium,Cilliate,0,120
+1,1,P,400,Paramecium,Ciliate,0,120
 1,1,P,400,Fischerella,Cyanobacteria,0,80
-1,1,P,400,Amoeboid ,Amoeboid ,0,3
+1,1,P,400,Amoeboid ,Amoeboid,0,3
 1,1,P,400,Eunotia,Diatom,0,150
 1,1,P,400,Melosira,Diatom,0,40
 1,1,P,400,Diatom3,Diatom,0,60
@@ -1169,9 +1169,9 @@
 2,1,P,400,Gymnodinium,Dinoflagelate,5,55
 2,1,P,400,Mallomonas,Synurophyta,1,18
 2,1,P,400,Merismopedia,Cyanobacteria,0,3
-2,1,P,400,Paramecium,Cilliate,0,120
+2,1,P,400,Paramecium,Ciliate,0,120
 2,1,P,400,Fischerella,Cyanobacteria,0,80
-2,1,P,400,Amoeboid ,Amoeboid ,0,3
+2,1,P,400,Amoeboid ,Amoeboid,0,3
 2,1,P,400,Eunotia,Diatom,0,150
 2,1,P,400,Melosira,Diatom,0,40
 2,1,P,400,Diatom3,Diatom,0,60
@@ -1197,9 +1197,9 @@
 3,1,P,400,Gymnodinium,Dinoflagelate,0,55
 3,1,P,400,Mallomonas,Synurophyta,0,18
 3,1,P,400,Merismopedia,Cyanobacteria,0,3
-3,1,P,400,Paramecium,Cilliate,0,120
+3,1,P,400,Paramecium,Ciliate,0,120
 3,1,P,400,Fischerella,Cyanobacteria,0,80
-3,1,P,400,Amoeboid ,Amoeboid ,0,3
+3,1,P,400,Amoeboid ,Amoeboid,0,3
 3,1,P,400,Eunotia,Diatom,0,150
 3,1,P,400,Melosira,Diatom,0,40
 3,1,P,400,Diatom3,Diatom,0,60
@@ -1225,9 +1225,9 @@
 7,1,P,400,Gymnodinium,Dinoflagelate,0,55
 7,1,P,400,Mallomonas,Synurophyta,3,18
 7,1,P,400,Merismopedia,Cyanobacteria,0,3
-7,1,P,400,Paramecium,Cilliate,0,120
+7,1,P,400,Paramecium,Ciliate,0,120
 7,1,P,400,Fischerella,Cyanobacteria,2,80
-7,1,P,400,Amoeboid ,Amoeboid ,0,3
+7,1,P,400,Amoeboid ,Amoeboid,0,3
 7,1,P,400,Eunotia,Diatom,0,150
 7,1,P,400,Melosira,Diatom,0,40
 7,1,P,400,Diatom3,Diatom,0,60
@@ -1253,9 +1253,9 @@
 8,1,P,400,Gymnodinium,Dinoflagelate,0,55
 8,1,P,400,Mallomonas,Synurophyta,0,18
 8,1,P,400,Merismopedia,Cyanobacteria,0,3
-8,1,P,400,Paramecium,Cilliate,0,120
+8,1,P,400,Paramecium,Ciliate,0,120
 8,1,P,400,Fischerella,Cyanobacteria,0,80
-8,1,P,400,Amoeboid ,Amoeboid ,0,3
+8,1,P,400,Amoeboid ,Amoeboid,0,3
 8,1,P,400,Eunotia,Diatom,0,150
 8,1,P,400,Melosira,Diatom,0,40
 8,1,P,400,Diatom3,Diatom,0,60
@@ -1281,9 +1281,9 @@
 1,8,P,450,Gymnodinium,Dinoflagelate,0,55
 1,8,P,450,Mallomonas,Synurophyta,0,18
 1,8,P,450,Merismopedia,Cyanobacteria,0,3
-1,8,P,450,Paramecium,Cilliate,0,120
+1,8,P,450,Paramecium,Ciliate,0,120
 1,8,P,450,Fischerella,Cyanobacteria,0,80
-1,8,P,450,Amoeboid ,Amoeboid ,0,3
+1,8,P,450,Amoeboid ,Amoeboid,0,3
 1,8,P,450,Eunotia,Diatom,1,150
 1,8,P,450,Melosira,Diatom,0,40
 1,8,P,450,Diatom3,Diatom,1,60
@@ -1309,9 +1309,9 @@
 2,8,P,450,Gymnodinium,Dinoflagelate,6,55
 2,8,P,450,Mallomonas,Synurophyta,0,18
 2,8,P,450,Merismopedia,Cyanobacteria,0,3
-2,8,P,450,Paramecium,Cilliate,0,120
+2,8,P,450,Paramecium,Ciliate,0,120
 2,8,P,450,Fischerella,Cyanobacteria,0,80
-2,8,P,450,Amoeboid ,Amoeboid ,0,3
+2,8,P,450,Amoeboid ,Amoeboid,0,3
 2,8,P,450,Eunotia,Diatom,1,150
 2,8,P,450,Melosira,Diatom,6,40
 2,8,P,450,Diatom3,Diatom,1,60
@@ -1337,9 +1337,9 @@
 3,8,P,450,Gymnodinium,Dinoflagelate,1,55
 3,8,P,450,Mallomonas,Synurophyta,0,18
 3,8,P,450,Merismopedia,Cyanobacteria,0,3
-3,8,P,450,Paramecium,Cilliate,0,120
+3,8,P,450,Paramecium,Ciliate,0,120
 3,8,P,450,Fischerella,Cyanobacteria,0,80
-3,8,P,450,Amoeboid ,Amoeboid ,0,3
+3,8,P,450,Amoeboid ,Amoeboid,0,3
 3,8,P,450,Eunotia,Diatom,0,150
 3,8,P,450,Melosira,Diatom,0,40
 3,8,P,450,Diatom3,Diatom,0,60
@@ -1365,9 +1365,9 @@
 7,8,P,450,Gymnodinium,Dinoflagelate,0,55
 7,8,P,450,Mallomonas,Synurophyta,0,18
 7,8,P,450,Merismopedia,Cyanobacteria,0,3
-7,8,P,450,Paramecium,Cilliate,0,120
+7,8,P,450,Paramecium,Ciliate,0,120
 7,8,P,450,Fischerella,Cyanobacteria,0,80
-7,8,P,450,Amoeboid ,Amoeboid ,1,3
+7,8,P,450,Amoeboid ,Amoeboid,1,3
 7,8,P,450,Eunotia,Diatom,0,150
 7,8,P,450,Melosira,Diatom,1,40
 7,8,P,450,Diatom3,Diatom,0,60
@@ -1393,9 +1393,9 @@
 8,8,P,450,Gymnodinium,Dinoflagelate,0,55
 8,8,P,450,Mallomonas,Synurophyta,0,18
 8,8,P,450,Merismopedia,Cyanobacteria,0,3
-8,8,P,450,Paramecium,Cilliate,0,120
+8,8,P,450,Paramecium,Ciliate,0,120
 8,8,P,450,Fischerella,Cyanobacteria,0,80
-8,8,P,450,Amoeboid ,Amoeboid ,0,3
+8,8,P,450,Amoeboid ,Amoeboid,0,3
 8,8,P,450,Eunotia,Diatom,0,150
 8,8,P,450,Melosira,Diatom,0,40
 8,8,P,450,Diatom3,Diatom,0,60
@@ -1421,9 +1421,9 @@
 1,11,PZ,0,Gymnodinium,Dinoflagelate,0,55
 1,11,PZ,0,Mallomonas,Synurophyta,0,18
 1,11,PZ,0,Merismopedia,Cyanobacteria,0,3
-1,11,PZ,0,Paramecium,Cilliate,0,120
+1,11,PZ,0,Paramecium,Ciliate,0,120
 1,11,PZ,0,Fischerella,Cyanobacteria,0,80
-1,11,PZ,0,Amoeboid ,Amoeboid ,0,3
+1,11,PZ,0,Amoeboid ,Amoeboid,0,3
 1,11,PZ,0,Eunotia,Diatom,0,150
 1,11,PZ,0,Melosira,Diatom,0,40
 1,11,PZ,0,Diatom3,Diatom,0,60
@@ -1449,9 +1449,9 @@
 2,11,PZ,0,Gymnodinium,Dinoflagelate,1,55
 2,11,PZ,0,Mallomonas,Synurophyta,0,18
 2,11,PZ,0,Merismopedia,Cyanobacteria,0,3
-2,11,PZ,0,Paramecium,Cilliate,0,120
+2,11,PZ,0,Paramecium,Ciliate,0,120
 2,11,PZ,0,Fischerella,Cyanobacteria,0,80
-2,11,PZ,0,Amoeboid ,Amoeboid ,0,3
+2,11,PZ,0,Amoeboid ,Amoeboid,0,3
 2,11,PZ,0,Eunotia,Diatom,0,150
 2,11,PZ,0,Melosira,Diatom,0,40
 2,11,PZ,0,Diatom3,Diatom,0,60
@@ -1477,9 +1477,9 @@
 3,11,PZ,0,Gymnodinium,Dinoflagelate,0,55
 3,11,PZ,0,Mallomonas,Synurophyta,3,18
 3,11,PZ,0,Merismopedia,Cyanobacteria,0,3
-3,11,PZ,0,Paramecium,Cilliate,0,120
+3,11,PZ,0,Paramecium,Ciliate,0,120
 3,11,PZ,0,Fischerella,Cyanobacteria,0,80
-3,11,PZ,0,Amoeboid ,Amoeboid ,0,3
+3,11,PZ,0,Amoeboid ,Amoeboid,0,3
 3,11,PZ,0,Eunotia,Diatom,0,150
 3,11,PZ,0,Melosira,Diatom,0,40
 3,11,PZ,0,Diatom3,Diatom,0,60
@@ -1505,9 +1505,9 @@
 7,11,PZ,0,Gymnodinium,Dinoflagelate,0,55
 7,11,PZ,0,Mallomonas,Synurophyta,6,18
 7,11,PZ,0,Merismopedia,Cyanobacteria,0,3
-7,11,PZ,0,Paramecium,Cilliate,0,120
+7,11,PZ,0,Paramecium,Ciliate,0,120
 7,11,PZ,0,Fischerella,Cyanobacteria,1,80
-7,11,PZ,0,Amoeboid ,Amoeboid ,0,3
+7,11,PZ,0,Amoeboid ,Amoeboid,0,3
 7,11,PZ,0,Eunotia,Diatom,0,150
 7,11,PZ,0,Melosira,Diatom,0,40
 7,11,PZ,0,Diatom3,Diatom,0,60
@@ -1533,9 +1533,9 @@
 8,11,PZ,0,Gymnodinium,Dinoflagelate,0,55
 8,11,PZ,0,Mallomonas,Synurophyta,0,18
 8,11,PZ,0,Merismopedia,Cyanobacteria,0,3
-8,11,PZ,0,Paramecium,Cilliate,0,120
+8,11,PZ,0,Paramecium,Ciliate,0,120
 8,11,PZ,0,Fischerella,Cyanobacteria,0,80
-8,11,PZ,0,Amoeboid ,Amoeboid ,0,3
+8,11,PZ,0,Amoeboid ,Amoeboid,0,3
 8,11,PZ,0,Eunotia,Diatom,0,150
 8,11,PZ,0,Melosira,Diatom,0,40
 8,11,PZ,0,Diatom3,Diatom,0,60
@@ -1561,9 +1561,9 @@
 1,21,PZ,50,Gymnodinium,Dinoflagelate,2,55
 1,21,PZ,50,Mallomonas,Synurophyta,0,18
 1,21,PZ,50,Merismopedia,Cyanobacteria,0,3
-1,21,PZ,50,Paramecium,Cilliate,0,120
+1,21,PZ,50,Paramecium,Ciliate,0,120
 1,21,PZ,50,Fischerella,Cyanobacteria,0,80
-1,21,PZ,50,Amoeboid ,Amoeboid ,1,3
+1,21,PZ,50,Amoeboid ,Amoeboid,1,3
 1,21,PZ,50,Eunotia,Diatom,0,150
 1,21,PZ,50,Melosira,Diatom,1,40
 1,21,PZ,50,Diatom3,Diatom,0,60
@@ -1589,9 +1589,9 @@
 2,21,PZ,50,Gymnodinium,Dinoflagelate,0,55
 2,21,PZ,50,Mallomonas,Synurophyta,0,18
 2,21,PZ,50,Merismopedia,Cyanobacteria,0,3
-2,21,PZ,50,Paramecium,Cilliate,0,120
+2,21,PZ,50,Paramecium,Ciliate,0,120
 2,21,PZ,50,Fischerella,Cyanobacteria,0,80
-2,21,PZ,50,Amoeboid ,Amoeboid ,0,3
+2,21,PZ,50,Amoeboid ,Amoeboid,0,3
 2,21,PZ,50,Eunotia,Diatom,0,150
 2,21,PZ,50,Melosira,Diatom,2,40
 2,21,PZ,50,Diatom3,Diatom,0,60
@@ -1617,9 +1617,9 @@
 3,21,PZ,50,Gymnodinium,Dinoflagelate,0,55
 3,21,PZ,50,Mallomonas,Synurophyta,0,18
 3,21,PZ,50,Merismopedia,Cyanobacteria,0,3
-3,21,PZ,50,Paramecium,Cilliate,0,120
+3,21,PZ,50,Paramecium,Ciliate,0,120
 3,21,PZ,50,Fischerella,Cyanobacteria,0,80
-3,21,PZ,50,Amoeboid ,Amoeboid ,0,3
+3,21,PZ,50,Amoeboid ,Amoeboid,0,3
 3,21,PZ,50,Eunotia,Diatom,0,150
 3,21,PZ,50,Melosira,Diatom,0,40
 3,21,PZ,50,Diatom3,Diatom,0,60
@@ -1645,9 +1645,9 @@
 7,21,PZ,50,Gymnodinium,Dinoflagelate,0,55
 7,21,PZ,50,Mallomonas,Synurophyta,3,18
 7,21,PZ,50,Merismopedia,Cyanobacteria,3,3
-7,21,PZ,50,Paramecium,Cilliate,0,120
+7,21,PZ,50,Paramecium,Ciliate,0,120
 7,21,PZ,50,Fischerella,Cyanobacteria,0,80
-7,21,PZ,50,Amoeboid ,Amoeboid ,0,3
+7,21,PZ,50,Amoeboid ,Amoeboid,0,3
 7,21,PZ,50,Eunotia,Diatom,0,150
 7,21,PZ,50,Melosira,Diatom,0,40
 7,21,PZ,50,Diatom3,Diatom,0,60
@@ -1673,9 +1673,9 @@
 8,21,PZ,50,Gymnodinium,Dinoflagelate,0,55
 8,21,PZ,50,Mallomonas,Synurophyta,0,18
 8,21,PZ,50,Merismopedia,Cyanobacteria,4,3
-8,21,PZ,50,Paramecium,Cilliate,0,120
+8,21,PZ,50,Paramecium,Ciliate,0,120
 8,21,PZ,50,Fischerella,Cyanobacteria,0,80
-8,21,PZ,50,Amoeboid ,Amoeboid ,0,3
+8,21,PZ,50,Amoeboid ,Amoeboid,0,3
 8,21,PZ,50,Eunotia,Diatom,0,150
 8,21,PZ,50,Melosira,Diatom,0,40
 8,21,PZ,50,Diatom3,Diatom,0,60
@@ -1701,9 +1701,9 @@
 1,28,PZ,100,Gymnodinium,Dinoflagelate,0,55
 1,28,PZ,100,Mallomonas,Synurophyta,0,18
 1,28,PZ,100,Merismopedia,Cyanobacteria,0,3
-1,28,PZ,100,Paramecium,Cilliate,0,120
+1,28,PZ,100,Paramecium,Ciliate,0,120
 1,28,PZ,100,Fischerella,Cyanobacteria,0,80
-1,28,PZ,100,Amoeboid ,Amoeboid ,0,3
+1,28,PZ,100,Amoeboid ,Amoeboid,0,3
 1,28,PZ,100,Eunotia,Diatom,0,150
 1,28,PZ,100,Melosira,Diatom,0,40
 1,28,PZ,100,Diatom3,Diatom,0,60
@@ -1729,9 +1729,9 @@
 2,28,PZ,100,Gymnodinium,Dinoflagelate,0,55
 2,28,PZ,100,Mallomonas,Synurophyta,4,18
 2,28,PZ,100,Merismopedia,Cyanobacteria,0,3
-2,28,PZ,100,Paramecium,Cilliate,0,120
+2,28,PZ,100,Paramecium,Ciliate,0,120
 2,28,PZ,100,Fischerella,Cyanobacteria,0,80
-2,28,PZ,100,Amoeboid ,Amoeboid ,0,3
+2,28,PZ,100,Amoeboid ,Amoeboid,0,3
 2,28,PZ,100,Eunotia,Diatom,0,150
 2,28,PZ,100,Melosira,Diatom,1,40
 2,28,PZ,100,Diatom3,Diatom,0,60
@@ -1757,9 +1757,9 @@
 3,28,PZ,100,Gymnodinium,Dinoflagelate,0,55
 3,28,PZ,100,Mallomonas,Synurophyta,1,18
 3,28,PZ,100,Merismopedia,Cyanobacteria,0,3
-3,28,PZ,100,Paramecium,Cilliate,0,120
+3,28,PZ,100,Paramecium,Ciliate,0,120
 3,28,PZ,100,Fischerella,Cyanobacteria,0,80
-3,28,PZ,100,Amoeboid ,Amoeboid ,0,3
+3,28,PZ,100,Amoeboid ,Amoeboid,0,3
 3,28,PZ,100,Eunotia,Diatom,0,150
 3,28,PZ,100,Melosira,Diatom,0,40
 3,28,PZ,100,Diatom3,Diatom,0,60
@@ -1785,9 +1785,9 @@
 7,28,PZ,100,Gymnodinium,Dinoflagelate,1,55
 7,28,PZ,100,Mallomonas,Synurophyta,0,18
 7,28,PZ,100,Merismopedia,Cyanobacteria,0,3
-7,28,PZ,100,Paramecium,Cilliate,0,120
+7,28,PZ,100,Paramecium,Ciliate,0,120
 7,28,PZ,100,Fischerella,Cyanobacteria,0,80
-7,28,PZ,100,Amoeboid ,Amoeboid ,0,3
+7,28,PZ,100,Amoeboid ,Amoeboid,0,3
 7,28,PZ,100,Eunotia,Diatom,0,150
 7,28,PZ,100,Melosira,Diatom,0,40
 7,28,PZ,100,Diatom3,Diatom,0,60
@@ -1813,9 +1813,9 @@
 8,28,PZ,100,Gymnodinium,Dinoflagelate,0,55
 8,28,PZ,100,Mallomonas,Synurophyta,1,18
 8,28,PZ,100,Merismopedia,Cyanobacteria,0,3
-8,28,PZ,100,Paramecium,Cilliate,0,120
+8,28,PZ,100,Paramecium,Ciliate,0,120
 8,28,PZ,100,Fischerella,Cyanobacteria,0,80
-8,28,PZ,100,Amoeboid ,Amoeboid ,0,3
+8,28,PZ,100,Amoeboid ,Amoeboid,0,3
 8,28,PZ,100,Eunotia,Diatom,0,150
 8,28,PZ,100,Melosira,Diatom,0,40
 8,28,PZ,100,Diatom3,Diatom,0,60
@@ -1841,9 +1841,9 @@
 1,19,PZ,150,Gymnodinium,Dinoflagelate,0,55
 1,19,PZ,150,Mallomonas,Synurophyta,0,18
 1,19,PZ,150,Merismopedia,Cyanobacteria,2,3
-1,19,PZ,150,Paramecium,Cilliate,0,120
+1,19,PZ,150,Paramecium,Ciliate,0,120
 1,19,PZ,150,Fischerella,Cyanobacteria,0,80
-1,19,PZ,150,Amoeboid ,Amoeboid ,0,3
+1,19,PZ,150,Amoeboid ,Amoeboid,0,3
 1,19,PZ,150,Eunotia,Diatom,0,150
 1,19,PZ,150,Melosira,Diatom,0,40
 1,19,PZ,150,Diatom3,Diatom,0,60
@@ -1869,9 +1869,9 @@
 2,19,PZ,150,Gymnodinium,Dinoflagelate,0,55
 2,19,PZ,150,Mallomonas,Synurophyta,0,18
 2,19,PZ,150,Merismopedia,Cyanobacteria,0,3
-2,19,PZ,150,Paramecium,Cilliate,0,120
+2,19,PZ,150,Paramecium,Ciliate,0,120
 2,19,PZ,150,Fischerella,Cyanobacteria,53,80
-2,19,PZ,150,Amoeboid ,Amoeboid ,0,3
+2,19,PZ,150,Amoeboid ,Amoeboid,0,3
 2,19,PZ,150,Eunotia,Diatom,0,150
 2,19,PZ,150,Melosira,Diatom,0,40
 2,19,PZ,150,Diatom3,Diatom,0,60
@@ -1897,9 +1897,9 @@
 3,19,PZ,150,Gymnodinium,Dinoflagelate,0,55
 3,19,PZ,150,Mallomonas,Synurophyta,0,18
 3,19,PZ,150,Merismopedia,Cyanobacteria,0,3
-3,19,PZ,150,Paramecium,Cilliate,0,120
+3,19,PZ,150,Paramecium,Ciliate,0,120
 3,19,PZ,150,Fischerella,Cyanobacteria,0,80
-3,19,PZ,150,Amoeboid ,Amoeboid ,0,3
+3,19,PZ,150,Amoeboid ,Amoeboid,0,3
 3,19,PZ,150,Eunotia,Diatom,0,150
 3,19,PZ,150,Melosira,Diatom,0,40
 3,19,PZ,150,Diatom3,Diatom,0,60
@@ -1925,9 +1925,9 @@
 7,19,PZ,150,Gymnodinium,Dinoflagelate,0,55
 7,19,PZ,150,Mallomonas,Synurophyta,0,18
 7,19,PZ,150,Merismopedia,Cyanobacteria,0,3
-7,19,PZ,150,Paramecium,Cilliate,0,120
+7,19,PZ,150,Paramecium,Ciliate,0,120
 7,19,PZ,150,Fischerella,Cyanobacteria,0,80
-7,19,PZ,150,Amoeboid ,Amoeboid ,0,3
+7,19,PZ,150,Amoeboid ,Amoeboid,0,3
 7,19,PZ,150,Eunotia,Diatom,0,150
 7,19,PZ,150,Melosira,Diatom,0,40
 7,19,PZ,150,Diatom3,Diatom,0,60
@@ -1953,9 +1953,9 @@
 8,19,PZ,150,Gymnodinium,Dinoflagelate,0,55
 8,19,PZ,150,Mallomonas,Synurophyta,3,18
 8,19,PZ,150,Merismopedia,Cyanobacteria,0,3
-8,19,PZ,150,Paramecium,Cilliate,0,120
+8,19,PZ,150,Paramecium,Ciliate,0,120
 8,19,PZ,150,Fischerella,Cyanobacteria,0,80
-8,19,PZ,150,Amoeboid ,Amoeboid ,0,3
+8,19,PZ,150,Amoeboid ,Amoeboid,0,3
 8,19,PZ,150,Eunotia,Diatom,0,150
 8,19,PZ,150,Melosira,Diatom,0,40
 8,19,PZ,150,Diatom3,Diatom,0,60
@@ -1981,9 +1981,9 @@
 1,12,PZ,200,Gymnodinium,Dinoflagelate,0,55
 1,12,PZ,200,Mallomonas,Synurophyta,0,18
 1,12,PZ,200,Merismopedia,Cyanobacteria,0,3
-1,12,PZ,200,Paramecium,Cilliate,0,120
+1,12,PZ,200,Paramecium,Ciliate,0,120
 1,12,PZ,200,Fischerella,Cyanobacteria,0,80
-1,12,PZ,200,Amoeboid ,Amoeboid ,0,3
+1,12,PZ,200,Amoeboid ,Amoeboid,0,3
 1,12,PZ,200,Eunotia,Diatom,0,150
 1,12,PZ,200,Melosira,Diatom,0,40
 1,12,PZ,200,Diatom3,Diatom,0,60
@@ -2009,9 +2009,9 @@
 2,12,PZ,200,Gymnodinium,Dinoflagelate,0,55
 2,12,PZ,200,Mallomonas,Synurophyta,0,18
 2,12,PZ,200,Merismopedia,Cyanobacteria,0,3
-2,12,PZ,200,Paramecium,Cilliate,0,120
+2,12,PZ,200,Paramecium,Ciliate,0,120
 2,12,PZ,200,Fischerella,Cyanobacteria,0,80
-2,12,PZ,200,Amoeboid ,Amoeboid ,0,3
+2,12,PZ,200,Amoeboid ,Amoeboid,0,3
 2,12,PZ,200,Eunotia,Diatom,0,150
 2,12,PZ,200,Melosira,Diatom,0,40
 2,12,PZ,200,Diatom3,Diatom,0,60
@@ -2037,9 +2037,9 @@
 3,12,PZ,200,Gymnodinium,Dinoflagelate,0,55
 3,12,PZ,200,Mallomonas,Synurophyta,0,18
 3,12,PZ,200,Merismopedia,Cyanobacteria,0,3
-3,12,PZ,200,Paramecium,Cilliate,0,120
+3,12,PZ,200,Paramecium,Ciliate,0,120
 3,12,PZ,200,Fischerella,Cyanobacteria,0,80
-3,12,PZ,200,Amoeboid ,Amoeboid ,0,3
+3,12,PZ,200,Amoeboid ,Amoeboid,0,3
 3,12,PZ,200,Eunotia,Diatom,0,150
 3,12,PZ,200,Melosira,Diatom,0,40
 3,12,PZ,200,Diatom3,Diatom,0,60
@@ -2065,9 +2065,9 @@
 7,12,PZ,200,Gymnodinium,Dinoflagelate,0,55
 7,12,PZ,200,Mallomonas,Synurophyta,0,18
 7,12,PZ,200,Merismopedia,Cyanobacteria,0,3
-7,12,PZ,200,Paramecium,Cilliate,0,120
+7,12,PZ,200,Paramecium,Ciliate,0,120
 7,12,PZ,200,Fischerella,Cyanobacteria,0,80
-7,12,PZ,200,Amoeboid ,Amoeboid ,0,3
+7,12,PZ,200,Amoeboid ,Amoeboid,0,3
 7,12,PZ,200,Eunotia,Diatom,0,150
 7,12,PZ,200,Melosira,Diatom,0,40
 7,12,PZ,200,Diatom3,Diatom,0,60
@@ -2093,9 +2093,9 @@
 8,12,PZ,200,Gymnodinium,Dinoflagelate,0,55
 8,12,PZ,200,Mallomonas,Synurophyta,0,18
 8,12,PZ,200,Merismopedia,Cyanobacteria,0,3
-8,12,PZ,200,Paramecium,Cilliate,0,120
+8,12,PZ,200,Paramecium,Ciliate,0,120
 8,12,PZ,200,Fischerella,Cyanobacteria,0,80
-8,12,PZ,200,Amoeboid ,Amoeboid ,0,3
+8,12,PZ,200,Amoeboid ,Amoeboid,0,3
 8,12,PZ,200,Eunotia,Diatom,0,150
 8,12,PZ,200,Melosira,Diatom,0,40
 8,12,PZ,200,Diatom3,Diatom,0,60
@@ -2121,9 +2121,9 @@
 1,13,PZ,250,Gymnodinium,Dinoflagelate,0,55
 1,13,PZ,250,Mallomonas,Synurophyta,0,18
 1,13,PZ,250,Merismopedia,Cyanobacteria,0,3
-1,13,PZ,250,Paramecium,Cilliate,0,120
+1,13,PZ,250,Paramecium,Ciliate,0,120
 1,13,PZ,250,Fischerella,Cyanobacteria,0,80
-1,13,PZ,250,Amoeboid ,Amoeboid ,0,3
+1,13,PZ,250,Amoeboid ,Amoeboid,0,3
 1,13,PZ,250,Eunotia,Diatom,0,150
 1,13,PZ,250,Melosira,Diatom,0,40
 1,13,PZ,250,Diatom3,Diatom,0,60
@@ -2149,9 +2149,9 @@
 2,13,PZ,250,Gymnodinium,Dinoflagelate,0,55
 2,13,PZ,250,Mallomonas,Synurophyta,0,18
 2,13,PZ,250,Merismopedia,Cyanobacteria,0,3
-2,13,PZ,250,Paramecium,Cilliate,0,120
+2,13,PZ,250,Paramecium,Ciliate,0,120
 2,13,PZ,250,Fischerella,Cyanobacteria,0,80
-2,13,PZ,250,Amoeboid ,Amoeboid ,0,3
+2,13,PZ,250,Amoeboid ,Amoeboid,0,3
 2,13,PZ,250,Eunotia,Diatom,0,150
 2,13,PZ,250,Melosira,Diatom,0,40
 2,13,PZ,250,Diatom3,Diatom,0,60
@@ -2177,9 +2177,9 @@
 3,13,PZ,250,Gymnodinium,Dinoflagelate,0,55
 3,13,PZ,250,Mallomonas,Synurophyta,1,18
 3,13,PZ,250,Merismopedia,Cyanobacteria,0,3
-3,13,PZ,250,Paramecium,Cilliate,0,120
+3,13,PZ,250,Paramecium,Ciliate,0,120
 3,13,PZ,250,Fischerella,Cyanobacteria,0,80
-3,13,PZ,250,Amoeboid ,Amoeboid ,0,3
+3,13,PZ,250,Amoeboid ,Amoeboid,0,3
 3,13,PZ,250,Eunotia,Diatom,0,150
 3,13,PZ,250,Melosira,Diatom,0,40
 3,13,PZ,250,Diatom3,Diatom,0,60
@@ -2205,9 +2205,9 @@
 7,13,PZ,250,Gymnodinium,Dinoflagelate,0,55
 7,13,PZ,250,Mallomonas,Synurophyta,0,18
 7,13,PZ,250,Merismopedia,Cyanobacteria,0,3
-7,13,PZ,250,Paramecium,Cilliate,0,120
+7,13,PZ,250,Paramecium,Ciliate,0,120
 7,13,PZ,250,Fischerella,Cyanobacteria,0,80
-7,13,PZ,250,Amoeboid ,Amoeboid ,1,3
+7,13,PZ,250,Amoeboid ,Amoeboid,1,3
 7,13,PZ,250,Eunotia,Diatom,0,150
 7,13,PZ,250,Melosira,Diatom,1,40
 7,13,PZ,250,Diatom3,Diatom,0,60
@@ -2233,9 +2233,9 @@
 8,13,PZ,250,Gymnodinium,Dinoflagelate,0,55
 8,13,PZ,250,Mallomonas,Synurophyta,0,18
 8,13,PZ,250,Merismopedia,Cyanobacteria,0,3
-8,13,PZ,250,Paramecium,Cilliate,0,120
+8,13,PZ,250,Paramecium,Ciliate,0,120
 8,13,PZ,250,Fischerella,Cyanobacteria,0,80
-8,13,PZ,250,Amoeboid ,Amoeboid ,0,3
+8,13,PZ,250,Amoeboid ,Amoeboid,0,3
 8,13,PZ,250,Eunotia,Diatom,0,150
 8,13,PZ,250,Melosira,Diatom,0,40
 8,13,PZ,250,Diatom3,Diatom,0,60
@@ -2261,9 +2261,9 @@
 1,22,PZ,300,Gymnodinium,Dinoflagelate,2,55
 1,22,PZ,300,Mallomonas,Synurophyta,0,18
 1,22,PZ,300,Merismopedia,Cyanobacteria,0,3
-1,22,PZ,300,Paramecium,Cilliate,0,120
+1,22,PZ,300,Paramecium,Ciliate,0,120
 1,22,PZ,300,Fischerella,Cyanobacteria,0,80
-1,22,PZ,300,Amoeboid ,Amoeboid ,4,3
+1,22,PZ,300,Amoeboid ,Amoeboid,4,3
 1,22,PZ,300,Eunotia,Diatom,0,150
 1,22,PZ,300,Melosira,Diatom,4,40
 1,22,PZ,300,Diatom3,Diatom,0,60
@@ -2289,9 +2289,9 @@
 2,22,PZ,300,Gymnodinium,Dinoflagelate,0,55
 2,22,PZ,300,Mallomonas,Synurophyta,1,18
 2,22,PZ,300,Merismopedia,Cyanobacteria,0,3
-2,22,PZ,300,Paramecium,Cilliate,0,120
+2,22,PZ,300,Paramecium,Ciliate,0,120
 2,22,PZ,300,Fischerella,Cyanobacteria,0,80
-2,22,PZ,300,Amoeboid ,Amoeboid ,0,3
+2,22,PZ,300,Amoeboid ,Amoeboid,0,3
 2,22,PZ,300,Eunotia,Diatom,0,150
 2,22,PZ,300,Melosira,Diatom,0,40
 2,22,PZ,300,Diatom3,Diatom,0,60
@@ -2317,9 +2317,9 @@
 3,22,PZ,300,Gymnodinium,Dinoflagelate,0,55
 3,22,PZ,300,Mallomonas,Synurophyta,0,18
 3,22,PZ,300,Merismopedia,Cyanobacteria,0,3
-3,22,PZ,300,Paramecium,Cilliate,0,120
+3,22,PZ,300,Paramecium,Ciliate,0,120
 3,22,PZ,300,Fischerella,Cyanobacteria,0,80
-3,22,PZ,300,Amoeboid ,Amoeboid ,0,3
+3,22,PZ,300,Amoeboid ,Amoeboid,0,3
 3,22,PZ,300,Eunotia,Diatom,0,150
 3,22,PZ,300,Melosira,Diatom,0,40
 3,22,PZ,300,Diatom3,Diatom,0,60
@@ -2345,9 +2345,9 @@
 7,22,PZ,300,Gymnodinium,Dinoflagelate,0,55
 7,22,PZ,300,Mallomonas,Synurophyta,0,18
 7,22,PZ,300,Merismopedia,Cyanobacteria,0,3
-7,22,PZ,300,Paramecium,Cilliate,0,120
+7,22,PZ,300,Paramecium,Ciliate,0,120
 7,22,PZ,300,Fischerella,Cyanobacteria,0,80
-7,22,PZ,300,Amoeboid ,Amoeboid ,0,3
+7,22,PZ,300,Amoeboid ,Amoeboid,0,3
 7,22,PZ,300,Eunotia,Diatom,0,150
 7,22,PZ,300,Melosira,Diatom,0,40
 7,22,PZ,300,Diatom3,Diatom,0,60
@@ -2373,9 +2373,9 @@
 8,22,PZ,300,Gymnodinium,Dinoflagelate,1,55
 8,22,PZ,300,Mallomonas,Synurophyta,0,18
 8,22,PZ,300,Merismopedia,Cyanobacteria,0,3
-8,22,PZ,300,Paramecium,Cilliate,0,120
+8,22,PZ,300,Paramecium,Ciliate,0,120
 8,22,PZ,300,Fischerella,Cyanobacteria,0,80
-8,22,PZ,300,Amoeboid ,Amoeboid ,0,3
+8,22,PZ,300,Amoeboid ,Amoeboid,0,3
 8,22,PZ,300,Eunotia,Diatom,0,150
 8,22,PZ,300,Melosira,Diatom,0,40
 8,22,PZ,300,Diatom3,Diatom,0,60
@@ -2401,9 +2401,9 @@
 1,20,PZ,350,Gymnodinium,Dinoflagelate,1,55
 1,20,PZ,350,Mallomonas,Synurophyta,0,18
 1,20,PZ,350,Merismopedia,Cyanobacteria,0,3
-1,20,PZ,350,Paramecium,Cilliate,0,120
+1,20,PZ,350,Paramecium,Ciliate,0,120
 1,20,PZ,350,Fischerella,Cyanobacteria,0,80
-1,20,PZ,350,Amoeboid ,Amoeboid ,3,3
+1,20,PZ,350,Amoeboid ,Amoeboid,3,3
 1,20,PZ,350,Eunotia,Diatom,0,150
 1,20,PZ,350,Melosira,Diatom,3,40
 1,20,PZ,350,Diatom3,Diatom,0,60
@@ -2429,9 +2429,9 @@
 2,20,PZ,350,Gymnodinium,Dinoflagelate,1,55
 2,20,PZ,350,Mallomonas,Synurophyta,1,18
 2,20,PZ,350,Merismopedia,Cyanobacteria,0,3
-2,20,PZ,350,Paramecium,Cilliate,0,120
+2,20,PZ,350,Paramecium,Ciliate,0,120
 2,20,PZ,350,Fischerella,Cyanobacteria,0,80
-2,20,PZ,350,Amoeboid ,Amoeboid ,0,3
+2,20,PZ,350,Amoeboid ,Amoeboid,0,3
 2,20,PZ,350,Eunotia,Diatom,0,150
 2,20,PZ,350,Melosira,Diatom,2,40
 2,20,PZ,350,Diatom3,Diatom,0,60
@@ -2457,9 +2457,9 @@
 3,20,PZ,350,Gymnodinium,Dinoflagelate,0,55
 3,20,PZ,350,Mallomonas,Synurophyta,0,18
 3,20,PZ,350,Merismopedia,Cyanobacteria,0,3
-3,20,PZ,350,Paramecium,Cilliate,0,120
+3,20,PZ,350,Paramecium,Ciliate,0,120
 3,20,PZ,350,Fischerella,Cyanobacteria,0,80
-3,20,PZ,350,Amoeboid ,Amoeboid ,0,3
+3,20,PZ,350,Amoeboid ,Amoeboid,0,3
 3,20,PZ,350,Eunotia,Diatom,0,150
 3,20,PZ,350,Melosira,Diatom,0,40
 3,20,PZ,350,Diatom3,Diatom,0,60
@@ -2485,9 +2485,9 @@
 7,20,PZ,350,Gymnodinium,Dinoflagelate,0,55
 7,20,PZ,350,Mallomonas,Synurophyta,0,18
 7,20,PZ,350,Merismopedia,Cyanobacteria,0,3
-7,20,PZ,350,Paramecium,Cilliate,0,120
+7,20,PZ,350,Paramecium,Ciliate,0,120
 7,20,PZ,350,Fischerella,Cyanobacteria,0,80
-7,20,PZ,350,Amoeboid ,Amoeboid ,0,3
+7,20,PZ,350,Amoeboid ,Amoeboid,0,3
 7,20,PZ,350,Eunotia,Diatom,0,150
 7,20,PZ,350,Melosira,Diatom,0,40
 7,20,PZ,350,Diatom3,Diatom,0,60
@@ -2513,9 +2513,9 @@
 8,20,PZ,350,Gymnodinium,Dinoflagelate,0,55
 8,20,PZ,350,Mallomonas,Synurophyta,0,18
 8,20,PZ,350,Merismopedia,Cyanobacteria,0,3
-8,20,PZ,350,Paramecium,Cilliate,0,120
+8,20,PZ,350,Paramecium,Ciliate,0,120
 8,20,PZ,350,Fischerella,Cyanobacteria,0,80
-8,20,PZ,350,Amoeboid ,Amoeboid ,0,3
+8,20,PZ,350,Amoeboid ,Amoeboid,0,3
 8,20,PZ,350,Eunotia,Diatom,0,150
 8,20,PZ,350,Melosira,Diatom,0,40
 8,20,PZ,350,Diatom3,Diatom,0,60
@@ -2541,9 +2541,9 @@
 1,9,PZ,400,Gymnodinium,Dinoflagelate,0,55
 1,9,PZ,400,Mallomonas,Synurophyta,0,18
 1,9,PZ,400,Merismopedia,Cyanobacteria,0,3
-1,9,PZ,400,Paramecium,Cilliate,0,120
+1,9,PZ,400,Paramecium,Ciliate,0,120
 1,9,PZ,400,Fischerella,Cyanobacteria,0,80
-1,9,PZ,400,Amoeboid ,Amoeboid ,0,3
+1,9,PZ,400,Amoeboid ,Amoeboid,0,3
 1,9,PZ,400,Eunotia,Diatom,0,150
 1,9,PZ,400,Melosira,Diatom,0,40
 1,9,PZ,400,Diatom3,Diatom,0,60
@@ -2569,9 +2569,9 @@
 2,9,PZ,400,Gymnodinium,Dinoflagelate,0,55
 2,9,PZ,400,Mallomonas,Synurophyta,0,18
 2,9,PZ,400,Merismopedia,Cyanobacteria,0,3
-2,9,PZ,400,Paramecium,Cilliate,0,120
+2,9,PZ,400,Paramecium,Ciliate,0,120
 2,9,PZ,400,Fischerella,Cyanobacteria,0,80
-2,9,PZ,400,Amoeboid ,Amoeboid ,0,3
+2,9,PZ,400,Amoeboid ,Amoeboid,0,3
 2,9,PZ,400,Eunotia,Diatom,0,150
 2,9,PZ,400,Melosira,Diatom,4,40
 2,9,PZ,400,Diatom3,Diatom,0,60
@@ -2597,9 +2597,9 @@
 3,9,PZ,400,Gymnodinium,Dinoflagelate,0,55
 3,9,PZ,400,Mallomonas,Synurophyta,2,18
 3,9,PZ,400,Merismopedia,Cyanobacteria,0,3
-3,9,PZ,400,Paramecium,Cilliate,0,120
+3,9,PZ,400,Paramecium,Ciliate,0,120
 3,9,PZ,400,Fischerella,Cyanobacteria,0,80
-3,9,PZ,400,Amoeboid ,Amoeboid ,0,3
+3,9,PZ,400,Amoeboid ,Amoeboid,0,3
 3,9,PZ,400,Eunotia,Diatom,0,150
 3,9,PZ,400,Melosira,Diatom,0,40
 3,9,PZ,400,Diatom3,Diatom,0,60
@@ -2625,9 +2625,9 @@
 7,9,PZ,400,Gymnodinium,Dinoflagelate,3,55
 7,9,PZ,400,Mallomonas,Synurophyta,1,18
 7,9,PZ,400,Merismopedia,Cyanobacteria,0,3
-7,9,PZ,400,Paramecium,Cilliate,0,120
+7,9,PZ,400,Paramecium,Ciliate,0,120
 7,9,PZ,400,Fischerella,Cyanobacteria,0,80
-7,9,PZ,400,Amoeboid ,Amoeboid ,0,3
+7,9,PZ,400,Amoeboid ,Amoeboid,0,3
 7,9,PZ,400,Eunotia,Diatom,1,150
 7,9,PZ,400,Melosira,Diatom,0,40
 7,9,PZ,400,Diatom3,Diatom,1,60
@@ -2653,9 +2653,9 @@
 8,9,PZ,400,Gymnodinium,Dinoflagelate,0,55
 8,9,PZ,400,Mallomonas,Synurophyta,0,18
 8,9,PZ,400,Merismopedia,Cyanobacteria,0,3
-8,9,PZ,400,Paramecium,Cilliate,0,120
+8,9,PZ,400,Paramecium,Ciliate,0,120
 8,9,PZ,400,Fischerella,Cyanobacteria,0,80
-8,9,PZ,400,Amoeboid ,Amoeboid ,0,3
+8,9,PZ,400,Amoeboid ,Amoeboid,0,3
 8,9,PZ,400,Eunotia,Diatom,0,150
 8,9,PZ,400,Melosira,Diatom,0,40
 8,9,PZ,400,Diatom3,Diatom,0,60
@@ -2681,9 +2681,9 @@
 1,30,PZ,450,Gymnodinium,Dinoflagelate,0,55
 1,30,PZ,450,Mallomonas,Synurophyta,0,18
 1,30,PZ,450,Merismopedia,Cyanobacteria,0,3
-1,30,PZ,450,Paramecium,Cilliate,0,120
+1,30,PZ,450,Paramecium,Ciliate,0,120
 1,30,PZ,450,Fischerella,Cyanobacteria,0,80
-1,30,PZ,450,Amoeboid ,Amoeboid ,0,3
+1,30,PZ,450,Amoeboid ,Amoeboid,0,3
 1,30,PZ,450,Eunotia,Diatom,0,150
 1,30,PZ,450,Melosira,Diatom,0,40
 1,30,PZ,450,Diatom3,Diatom,0,60
@@ -2709,9 +2709,9 @@
 2,30,PZ,450,Gymnodinium,Dinoflagelate,0,55
 2,30,PZ,450,Mallomonas,Synurophyta,32,18
 2,30,PZ,450,Merismopedia,Cyanobacteria,0,3
-2,30,PZ,450,Paramecium,Cilliate,0,120
+2,30,PZ,450,Paramecium,Ciliate,0,120
 2,30,PZ,450,Fischerella,Cyanobacteria,10,80
-2,30,PZ,450,Amoeboid ,Amoeboid ,0,3
+2,30,PZ,450,Amoeboid ,Amoeboid,0,3
 2,30,PZ,450,Eunotia,Diatom,0,150
 2,30,PZ,450,Melosira,Diatom,0,40
 2,30,PZ,450,Diatom3,Diatom,0,60
@@ -2737,9 +2737,9 @@
 3,30,PZ,450,Gymnodinium,Dinoflagelate,0,55
 3,30,PZ,450,Mallomonas,Synurophyta,1,18
 3,30,PZ,450,Merismopedia,Cyanobacteria,0,3
-3,30,PZ,450,Paramecium,Cilliate,0,120
+3,30,PZ,450,Paramecium,Ciliate,0,120
 3,30,PZ,450,Fischerella,Cyanobacteria,0,80
-3,30,PZ,450,Amoeboid ,Amoeboid ,0,3
+3,30,PZ,450,Amoeboid ,Amoeboid,0,3
 3,30,PZ,450,Eunotia,Diatom,0,150
 3,30,PZ,450,Melosira,Diatom,0,40
 3,30,PZ,450,Diatom3,Diatom,0,60
@@ -2765,9 +2765,9 @@
 7,30,PZ,450,Gymnodinium,Dinoflagelate,0,55
 7,30,PZ,450,Mallomonas,Synurophyta,0,18
 7,30,PZ,450,Merismopedia,Cyanobacteria,8,3
-7,30,PZ,450,Paramecium,Cilliate,0,120
+7,30,PZ,450,Paramecium,Ciliate,0,120
 7,30,PZ,450,Fischerella,Cyanobacteria,0,80
-7,30,PZ,450,Amoeboid ,Amoeboid ,0,3
+7,30,PZ,450,Amoeboid ,Amoeboid,0,3
 7,30,PZ,450,Eunotia,Diatom,0,150
 7,30,PZ,450,Melosira,Diatom,0,40
 7,30,PZ,450,Diatom3,Diatom,0,60
@@ -2793,9 +2793,9 @@
 8,30,PZ,450,Gymnodinium,Dinoflagelate,2,55
 8,30,PZ,450,Mallomonas,Synurophyta,0,18
 8,30,PZ,450,Merismopedia,Cyanobacteria,0,3
-8,30,PZ,450,Paramecium,Cilliate,0,120
+8,30,PZ,450,Paramecium,Ciliate,0,120
 8,30,PZ,450,Fischerella,Cyanobacteria,0,80
-8,30,PZ,450,Amoeboid ,Amoeboid ,0,3
+8,30,PZ,450,Amoeboid ,Amoeboid,0,3
 8,30,PZ,450,Eunotia,Diatom,1,150
 8,30,PZ,450,Melosira,Diatom,0,40
 8,30,PZ,450,Diatom3,Diatom,1,60
@@ -2821,9 +2821,9 @@
 1,2,PZN,0,Gymnodinium,Dinoflagelate,0,55
 1,2,PZN,0,Mallomonas,Synurophyta,0,18
 1,2,PZN,0,Merismopedia,Cyanobacteria,0,3
-1,2,PZN,0,Paramecium,Cilliate,0,120
+1,2,PZN,0,Paramecium,Ciliate,0,120
 1,2,PZN,0,Fischerella,Cyanobacteria,0,80
-1,2,PZN,0,Amoeboid ,Amoeboid ,0,3
+1,2,PZN,0,Amoeboid ,Amoeboid,0,3
 1,2,PZN,0,Eunotia,Diatom,0,150
 1,2,PZN,0,Melosira,Diatom,0,40
 1,2,PZN,0,Diatom3,Diatom,0,60
@@ -2849,9 +2849,9 @@
 2,2,PZN,0,Gymnodinium,Dinoflagelate,1,55
 2,2,PZN,0,Mallomonas,Synurophyta,0,18
 2,2,PZN,0,Merismopedia,Cyanobacteria,0,3
-2,2,PZN,0,Paramecium,Cilliate,0,120
+2,2,PZN,0,Paramecium,Ciliate,0,120
 2,2,PZN,0,Fischerella,Cyanobacteria,1,80
-2,2,PZN,0,Amoeboid ,Amoeboid ,0,3
+2,2,PZN,0,Amoeboid ,Amoeboid,0,3
 2,2,PZN,0,Eunotia,Diatom,1,150
 2,2,PZN,0,Melosira,Diatom,3,40
 2,2,PZN,0,Diatom3,Diatom,1,60
@@ -2877,9 +2877,9 @@
 3,2,PZN,0,Gymnodinium,Dinoflagelate,0,55
 3,2,PZN,0,Mallomonas,Synurophyta,1,18
 3,2,PZN,0,Merismopedia,Cyanobacteria,0,3
-3,2,PZN,0,Paramecium,Cilliate,0,120
+3,2,PZN,0,Paramecium,Ciliate,0,120
 3,2,PZN,0,Fischerella,Cyanobacteria,0,80
-3,2,PZN,0,Amoeboid ,Amoeboid ,0,3
+3,2,PZN,0,Amoeboid ,Amoeboid,0,3
 3,2,PZN,0,Eunotia,Diatom,0,150
 3,2,PZN,0,Melosira,Diatom,0,40
 3,2,PZN,0,Diatom3,Diatom,0,60
@@ -2905,9 +2905,9 @@
 7,2,PZN,0,Gymnodinium,Dinoflagelate,0,55
 7,2,PZN,0,Mallomonas,Synurophyta,2,18
 7,2,PZN,0,Merismopedia,Cyanobacteria,0,3
-7,2,PZN,0,Paramecium,Cilliate,0,120
+7,2,PZN,0,Paramecium,Ciliate,0,120
 7,2,PZN,0,Fischerella,Cyanobacteria,0,80
-7,2,PZN,0,Amoeboid ,Amoeboid ,0,3
+7,2,PZN,0,Amoeboid ,Amoeboid,0,3
 7,2,PZN,0,Eunotia,Diatom,0,150
 7,2,PZN,0,Melosira,Diatom,0,40
 7,2,PZN,0,Diatom3,Diatom,0,60
@@ -2933,9 +2933,9 @@
 8,2,PZN,0,Gymnodinium,Dinoflagelate,0,55
 8,2,PZN,0,Mallomonas,Synurophyta,0,18
 8,2,PZN,0,Merismopedia,Cyanobacteria,0,3
-8,2,PZN,0,Paramecium,Cilliate,0,120
+8,2,PZN,0,Paramecium,Ciliate,0,120
 8,2,PZN,0,Fischerella,Cyanobacteria,0,80
-8,2,PZN,0,Amoeboid ,Amoeboid ,0,3
+8,2,PZN,0,Amoeboid ,Amoeboid,0,3
 8,2,PZN,0,Eunotia,Diatom,0,150
 8,2,PZN,0,Melosira,Diatom,0,40
 8,2,PZN,0,Diatom3,Diatom,0,60
@@ -2961,9 +2961,9 @@
 1,24,PZN,50,Gymnodinium,Dinoflagelate,0,55
 1,24,PZN,50,Mallomonas,Synurophyta,0,18
 1,24,PZN,50,Merismopedia,Cyanobacteria,0,3
-1,24,PZN,50,Paramecium,Cilliate,0,120
+1,24,PZN,50,Paramecium,Ciliate,0,120
 1,24,PZN,50,Fischerella,Cyanobacteria,0,80
-1,24,PZN,50,Amoeboid ,Amoeboid ,0,3
+1,24,PZN,50,Amoeboid ,Amoeboid,0,3
 1,24,PZN,50,Eunotia,Diatom,0,150
 1,24,PZN,50,Melosira,Diatom,0,40
 1,24,PZN,50,Diatom3,Diatom,0,60
@@ -2989,9 +2989,9 @@
 2,24,PZN,50,Gymnodinium,Dinoflagelate,0,55
 2,24,PZN,50,Mallomonas,Synurophyta,10,18
 2,24,PZN,50,Merismopedia,Cyanobacteria,0,3
-2,24,PZN,50,Paramecium,Cilliate,0,120
+2,24,PZN,50,Paramecium,Ciliate,0,120
 2,24,PZN,50,Fischerella,Cyanobacteria,0,80
-2,24,PZN,50,Amoeboid ,Amoeboid ,0,3
+2,24,PZN,50,Amoeboid ,Amoeboid,0,3
 2,24,PZN,50,Eunotia,Diatom,0,150
 2,24,PZN,50,Melosira,Diatom,2,40
 2,24,PZN,50,Diatom3,Diatom,0,60
@@ -3017,9 +3017,9 @@
 3,24,PZN,50,Gymnodinium,Dinoflagelate,0,55
 3,24,PZN,50,Mallomonas,Synurophyta,25,18
 3,24,PZN,50,Merismopedia,Cyanobacteria,0,3
-3,24,PZN,50,Paramecium,Cilliate,0,120
+3,24,PZN,50,Paramecium,Ciliate,0,120
 3,24,PZN,50,Fischerella,Cyanobacteria,0,80
-3,24,PZN,50,Amoeboid ,Amoeboid ,0,3
+3,24,PZN,50,Amoeboid ,Amoeboid,0,3
 3,24,PZN,50,Eunotia,Diatom,0,150
 3,24,PZN,50,Melosira,Diatom,0,40
 3,24,PZN,50,Diatom3,Diatom,0,60
@@ -3045,9 +3045,9 @@
 7,24,PZN,50,Gymnodinium,Dinoflagelate,3,55
 7,24,PZN,50,Mallomonas,Synurophyta,0,18
 7,24,PZN,50,Merismopedia,Cyanobacteria,0,3
-7,24,PZN,50,Paramecium,Cilliate,0,120
+7,24,PZN,50,Paramecium,Ciliate,0,120
 7,24,PZN,50,Fischerella,Cyanobacteria,0,80
-7,24,PZN,50,Amoeboid ,Amoeboid ,1,3
+7,24,PZN,50,Amoeboid ,Amoeboid,1,3
 7,24,PZN,50,Eunotia,Diatom,0,150
 7,24,PZN,50,Melosira,Diatom,1,40
 7,24,PZN,50,Diatom3,Diatom,0,60
@@ -3073,9 +3073,9 @@
 8,24,PZN,50,Gymnodinium,Dinoflagelate,0,55
 8,24,PZN,50,Mallomonas,Synurophyta,0,18
 8,24,PZN,50,Merismopedia,Cyanobacteria,0,3
-8,24,PZN,50,Paramecium,Cilliate,0,120
+8,24,PZN,50,Paramecium,Ciliate,0,120
 8,24,PZN,50,Fischerella,Cyanobacteria,0,80
-8,24,PZN,50,Amoeboid ,Amoeboid ,0,3
+8,24,PZN,50,Amoeboid ,Amoeboid,0,3
 8,24,PZN,50,Eunotia,Diatom,0,150
 8,24,PZN,50,Melosira,Diatom,0,40
 8,24,PZN,50,Diatom3,Diatom,0,60
@@ -3101,9 +3101,9 @@
 1,5,PZN,100,Gymnodinium,Dinoflagelate,2,55
 1,5,PZN,100,Mallomonas,Synurophyta,0,18
 1,5,PZN,100,Merismopedia,Cyanobacteria,0,3
-1,5,PZN,100,Paramecium,Cilliate,0,120
+1,5,PZN,100,Paramecium,Ciliate,0,120
 1,5,PZN,100,Fischerella,Cyanobacteria,2,80
-1,5,PZN,100,Amoeboid ,Amoeboid ,0,3
+1,5,PZN,100,Amoeboid ,Amoeboid,0,3
 1,5,PZN,100,Eunotia,Diatom,0,150
 1,5,PZN,100,Melosira,Diatom,0,40
 1,5,PZN,100,Diatom3,Diatom,0,60
@@ -3129,9 +3129,9 @@
 2,5,PZN,100,Gymnodinium,Dinoflagelate,1,55
 2,5,PZN,100,Mallomonas,Synurophyta,0,18
 2,5,PZN,100,Merismopedia,Cyanobacteria,0,3
-2,5,PZN,100,Paramecium,Cilliate,0,120
+2,5,PZN,100,Paramecium,Ciliate,0,120
 2,5,PZN,100,Fischerella,Cyanobacteria,0,80
-2,5,PZN,100,Amoeboid ,Amoeboid ,0,3
+2,5,PZN,100,Amoeboid ,Amoeboid,0,3
 2,5,PZN,100,Eunotia,Diatom,0,150
 2,5,PZN,100,Melosira,Diatom,0,40
 2,5,PZN,100,Diatom3,Diatom,0,60
@@ -3157,9 +3157,9 @@
 3,5,PZN,100,Gymnodinium,Dinoflagelate,0,55
 3,5,PZN,100,Mallomonas,Synurophyta,2,18
 3,5,PZN,100,Merismopedia,Cyanobacteria,0,3
-3,5,PZN,100,Paramecium,Cilliate,0,120
+3,5,PZN,100,Paramecium,Ciliate,0,120
 3,5,PZN,100,Fischerella,Cyanobacteria,0,80
-3,5,PZN,100,Amoeboid ,Amoeboid ,0,3
+3,5,PZN,100,Amoeboid ,Amoeboid,0,3
 3,5,PZN,100,Eunotia,Diatom,0,150
 3,5,PZN,100,Melosira,Diatom,0,40
 3,5,PZN,100,Diatom3,Diatom,0,60
@@ -3185,9 +3185,9 @@
 7,5,PZN,100,Gymnodinium,Dinoflagelate,0,55
 7,5,PZN,100,Mallomonas,Synurophyta,0,18
 7,5,PZN,100,Merismopedia,Cyanobacteria,0,3
-7,5,PZN,100,Paramecium,Cilliate,0,120
+7,5,PZN,100,Paramecium,Ciliate,0,120
 7,5,PZN,100,Fischerella,Cyanobacteria,0,80
-7,5,PZN,100,Amoeboid ,Amoeboid ,1,3
+7,5,PZN,100,Amoeboid ,Amoeboid,1,3
 7,5,PZN,100,Eunotia,Diatom,0,150
 7,5,PZN,100,Melosira,Diatom,1,40
 7,5,PZN,100,Diatom3,Diatom,0,60
@@ -3213,9 +3213,9 @@
 8,5,PZN,100,Gymnodinium,Dinoflagelate,0,55
 8,5,PZN,100,Mallomonas,Synurophyta,0,18
 8,5,PZN,100,Merismopedia,Cyanobacteria,0,3
-8,5,PZN,100,Paramecium,Cilliate,0,120
+8,5,PZN,100,Paramecium,Ciliate,0,120
 8,5,PZN,100,Fischerella,Cyanobacteria,0,80
-8,5,PZN,100,Amoeboid ,Amoeboid ,0,3
+8,5,PZN,100,Amoeboid ,Amoeboid,0,3
 8,5,PZN,100,Eunotia,Diatom,0,150
 8,5,PZN,100,Melosira,Diatom,0,40
 8,5,PZN,100,Diatom3,Diatom,0,60
@@ -3241,9 +3241,9 @@
 1,16,PZN,150,Gymnodinium,Dinoflagelate,1,55
 1,16,PZN,150,Mallomonas,Synurophyta,0,18
 1,16,PZN,150,Merismopedia,Cyanobacteria,0,3
-1,16,PZN,150,Paramecium,Cilliate,8,120
+1,16,PZN,150,Paramecium,Ciliate,8,120
 1,16,PZN,150,Fischerella,Cyanobacteria,0,80
-1,16,PZN,150,Amoeboid ,Amoeboid ,0,3
+1,16,PZN,150,Amoeboid ,Amoeboid,0,3
 1,16,PZN,150,Eunotia,Diatom,1,150
 1,16,PZN,150,Melosira,Diatom,0,40
 1,16,PZN,150,Diatom3,Diatom,1,60
@@ -3269,9 +3269,9 @@
 2,16,PZN,150,Gymnodinium,Dinoflagelate,0,55
 2,16,PZN,150,Mallomonas,Synurophyta,0,18
 2,16,PZN,150,Merismopedia,Cyanobacteria,0,3
-2,16,PZN,150,Paramecium,Cilliate,0,120
+2,16,PZN,150,Paramecium,Ciliate,0,120
 2,16,PZN,150,Fischerella,Cyanobacteria,0,80
-2,16,PZN,150,Amoeboid ,Amoeboid ,0,3
+2,16,PZN,150,Amoeboid ,Amoeboid,0,3
 2,16,PZN,150,Eunotia,Diatom,0,150
 2,16,PZN,150,Melosira,Diatom,5,40
 2,16,PZN,150,Diatom3,Diatom,0,60
@@ -3297,9 +3297,9 @@
 3,16,PZN,150,Gymnodinium,Dinoflagelate,0,55
 3,16,PZN,150,Mallomonas,Synurophyta,5,18
 3,16,PZN,150,Merismopedia,Cyanobacteria,0,3
-3,16,PZN,150,Paramecium,Cilliate,0,120
+3,16,PZN,150,Paramecium,Ciliate,0,120
 3,16,PZN,150,Fischerella,Cyanobacteria,0,80
-3,16,PZN,150,Amoeboid ,Amoeboid ,0,3
+3,16,PZN,150,Amoeboid ,Amoeboid,0,3
 3,16,PZN,150,Eunotia,Diatom,0,150
 3,16,PZN,150,Melosira,Diatom,0,40
 3,16,PZN,150,Diatom3,Diatom,0,60
@@ -3325,9 +3325,9 @@
 7,16,PZN,150,Gymnodinium,Dinoflagelate,0,55
 7,16,PZN,150,Mallomonas,Synurophyta,2,18
 7,16,PZN,150,Merismopedia,Cyanobacteria,0,3
-7,16,PZN,150,Paramecium,Cilliate,0,120
+7,16,PZN,150,Paramecium,Ciliate,0,120
 7,16,PZN,150,Fischerella,Cyanobacteria,0,80
-7,16,PZN,150,Amoeboid ,Amoeboid ,0,3
+7,16,PZN,150,Amoeboid ,Amoeboid,0,3
 7,16,PZN,150,Eunotia,Diatom,0,150
 7,16,PZN,150,Melosira,Diatom,0,40
 7,16,PZN,150,Diatom3,Diatom,0,60
@@ -3353,9 +3353,9 @@
 8,16,PZN,150,Gymnodinium,Dinoflagelate,5,55
 8,16,PZN,150,Mallomonas,Synurophyta,0,18
 8,16,PZN,150,Merismopedia,Cyanobacteria,0,3
-8,16,PZN,150,Paramecium,Cilliate,0,120
+8,16,PZN,150,Paramecium,Ciliate,0,120
 8,16,PZN,150,Fischerella,Cyanobacteria,0,80
-8,16,PZN,150,Amoeboid ,Amoeboid ,0,3
+8,16,PZN,150,Amoeboid ,Amoeboid,0,3
 8,16,PZN,150,Eunotia,Diatom,0,150
 8,16,PZN,150,Melosira,Diatom,0,40
 8,16,PZN,150,Diatom3,Diatom,0,60
@@ -3381,9 +3381,9 @@
 1,10,PZN,200,Gymnodinium,Dinoflagelate,1,55
 1,10,PZN,200,Mallomonas,Synurophyta,0,18
 1,10,PZN,200,Merismopedia,Cyanobacteria,0,3
-1,10,PZN,200,Paramecium,Cilliate,0,120
+1,10,PZN,200,Paramecium,Ciliate,0,120
 1,10,PZN,200,Fischerella,Cyanobacteria,0,80
-1,10,PZN,200,Amoeboid ,Amoeboid ,0,3
+1,10,PZN,200,Amoeboid ,Amoeboid,0,3
 1,10,PZN,200,Eunotia,Diatom,0,150
 1,10,PZN,200,Melosira,Diatom,0,40
 1,10,PZN,200,Diatom3,Diatom,0,60
@@ -3409,9 +3409,9 @@
 2,10,PZN,200,Gymnodinium,Dinoflagelate,3,55
 2,10,PZN,200,Mallomonas,Synurophyta,0,18
 2,10,PZN,200,Merismopedia,Cyanobacteria,0,3
-2,10,PZN,200,Paramecium,Cilliate,0,120
+2,10,PZN,200,Paramecium,Ciliate,0,120
 2,10,PZN,200,Fischerella,Cyanobacteria,0,80
-2,10,PZN,200,Amoeboid ,Amoeboid ,0,3
+2,10,PZN,200,Amoeboid ,Amoeboid,0,3
 2,10,PZN,200,Eunotia,Diatom,0,150
 2,10,PZN,200,Melosira,Diatom,1,40
 2,10,PZN,200,Diatom3,Diatom,0,60
@@ -3437,9 +3437,9 @@
 3,10,PZN,200,Gymnodinium,Dinoflagelate,0,55
 3,10,PZN,200,Mallomonas,Synurophyta,0,18
 3,10,PZN,200,Merismopedia,Cyanobacteria,0,3
-3,10,PZN,200,Paramecium,Cilliate,0,120
+3,10,PZN,200,Paramecium,Ciliate,0,120
 3,10,PZN,200,Fischerella,Cyanobacteria,0,80
-3,10,PZN,200,Amoeboid ,Amoeboid ,0,3
+3,10,PZN,200,Amoeboid ,Amoeboid,0,3
 3,10,PZN,200,Eunotia,Diatom,0,150
 3,10,PZN,200,Melosira,Diatom,0,40
 3,10,PZN,200,Diatom3,Diatom,0,60
@@ -3465,9 +3465,9 @@
 7,10,PZN,200,Gymnodinium,Dinoflagelate,0,55
 7,10,PZN,200,Mallomonas,Synurophyta,1,18
 7,10,PZN,200,Merismopedia,Cyanobacteria,0,3
-7,10,PZN,200,Paramecium,Cilliate,0,120
+7,10,PZN,200,Paramecium,Ciliate,0,120
 7,10,PZN,200,Fischerella,Cyanobacteria,0,80
-7,10,PZN,200,Amoeboid ,Amoeboid ,0,3
+7,10,PZN,200,Amoeboid ,Amoeboid,0,3
 7,10,PZN,200,Eunotia,Diatom,0,150
 7,10,PZN,200,Melosira,Diatom,0,40
 7,10,PZN,200,Diatom3,Diatom,0,60
@@ -3493,9 +3493,9 @@
 8,10,PZN,200,Gymnodinium,Dinoflagelate,0,55
 8,10,PZN,200,Mallomonas,Synurophyta,0,18
 8,10,PZN,200,Merismopedia,Cyanobacteria,0,3
-8,10,PZN,200,Paramecium,Cilliate,0,120
+8,10,PZN,200,Paramecium,Ciliate,0,120
 8,10,PZN,200,Fischerella,Cyanobacteria,0,80
-8,10,PZN,200,Amoeboid ,Amoeboid ,0,3
+8,10,PZN,200,Amoeboid ,Amoeboid,0,3
 8,10,PZN,200,Eunotia,Diatom,0,150
 8,10,PZN,200,Melosira,Diatom,0,40
 8,10,PZN,200,Diatom3,Diatom,0,60
@@ -3521,9 +3521,9 @@
 1,26,PZN,250,Gymnodinium,Dinoflagelate,1,55
 1,26,PZN,250,Mallomonas,Synurophyta,0,18
 1,26,PZN,250,Merismopedia,Cyanobacteria,0,3
-1,26,PZN,250,Paramecium,Cilliate,0,120
+1,26,PZN,250,Paramecium,Ciliate,0,120
 1,26,PZN,250,Fischerella,Cyanobacteria,0,80
-1,26,PZN,250,Amoeboid ,Amoeboid ,0,3
+1,26,PZN,250,Amoeboid ,Amoeboid,0,3
 1,26,PZN,250,Eunotia,Diatom,0,150
 1,26,PZN,250,Melosira,Diatom,0,40
 1,26,PZN,250,Diatom3,Diatom,0,60
@@ -3549,9 +3549,9 @@
 2,26,PZN,250,Gymnodinium,Dinoflagelate,0,55
 2,26,PZN,250,Mallomonas,Synurophyta,1,18
 2,26,PZN,250,Merismopedia,Cyanobacteria,0,3
-2,26,PZN,250,Paramecium,Cilliate,0,120
+2,26,PZN,250,Paramecium,Ciliate,0,120
 2,26,PZN,250,Fischerella,Cyanobacteria,4,80
-2,26,PZN,250,Amoeboid ,Amoeboid ,0,3
+2,26,PZN,250,Amoeboid ,Amoeboid,0,3
 2,26,PZN,250,Eunotia,Diatom,0,150
 2,26,PZN,250,Melosira,Diatom,1,40
 2,26,PZN,250,Diatom3,Diatom,0,60
@@ -3577,9 +3577,9 @@
 3,26,PZN,250,Gymnodinium,Dinoflagelate,0,55
 3,26,PZN,250,Mallomonas,Synurophyta,5,18
 3,26,PZN,250,Merismopedia,Cyanobacteria,0,3
-3,26,PZN,250,Paramecium,Cilliate,0,120
+3,26,PZN,250,Paramecium,Ciliate,0,120
 3,26,PZN,250,Fischerella,Cyanobacteria,0,80
-3,26,PZN,250,Amoeboid ,Amoeboid ,0,3
+3,26,PZN,250,Amoeboid ,Amoeboid,0,3
 3,26,PZN,250,Eunotia,Diatom,0,150
 3,26,PZN,250,Melosira,Diatom,0,40
 3,26,PZN,250,Diatom3,Diatom,0,60
@@ -3605,9 +3605,9 @@
 7,26,PZN,250,Gymnodinium,Dinoflagelate,0,55
 7,26,PZN,250,Mallomonas,Synurophyta,1,18
 7,26,PZN,250,Merismopedia,Cyanobacteria,0,3
-7,26,PZN,250,Paramecium,Cilliate,0,120
+7,26,PZN,250,Paramecium,Ciliate,0,120
 7,26,PZN,250,Fischerella,Cyanobacteria,0,80
-7,26,PZN,250,Amoeboid ,Amoeboid ,0,3
+7,26,PZN,250,Amoeboid ,Amoeboid,0,3
 7,26,PZN,250,Eunotia,Diatom,0,150
 7,26,PZN,250,Melosira,Diatom,0,40
 7,26,PZN,250,Diatom3,Diatom,0,60
@@ -3633,9 +3633,9 @@
 8,26,PZN,250,Gymnodinium,Dinoflagelate,3,55
 8,26,PZN,250,Mallomonas,Synurophyta,0,18
 8,26,PZN,250,Merismopedia,Cyanobacteria,0,3
-8,26,PZN,250,Paramecium,Cilliate,0,120
+8,26,PZN,250,Paramecium,Ciliate,0,120
 8,26,PZN,250,Fischerella,Cyanobacteria,0,80
-8,26,PZN,250,Amoeboid ,Amoeboid ,0,3
+8,26,PZN,250,Amoeboid ,Amoeboid,0,3
 8,26,PZN,250,Eunotia,Diatom,2,150
 8,26,PZN,250,Melosira,Diatom,0,40
 8,26,PZN,250,Diatom3,Diatom,2,60
@@ -3661,9 +3661,9 @@
 1,4,PZN,300,Gymnodinium,Dinoflagelate,0,55
 1,4,PZN,300,Mallomonas,Synurophyta,0,18
 1,4,PZN,300,Merismopedia,Cyanobacteria,0,3
-1,4,PZN,300,Paramecium,Cilliate,0,120
+1,4,PZN,300,Paramecium,Ciliate,0,120
 1,4,PZN,300,Fischerella,Cyanobacteria,0,80
-1,4,PZN,300,Amoeboid ,Amoeboid ,3,3
+1,4,PZN,300,Amoeboid ,Amoeboid,3,3
 1,4,PZN,300,Eunotia,Diatom,1,150
 1,4,PZN,300,Melosira,Diatom,3,40
 1,4,PZN,300,Diatom3,Diatom,1,60
@@ -3689,9 +3689,9 @@
 2,4,PZN,300,Gymnodinium,Dinoflagelate,0,55
 2,4,PZN,300,Mallomonas,Synurophyta,0,18
 2,4,PZN,300,Merismopedia,Cyanobacteria,0,3
-2,4,PZN,300,Paramecium,Cilliate,0,120
+2,4,PZN,300,Paramecium,Ciliate,0,120
 2,4,PZN,300,Fischerella,Cyanobacteria,0,80
-2,4,PZN,300,Amoeboid ,Amoeboid ,0,3
+2,4,PZN,300,Amoeboid ,Amoeboid,0,3
 2,4,PZN,300,Eunotia,Diatom,0,150
 2,4,PZN,300,Melosira,Diatom,1,40
 2,4,PZN,300,Diatom3,Diatom,0,60
@@ -3717,9 +3717,9 @@
 3,4,PZN,300,Gymnodinium,Dinoflagelate,0,55
 3,4,PZN,300,Mallomonas,Synurophyta,11,18
 3,4,PZN,300,Merismopedia,Cyanobacteria,0,3
-3,4,PZN,300,Paramecium,Cilliate,0,120
+3,4,PZN,300,Paramecium,Ciliate,0,120
 3,4,PZN,300,Fischerella,Cyanobacteria,0,80
-3,4,PZN,300,Amoeboid ,Amoeboid ,0,3
+3,4,PZN,300,Amoeboid ,Amoeboid,0,3
 3,4,PZN,300,Eunotia,Diatom,0,150
 3,4,PZN,300,Melosira,Diatom,0,40
 3,4,PZN,300,Diatom3,Diatom,0,60
@@ -3745,9 +3745,9 @@
 7,4,PZN,300,Gymnodinium,Dinoflagelate,0,55
 7,4,PZN,300,Mallomonas,Synurophyta,0,18
 7,4,PZN,300,Merismopedia,Cyanobacteria,0,3
-7,4,PZN,300,Paramecium,Cilliate,0,120
+7,4,PZN,300,Paramecium,Ciliate,0,120
 7,4,PZN,300,Fischerella,Cyanobacteria,1,80
-7,4,PZN,300,Amoeboid ,Amoeboid ,0,3
+7,4,PZN,300,Amoeboid ,Amoeboid,0,3
 7,4,PZN,300,Eunotia,Diatom,0,150
 7,4,PZN,300,Melosira,Diatom,0,40
 7,4,PZN,300,Diatom3,Diatom,0,60
@@ -3773,9 +3773,9 @@
 8,4,PZN,300,Gymnodinium,Dinoflagelate,0,55
 8,4,PZN,300,Mallomonas,Synurophyta,0,18
 8,4,PZN,300,Merismopedia,Cyanobacteria,0,3
-8,4,PZN,300,Paramecium,Cilliate,0,120
+8,4,PZN,300,Paramecium,Ciliate,0,120
 8,4,PZN,300,Fischerella,Cyanobacteria,0,80
-8,4,PZN,300,Amoeboid ,Amoeboid ,0,3
+8,4,PZN,300,Amoeboid ,Amoeboid,0,3
 8,4,PZN,300,Eunotia,Diatom,0,150
 8,4,PZN,300,Melosira,Diatom,0,40
 8,4,PZN,300,Diatom3,Diatom,0,60
@@ -3801,9 +3801,9 @@
 1,7,PZN,350,Gymnodinium,Dinoflagelate,1,55
 1,7,PZN,350,Mallomonas,Synurophyta,0,18
 1,7,PZN,350,Merismopedia,Cyanobacteria,0,3
-1,7,PZN,350,Paramecium,Cilliate,0,120
+1,7,PZN,350,Paramecium,Ciliate,0,120
 1,7,PZN,350,Fischerella,Cyanobacteria,0,80
-1,7,PZN,350,Amoeboid ,Amoeboid ,0,3
+1,7,PZN,350,Amoeboid ,Amoeboid,0,3
 1,7,PZN,350,Eunotia,Diatom,0,150
 1,7,PZN,350,Melosira,Diatom,0,40
 1,7,PZN,350,Diatom3,Diatom,0,60
@@ -3829,9 +3829,9 @@
 2,7,PZN,350,Gymnodinium,Dinoflagelate,0,55
 2,7,PZN,350,Mallomonas,Synurophyta,0,18
 2,7,PZN,350,Merismopedia,Cyanobacteria,0,3
-2,7,PZN,350,Paramecium,Cilliate,0,120
+2,7,PZN,350,Paramecium,Ciliate,0,120
 2,7,PZN,350,Fischerella,Cyanobacteria,0,80
-2,7,PZN,350,Amoeboid ,Amoeboid ,0,3
+2,7,PZN,350,Amoeboid ,Amoeboid,0,3
 2,7,PZN,350,Eunotia,Diatom,1,150
 2,7,PZN,350,Melosira,Diatom,1,40
 2,7,PZN,350,Diatom3,Diatom,1,60
@@ -3857,9 +3857,9 @@
 3,7,PZN,350,Gymnodinium,Dinoflagelate,0,55
 3,7,PZN,350,Mallomonas,Synurophyta,0,18
 3,7,PZN,350,Merismopedia,Cyanobacteria,0,3
-3,7,PZN,350,Paramecium,Cilliate,0,120
+3,7,PZN,350,Paramecium,Ciliate,0,120
 3,7,PZN,350,Fischerella,Cyanobacteria,0,80
-3,7,PZN,350,Amoeboid ,Amoeboid ,0,3
+3,7,PZN,350,Amoeboid ,Amoeboid,0,3
 3,7,PZN,350,Eunotia,Diatom,0,150
 3,7,PZN,350,Melosira,Diatom,0,40
 3,7,PZN,350,Diatom3,Diatom,0,60
@@ -3885,9 +3885,9 @@
 7,7,PZN,350,Gymnodinium,Dinoflagelate,0,55
 7,7,PZN,350,Mallomonas,Synurophyta,0,18
 7,7,PZN,350,Merismopedia,Cyanobacteria,0,3
-7,7,PZN,350,Paramecium,Cilliate,0,120
+7,7,PZN,350,Paramecium,Ciliate,0,120
 7,7,PZN,350,Fischerella,Cyanobacteria,0,80
-7,7,PZN,350,Amoeboid ,Amoeboid ,0,3
+7,7,PZN,350,Amoeboid ,Amoeboid,0,3
 7,7,PZN,350,Eunotia,Diatom,0,150
 7,7,PZN,350,Melosira,Diatom,0,40
 7,7,PZN,350,Diatom3,Diatom,0,60
@@ -3913,9 +3913,9 @@
 8,7,PZN,350,Gymnodinium,Dinoflagelate,0,55
 8,7,PZN,350,Mallomonas,Synurophyta,0,18
 8,7,PZN,350,Merismopedia,Cyanobacteria,0,3
-8,7,PZN,350,Paramecium,Cilliate,0,120
+8,7,PZN,350,Paramecium,Ciliate,0,120
 8,7,PZN,350,Fischerella,Cyanobacteria,0,80
-8,7,PZN,350,Amoeboid ,Amoeboid ,0,3
+8,7,PZN,350,Amoeboid ,Amoeboid,0,3
 8,7,PZN,350,Eunotia,Diatom,0,150
 8,7,PZN,350,Melosira,Diatom,0,40
 8,7,PZN,350,Diatom3,Diatom,0,60
@@ -3941,9 +3941,9 @@
 1,23,PZN,400,Gymnodinium,Dinoflagelate,2,55
 1,23,PZN,400,Mallomonas,Synurophyta,0,18
 1,23,PZN,400,Merismopedia,Cyanobacteria,0,3
-1,23,PZN,400,Paramecium,Cilliate,0,120
+1,23,PZN,400,Paramecium,Ciliate,0,120
 1,23,PZN,400,Fischerella,Cyanobacteria,0,80
-1,23,PZN,400,Amoeboid ,Amoeboid ,0,3
+1,23,PZN,400,Amoeboid ,Amoeboid,0,3
 1,23,PZN,400,Eunotia,Diatom,0,150
 1,23,PZN,400,Melosira,Diatom,0,40
 1,23,PZN,400,Diatom3,Diatom,0,60
@@ -3969,9 +3969,9 @@
 2,23,PZN,400,Gymnodinium,Dinoflagelate,0,55
 2,23,PZN,400,Mallomonas,Synurophyta,7,18
 2,23,PZN,400,Merismopedia,Cyanobacteria,0,3
-2,23,PZN,400,Paramecium,Cilliate,0,120
+2,23,PZN,400,Paramecium,Ciliate,0,120
 2,23,PZN,400,Fischerella,Cyanobacteria,0,80
-2,23,PZN,400,Amoeboid ,Amoeboid ,0,3
+2,23,PZN,400,Amoeboid ,Amoeboid,0,3
 2,23,PZN,400,Eunotia,Diatom,0,150
 2,23,PZN,400,Melosira,Diatom,1,40
 2,23,PZN,400,Diatom3,Diatom,0,60
@@ -3997,9 +3997,9 @@
 3,23,PZN,400,Gymnodinium,Dinoflagelate,0,55
 3,23,PZN,400,Mallomonas,Synurophyta,0,18
 3,23,PZN,400,Merismopedia,Cyanobacteria,0,3
-3,23,PZN,400,Paramecium,Cilliate,0,120
+3,23,PZN,400,Paramecium,Ciliate,0,120
 3,23,PZN,400,Fischerella,Cyanobacteria,0,80
-3,23,PZN,400,Amoeboid ,Amoeboid ,0,3
+3,23,PZN,400,Amoeboid ,Amoeboid,0,3
 3,23,PZN,400,Eunotia,Diatom,0,150
 3,23,PZN,400,Melosira,Diatom,0,40
 3,23,PZN,400,Diatom3,Diatom,0,60
@@ -4025,9 +4025,9 @@
 7,23,PZN,400,Gymnodinium,Dinoflagelate,0,55
 7,23,PZN,400,Mallomonas,Synurophyta,0,18
 7,23,PZN,400,Merismopedia,Cyanobacteria,0,3
-7,23,PZN,400,Paramecium,Cilliate,0,120
+7,23,PZN,400,Paramecium,Ciliate,0,120
 7,23,PZN,400,Fischerella,Cyanobacteria,0,80
-7,23,PZN,400,Amoeboid ,Amoeboid ,0,3
+7,23,PZN,400,Amoeboid ,Amoeboid,0,3
 7,23,PZN,400,Eunotia,Diatom,0,150
 7,23,PZN,400,Melosira,Diatom,0,40
 7,23,PZN,400,Diatom3,Diatom,0,60
@@ -4053,9 +4053,9 @@
 8,23,PZN,400,Gymnodinium,Dinoflagelate,6,55
 8,23,PZN,400,Mallomonas,Synurophyta,0,18
 8,23,PZN,400,Merismopedia,Cyanobacteria,0,3
-8,23,PZN,400,Paramecium,Cilliate,0,120
+8,23,PZN,400,Paramecium,Ciliate,0,120
 8,23,PZN,400,Fischerella,Cyanobacteria,0,80
-8,23,PZN,400,Amoeboid ,Amoeboid ,0,3
+8,23,PZN,400,Amoeboid ,Amoeboid,0,3
 8,23,PZN,400,Eunotia,Diatom,0,150
 8,23,PZN,400,Melosira,Diatom,0,40
 8,23,PZN,400,Diatom3,Diatom,0,60
@@ -4081,9 +4081,9 @@
 1,18,PZN,450,Gymnodinium,Dinoflagelate,1,55
 1,18,PZN,450,Mallomonas,Synurophyta,0,18
 1,18,PZN,450,Merismopedia,Cyanobacteria,12,3
-1,18,PZN,450,Paramecium,Cilliate,0,120
+1,18,PZN,450,Paramecium,Ciliate,0,120
 1,18,PZN,450,Fischerella,Cyanobacteria,0,80
-1,18,PZN,450,Amoeboid ,Amoeboid ,0,3
+1,18,PZN,450,Amoeboid ,Amoeboid,0,3
 1,18,PZN,450,Eunotia,Diatom,0,150
 1,18,PZN,450,Melosira,Diatom,0,40
 1,18,PZN,450,Diatom3,Diatom,0,60
@@ -4109,9 +4109,9 @@
 2,18,PZN,450,Gymnodinium,Dinoflagelate,1,55
 2,18,PZN,450,Mallomonas,Synurophyta,0,18
 2,18,PZN,450,Merismopedia,Cyanobacteria,0,3
-2,18,PZN,450,Paramecium,Cilliate,0,120
+2,18,PZN,450,Paramecium,Ciliate,0,120
 2,18,PZN,450,Fischerella,Cyanobacteria,0,80
-2,18,PZN,450,Amoeboid ,Amoeboid ,0,3
+2,18,PZN,450,Amoeboid ,Amoeboid,0,3
 2,18,PZN,450,Eunotia,Diatom,0,150
 2,18,PZN,450,Melosira,Diatom,0,40
 2,18,PZN,450,Diatom3,Diatom,0,60
@@ -4137,9 +4137,9 @@
 3,18,PZN,450,Gymnodinium,Dinoflagelate,0,55
 3,18,PZN,450,Mallomonas,Synurophyta,0,18
 3,18,PZN,450,Merismopedia,Cyanobacteria,0,3
-3,18,PZN,450,Paramecium,Cilliate,0,120
+3,18,PZN,450,Paramecium,Ciliate,0,120
 3,18,PZN,450,Fischerella,Cyanobacteria,0,80
-3,18,PZN,450,Amoeboid ,Amoeboid ,0,3
+3,18,PZN,450,Amoeboid ,Amoeboid,0,3
 3,18,PZN,450,Eunotia,Diatom,0,150
 3,18,PZN,450,Melosira,Diatom,0,40
 3,18,PZN,450,Diatom3,Diatom,0,60
@@ -4165,9 +4165,9 @@
 7,18,PZN,450,Gymnodinium,Dinoflagelate,1,55
 7,18,PZN,450,Mallomonas,Synurophyta,0,18
 7,18,PZN,450,Merismopedia,Cyanobacteria,0,3
-7,18,PZN,450,Paramecium,Cilliate,0,120
+7,18,PZN,450,Paramecium,Ciliate,0,120
 7,18,PZN,450,Fischerella,Cyanobacteria,0,80
-7,18,PZN,450,Amoeboid ,Amoeboid ,0,3
+7,18,PZN,450,Amoeboid ,Amoeboid,0,3
 7,18,PZN,450,Eunotia,Diatom,0,150
 7,18,PZN,450,Melosira,Diatom,0,40
 7,18,PZN,450,Diatom3,Diatom,0,60
@@ -4193,9 +4193,9 @@
 8,18,PZN,450,Gymnodinium,Dinoflagelate,0,55
 8,18,PZN,450,Mallomonas,Synurophyta,0,18
 8,18,PZN,450,Merismopedia,Cyanobacteria,0,3
-8,18,PZN,450,Paramecium,Cilliate,0,120
+8,18,PZN,450,Paramecium,Ciliate,0,120
 8,18,PZN,450,Fischerella,Cyanobacteria,0,80
-8,18,PZN,450,Amoeboid ,Amoeboid ,0,3
+8,18,PZN,450,Amoeboid ,Amoeboid,0,3
 8,18,PZN,450,Eunotia,Diatom,0,150
 8,18,PZN,450,Melosira,Diatom,0,40
 8,18,PZN,450,Diatom3,Diatom,0,60
