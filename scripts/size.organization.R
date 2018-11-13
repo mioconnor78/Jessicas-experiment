@@ -24,6 +24,9 @@ sphere = function(d) (4/3)*pi*((d/2)^3)
 cylinder = function(d, l)  pi*((d/2)^2)*l
 oval = function(d, l, w) (4/3)*pi*(d*l*w)
 
+
+## cell vol is in units of um^3
+## these are seeming ok...
   ppinfo <- ppinfo %>%
     mutate(., d = ifelse(shape == "sphere", 0.5*(min.length.um + max.length.um), min.length.um)) %>%
     mutate(., cellvol = ifelse(shape == "sphere", sphere(d), cylinder(d, max.length.um))) %>%
@@ -43,23 +46,48 @@ pptaxa3 <- pptaxa2[rep(seq(nrow(pptaxa2)), pptaxa2$ind.L),]
 
 ## ok, now if we group by week and tank, we will have the list of sizes
 ## using functions from below in the 'proof of concept' part
+a <- 0.75
+Mb = function(x) sum(x) #total biomass
+mba <- function(x) sum(x^(a))/length(x) # average body size that accounts for size dependent changes in metabolic rate, based on a
+mb <- function(x) sum(x)/length(x)
+mba1 <- function(x) sum(x^(a-1)) # average body size that accounts for size dependent changes in metabolic rate, avg weighted by biomass rather than density (as in mba); equivalent to Mb = density/vol * (mba)
+
+## remove ciliates; note later that we did see them. 
+
 pptaxaMb <- pptaxa3 %>%
   group_by(tank, week) %>%
+  filter(group != "Ciliate") %>%
   dplyr::summarize(., Mb = Mb(cellvol))
 
 pptaxamba <- pptaxa3 %>%
-  group_by(tank, week) %>%   
+  group_by(tank, week) %>%
+  filter(group != "Ciliate") %>%
   dplyr::summarize(., mba = mba(cellvol))
 
 pptaxamba1 <- pptaxa3 %>%
   group_by(tank, week) %>%
+  filter(group != "Ciliate") %>%
   dplyr::summarize(., mba1 = mba1(cellvol))
+
+pptaxaN <- pptaxa3 %>%
+  group_by(tank, week) %>%
+  filter(group != "Ciliate") %>%
+  dplyr::summarize(., pp.N = length(cellvol))
+
+pptaxaAvgSize <- pptaxa3 %>%
+  group_by(tank, week) %>%
+  filter(group != "Ciliate") %>%
+  dplyr::summarize(., AvgS = mean(cellvol))
   
 size.data <- pptaxaMb %>%
   left_join(., pptaxamba, by = c("week", "tank")) %>%
-  left_join(., pptaxamba1, by = c("week", "tank"))
+  left_join(., pptaxamba1, by = c("week", "tank")) %>%
+  left_join(., pptaxaN, by = c("week", "tank")) %>%
+  left_join(., pptaxaAvgSize, by = c("week", "tank"))
   
+plot(size.data$mba ~ size.data$Mb)
 plot(size.data$mba1 ~ size.data$mba)
+plot(size.data$Mb ~ size.data$pp.N)
 
 write.csv(size.data, file = "PPsizes.csv")
 

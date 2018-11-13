@@ -124,6 +124,24 @@ hist(TCchla$TC)
 #hist(log(TCchla$TC))
 ```
 
+```{r}
+## TC mass normalized
+alldata1<- left_join(alldata, ppsizes, by = c("Tank" = "tank", "week"))
+plot(log(alldata1$mba1) ~ log(alldata1$chla))
+plot(log(alldata1$pp.N) ~ log(alldata1$chla))
+plot(log(alldata1$Mb) ~ log(alldata1$chla))
+
+TCvol <- as.tibble(alldata1) %>%
+group_by(week) %>%
+select(., week, power, trophic.level, Mb) %>%
+spread(., trophic.level, Mb) %>%
+left_join(., temps.pwr, by = c("week", "power")) %>%
+mutate(., invTavg = 1/((avgTemp + 273)*k)) %>%
+mutate(., TCMb = log(PZN/PZ)) 
+
+data <- TCvol
+
+```
 
 ```{r, echo = FALSE}
 
@@ -322,7 +340,8 @@ TCNPP
 
 ### estimating metabolic biomass from phytoplankton
 ```{r}
-
+data2 <- alldata %>%
+  left_join(., ppsizes, by = c("Tank" = "tank", "week"))
 ```
 
 

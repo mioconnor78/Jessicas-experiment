@@ -97,18 +97,18 @@ data.t2 <- data.t2 %>%
   unite(date_complete, Year, Month, Date, sep = "-") %>%
   mutate(date_formatted = ymd(date_complete)) 
 
-### NOV 2018: I'M SEEING DUPLICATED COLUMNS (DATE_COMPLETE) AND COLUMNS NOT DUBPLICATED (TEMP), AND WANT TO NOT HAVE THESE.
 ## join temps4 and data by the date, time and tank for each oxygen sampling time (hour)
-data.t3 <- left_join(data.t2, temps4, by = c("date_formatted" ,"week", "Tank", "d1Hour" = "time")) #, suffix = c(".x", ".d1")
+## this join is creating some extra temp columns (temp.x, temp.y) but we don't need those so don't worry about them.
+data.t3 <- left_join(data.t2, temps4, by = c("date_formatted", "date_complete", "week", "Tank", "d1Hour" = "time")) #, suffix = c(".x", ".d1")
 data.t3 <- dplyr::rename(data.t3, temp.d1 = T4hrs)
 
-data.t3 <- left_join(data.t3, temps4, by = c("date_formatted", "week", "Tank", "dkHour" = "time")) #, suffix = c(".x", ".dk")
+data.t3 <- left_join(data.t3, temps4, by = c("date_formatted", "date_complete", "week", "Tank", "dkHour" = "time")) #, suffix = c(".x", ".dk")
 data.t3 <- dplyr::rename(data.t3, temp.dk = T4hrs)
 
 data.t3 <- data.t3 %>%
   mutate(d2.date = date_formatted + 1)
 
-data.t4 <- left_join(data.t3, temps4, by = c("d2.date" = "date_formatted", "Tank", "d2Hour" = "time")) #, suffix = c(".x", ".d2")
+data.t4 <- left_join(data.t3, temps4, by = c("d2.date" = "date_formatted", "date_complete", "week","Tank", "d2Hour" = "time")) #, suffix = c(".x", ".d2")
 data.t4 <- dplyr::rename(data.t4, temp.d2 = T4hrs)
 
 
@@ -117,7 +117,7 @@ data.t4 <- dplyr::rename(data.t4, temp.d2 = T4hrs)
 names(data.t4)
 data.t5 <- as.tibble(data.t4) %>%
   group_by(Tank, trophic.level) %>%
-  summarise(., mean.temp = mean(temp.wk)) %>%
+  dplyr::summarise(., mean.temp = mean(temp.wk)) %>%
   arrange(trophic.level, mean.temp) %>%
   dplyr::select(-mean.temp) 
   
@@ -128,7 +128,7 @@ data.t6 <- left_join(data.t4, data.t5, by = c("Tank", "trophic.level"))
   
 ### Define temperature as inverse temperature
 data <- data.t6
-data <- dplyr::rename(data, week = week.x)
+#data <- dplyr::rename(data, week = week.x)
 k <- 8.617342*10^-5  # eV/K
 data$invTi <-  1/((data$temp.wk + 273)*k) # average temp of the tank each week
 data$invTT <-  1/((data$temp.Tmn + 273)*k) # average temp of the tank over all weeks
