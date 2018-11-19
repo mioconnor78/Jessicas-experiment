@@ -32,6 +32,7 @@ library(captioner)
 data <- read.csv("../data/GarzkedataA.csv")
 alldata <- read.csv("../data/GarzkeAllwks.csv")
 ppsizes <- read.csv("../data/PPsizes.csv")
+alldata1<- left_join(alldata, ppsizes, by = c("Tank" = "tank", "week"))
 k <- 8.617342*10^-5  # eV/K
 labels <- c(P = "Algae", PZ = "Algae + Grazers", PZN = "Algae + Grazers + Predators")
 ```
@@ -76,6 +77,26 @@ CT2 <- lme(I(log(chla)) ~ week*trophic.level, random = ~ 1 | Tank, data=alldata,
 CT3 <- lme(I(log(chla)) ~ week+trophic.level, random = ~ 1 | Tank, data=alldata, method="ML", na.action=na.omit)
 CT4 <- lme(I(log(chla)) ~ week, random = ~ 1 | Tank, data=alldata, method="ML", na.action=na.omit)
 model.sel(CT2, CT3, CT4)
+```
+
+## 0.5. Temporal Results: Pp size over time (8 weeks)
+
+```{r, echo = FALSE, Fig_S2.01, fig.width=5, fig.height=3}
+mba1.time <- ggplot(data = alldata1, aes(x = week, y = log(mba1), ymin = 0, shape = trophic.level, alpha = trophic.level)) +
+  theme_bw() +
+  #theme(legend.position = "none") +
+  geom_point() +
+  facet_grid(trophic.level ~ .) +
+  theme(panel.grid.minor = element_blank(), 
+        panel.grid.major = element_blank(),  
+        legend.text = element_text(size = 6), 
+        legend.title = element_text(size = 7), 
+        strip.background = element_blank()) +
+  ylab("Phytoplankton mass corrected cell size \n ln(ug / L)")
+
+mba1.time
+
+
 ```
 
 ## 0.5. Temporal Results: Chlorophyll over temperatures 
@@ -126,10 +147,12 @@ hist(TCchla$TC)
 
 ```{r}
 ## TC mass normalized
-alldata1<- left_join(alldata, ppsizes, by = c("Tank" = "tank", "week"))
 plot(log(alldata1$mba1) ~ log(alldata1$chla))
+plot(log(alldata1$Omba1) ~ log(alldata1$chla))
+plot(log(alldata1$Omba1) ~ log(alldata1$O.N))
 plot(log(alldata1$pp.N) ~ log(alldata1$chla))
 plot(log(alldata1$Mb) ~ log(alldata1$chla))
+## so there are good relationships between cell number and estimated mass (which is based on the number, size and shape of cells). But no agreement between [chla] and estimated cell mass or vol, for cyanos, non-cyanos, or total. What to do...
 
 TCm <- as.tibble(alldata1) %>%
 group_by(week) %>%

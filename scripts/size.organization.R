@@ -26,7 +26,6 @@ oval = function(d, l, w) (4/3)*pi*(d*l*w)
 
 
 ## cell vol is in units of um^3
-## these are seeming ok...
   ppinfo <- ppinfo %>%
     mutate(., d = ifelse(shape == "sphere", 0.5*(min.length.um + max.length.um), min.length.um)) %>%
     mutate(., cellvol = ifelse(shape == "sphere", sphere(d), cylinder(d, max.length.um))) %>%
@@ -52,6 +51,8 @@ Mb = function(x) sum(x) #total biomass
 mba <- function(x) sum(x^(a))/length(x) # average body size that accounts for size dependent changes in metabolic rate, based on a
 mb <- function(x) sum(x)/length(x)
 mba1 <- function(x) sum(x^(a-1)) # average body size that accounts for size dependent changes in metabolic rate, avg weighted by biomass rather than density (as in mba); equivalent to Mb = density/vol * (mba)
+
+## so here we have total biomass, two estimates of average body size... do i have the total mass corrected size?
 
 ## remove ciliates; note later that we did see them. 
 
@@ -80,17 +81,108 @@ pptaxaAvgSize <- pptaxa3 %>%
   filter(group != "Ciliate") %>%
   dplyr::summarize(., AvgS = mean(cellmass))
   
+
+## do it for cyanos and non-cyanos separately
+Cyano.mba1 <- pptaxa3 %>%
+  group_by(tank, week) %>%
+  filter(group == "Cyanobacteria") %>%
+  dplyr::summarize(., Cmba1 = mba1(cellmass))
+
+Cyano.Mb <- pptaxa3 %>%
+  group_by(tank, week) %>%
+  filter(group == "Cyanobacteria") %>%
+  dplyr::summarize(., CMb = Mb(cellmass))
+
+Cyano.mba <- pptaxa3 %>%
+  group_by(tank, week) %>%
+  filter(group == "Cyanobacteria") %>%
+  dplyr::summarize(., Cmba = mba(cellmass))
+
+Cyano.N <- pptaxa3 %>%
+  group_by(tank, week) %>%
+  filter(group == "Cyanobacteria") %>%
+  dplyr::summarize(., C.N = length(cellmass))
+
+Cyano.AvgS <- pptaxa3 %>%
+  group_by(tank, week) %>%
+  filter(group == "Cyanobacteria") %>%
+  dplyr::summarize(., CAvgS = mean(cellmass))
+
+Oth.mba1 <- pptaxa3 %>%
+  group_by(tank, week) %>%
+  filter(group != "Cyanobacteria") %>%
+  filter(group != "Ciliate") %>%
+  dplyr::summarize(., Omba1 = mba1(cellmass))
+
+Oth.Mb <- pptaxa3 %>%
+  group_by(tank, week) %>%
+  filter(group != "Cyanobacteria") %>%
+  filter(group != "Ciliate") %>%
+  dplyr::summarize(., OMb = Mb(cellmass))
+
+Oth.mba <- pptaxa3 %>%
+  group_by(tank, week) %>%
+  filter(group != "Cyanobacteria") %>%
+  filter(group != "Ciliate") %>%
+  dplyr::summarize(., Omba = mba(cellmass))
+
+Oth.N <- pptaxa3 %>%
+  group_by(tank, week) %>%
+  filter(group != "Cyanobacteria") %>%
+  filter(group != "Ciliate") %>%
+  dplyr::summarize(., O.N = length(cellmass))
+
+Oth.AvgS <- pptaxa3 %>%
+  group_by(tank, week) %>%
+  filter(group != "Cyanobacteria") %>%
+  filter(group != "Ciliate") %>%
+  dplyr::summarize(., OAvgS = mean(cellmass))
+
+
 size.data <- pptaxaMb %>%
   left_join(., pptaxamba, by = c("week", "tank")) %>%
   left_join(., pptaxamba1, by = c("week", "tank")) %>%
   left_join(., pptaxaN, by = c("week", "tank")) %>%
-  left_join(., pptaxaAvgSize, by = c("week", "tank"))
-  
+  left_join(., pptaxaAvgSize, by = c("week", "tank")) %>%
+  left_join(., Cyano.Mb, by = c("week", "tank")) %>%
+  left_join(., Cyano.mba, by = c("week", "tank")) %>%
+  left_join(., Cyano.mba1, by = c("week", "tank")) %>%
+  left_join(., Cyano.N, by = c("week", "tank")) %>%
+  left_join(., Cyano.AvgS, by = c("week", "tank")) %>%
+  left_join(., Oth.Mb, by = c("week", "tank")) %>%
+  left_join(., Oth.mba, by = c("week", "tank")) %>%
+  left_join(., Oth.mba1, by = c("week", "tank")) %>%
+  left_join(., Oth.N, by = c("week", "tank")) %>%
+  left_join(., Oth.AvgS, by = c("week", "tank"))
+
+## looking at oddball values
+hist(size.data$CMb)
+dplyr::filter(size.data, CMb > 100000)
+week1 <- pptaxa %>%
+  dplyr::filter(., week == 1) %>%
+  dplyr::filter(., tank == 14)
+
+week2 <- pptaxa %>%
+  dplyr::filter(., week == 2) %>%
+  dplyr::filter(., tank == c(19,25))
+## no clear reason to exclude them
+
+hist(size.data$Mb)
+hist(size.data$OMb)
+
+write.csv(size.data, file = "PPsizes.csv")
+
+
 plot(size.data$mba ~ size.data$Mb)
 plot(size.data$mba1 ~ size.data$mba)
 plot(size.data$Mb ~ size.data$pp.N)
 
-write.csv(size.data, file = "PPsizes.csv")
+
+
+plot(size.data$mba ~ size.data$Mb)
+plot(size.data$mba1 ~ size.data$mba)
+plot(size.data$Oth.Mb ~ size.data$Oth.N)
+
 
 ##### metabolic biomass
 ## proof of concept:
