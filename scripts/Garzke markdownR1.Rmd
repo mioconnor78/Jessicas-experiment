@@ -131,15 +131,15 @@ plot(log(alldata1$mba1) ~ log(alldata1$chla))
 plot(log(alldata1$pp.N) ~ log(alldata1$chla))
 plot(log(alldata1$Mb) ~ log(alldata1$chla))
 
-TCvol <- as.tibble(alldata1) %>%
+TCm <- as.tibble(alldata1) %>%
 group_by(week) %>%
-select(., week, power, trophic.level, Mb) %>%
-spread(., trophic.level, Mb) %>%
+select(., week, power, trophic.level, mba1) %>%
+spread(., trophic.level, mba1) %>%
 left_join(., temps.pwr, by = c("week", "power")) %>%
 mutate(., invTavg = 1/((avgTemp + 273)*k)) %>%
 mutate(., TCMb = log(PZN/PZ)) 
 
-data <- TCvol
+data <- TCm
 
 ```
 
@@ -172,6 +172,41 @@ TCchla$week <- as.integer(TCchla$week)
 ## TCmodi wins
 
 #summary(TCmodi, ddf = c("Satterthwaite"))
+```
+
+### 1.2 duplicate TC analysis with TCmb
+```{r, echo = FALSE}
+TCmodb <- lme(TCMb ~ I(invTavg-mean(invTavg))*week, random = ~ 1|power + 1|week, data=TCvol, method = "REML", na.action = na.omit)
+TCmodc <- lme(TCMb ~ I(invTavg-mean(invTavg))*week, random = ~ 1|power, data=TCvol, method = "REML", na.action = na.omit)
+
+anova(TCmodc, TCmodb)
+
+```
+```{r}
+## fixed effects model:
+TCVmodb <- lme(TCMb ~ 1 + I(invTavg-mean(invTavg))*week, random = ~ 1|power, data=TCvol, method="ML", na.action=na.omit)
+TCVmodc <- lme(TCMb ~ 1 + I(invTavg-mean(invTavg)) + week, random = ~ 1|power, data=TCvol, method="ML", na.action=na.omit)
+TCVmodd <- lme(TCMb ~ 1 + I(invTavg-mean(invTavg)), random = ~ 1|power, data=TCvol, method="ML", na.action=na.omit)
+TCVmode <- lme(TCMb ~ 1 + week, random = ~ 1|power, data=TCvol, method="ML", na.action=na.omit)
+TCVmodf <- lme(TCMb ~ 1 + week, random = ~ 1|power, data=TCvol, method="ML", na.action=na.omit)
+
+TCVres <- data.frame(model.sel(TCVmodb, TCVmodc, TCVmodd, TCVmode, TCVmodf))
+```
+```{r Fig_S2.04 TC Strength, fig.width=4, fig.height=3}
+TCM <- ggplot(data = TCvol, aes(x = I(invTavg-mean(invTavg)), y = TCMb, ymin = 0, group = week, shape = as.factor(week), alpha = week)) +
+  theme_bw() +
+  theme(panel.grid.minor = element_blank(), 
+        panel.grid.major = element_blank(),
+        legend.text = element_text(size = 6), 
+        legend.title = element_text(size = 7), 
+        legend.key = element_rect(fill = NA), 
+        strip.background = element_rect(colour="white", fill="white")) +
+  geom_point() +
+  scale_alpha(guide = "none") +
+  scale_shape_manual(guide = guide_legend(title = "Week"), values = c(1,2,22,23,8,15,16,17)) +
+  ylab(bquote(~"Trophic Cascade"~"ln(Mb"[+P]~")/(Mb"[-P]~")")) +
+    #paste("Trophic Cascade Strength \n", "", expression(chla[+P]), ")")) + #) ln(PZN / PZ[Chla])" +
+  xlab("Temperature \n Weekly average T - grand mean T") 
 ```
 
 ## 1.1.2 Use nlme to compare fixed and ranefs

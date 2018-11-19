@@ -36,7 +36,8 @@ oval = function(d, l, w) (4/3)*pi*(d*l*w)
     
 ## merge cell vols with pptaxa
 pptaxa1 <- pptaxa %>%
-    left_join(., ppinfo, by = c("taxon", "group"))
+    left_join(., ppinfo, by = c("taxon", "group")) %>%
+  mutate(., cellmass = 0.209*cellvol^0.991)
  
 ## create vector of sizes for each tank and date
 pptaxa2 <- pptaxa1 %>%
@@ -57,27 +58,27 @@ mba1 <- function(x) sum(x^(a-1)) # average body size that accounts for size depe
 pptaxaMb <- pptaxa3 %>%
   group_by(tank, week) %>%
   filter(group != "Ciliate") %>%
-  dplyr::summarize(., Mb = Mb(cellvol))
+  dplyr::summarize(., Mb = Mb(cellmass))
 
 pptaxamba <- pptaxa3 %>%
   group_by(tank, week) %>%
   filter(group != "Ciliate") %>%
-  dplyr::summarize(., mba = mba(cellvol))
+  dplyr::summarize(., mba = mba(cellmass))
 
 pptaxamba1 <- pptaxa3 %>%
   group_by(tank, week) %>%
   filter(group != "Ciliate") %>%
-  dplyr::summarize(., mba1 = mba1(cellvol))
+  dplyr::summarize(., mba1 = mba1(cellmass))
 
 pptaxaN <- pptaxa3 %>%
   group_by(tank, week) %>%
   filter(group != "Ciliate") %>%
-  dplyr::summarize(., pp.N = length(cellvol))
+  dplyr::summarize(., pp.N = length(cellmass))
 
 pptaxaAvgSize <- pptaxa3 %>%
   group_by(tank, week) %>%
   filter(group != "Ciliate") %>%
-  dplyr::summarize(., AvgS = mean(cellvol))
+  dplyr::summarize(., AvgS = mean(cellmass))
   
 size.data <- pptaxaMb %>%
   left_join(., pptaxamba, by = c("week", "tank")) %>%
