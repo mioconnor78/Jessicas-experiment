@@ -82,10 +82,11 @@ model.sel(CT2, CT3, CT4)
 ## 0.5. Temporal Results: Pp size over time (8 weeks)
 
 ```{r, echo = FALSE, Fig_S2.01, fig.width=5, fig.height=3}
-mba1.time <- ggplot(data = alldata1, aes(x = week, y = log(mba1), ymin = 0, shape = trophic.level, alpha = trophic.level)) +
+mba1.time <- ggplot(data = alldata1, aes(x = week, y = log(FN.N), group = Tank, ymin = 0, shape = trophic.level)) +
   theme_bw() +
-  #theme(legend.position = "none") +
+  theme(legend.position = "none") +
   geom_point() +
+  geom_line(na.rm = TRUE) +
   facet_grid(trophic.level ~ .) +
   theme(panel.grid.minor = element_blank(), 
         panel.grid.major = element_blank(),  
@@ -96,6 +97,13 @@ mba1.time <- ggplot(data = alldata1, aes(x = week, y = log(mba1), ymin = 0, shap
 
 mba1.time
 
+## I'm being an idiot; in these models and figures, I'm analyzing tank-level metabolic biomass over time. but the question i need to address in the paper is about actual estimated cell size, so that needs to be donw on the raw observations, not these estimates. so, back to the size org file for that.
+
+## for 'non-cyano' taxa
+mods1 <- lme(log(FNmba1) ~  1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=alldata1, method="ML", na.action=na.omit)
+mods2 <- lme(log(Omba1) ~  1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=alldata1, method="ML", na.action=na.omit)
+
+mods1 <- lme(log(Omba1) ~  1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=alldata1, method="ML", na.action=na.omit)
 
 ```
 
@@ -387,20 +395,6 @@ TCNPP <- ggplot(data = TCNPP, aes(x = avgTemp, y = TC, ymin = 0)) +
   geom_point(aes(group = week, shape = as.factor(week)), size = 2) 
 
 TCNPP
-```
-
-
-
-### 1.3 estimating metabolic biomass
-```{r}
-
-
-```
-
-### estimating metabolic biomass from phytoplankton
-```{r}
-data2 <- alldata %>%
-  left_join(., ppsizes, by = c("Tank" = "tank", "week"))
 ```
 
 

@@ -66,6 +66,7 @@ mba1 <- function(x) sum(x^(a-1)) # average body size that accounts for size depe
 pptaxaMb <- pptaxa3 %>%
   group_by(tank, week) %>%
   filter(group != "Ciliate") %>%
+  filter(group != "Amoeboid") %>%
   dplyr::summarize(., Mb = Mb(cellmass))
 
 pptaxamba <- pptaxa3 %>%
@@ -76,6 +77,7 @@ pptaxamba <- pptaxa3 %>%
 pptaxamba1 <- pptaxa3 %>%
   group_by(tank, week) %>%
   filter(group != "Ciliate") %>%
+  filter(group != "Amoeboid") %>%
   dplyr::summarize(., mba1 = mba1(cellmass))
 
 pptaxaN <- pptaxa3 %>%
@@ -86,6 +88,7 @@ pptaxaN <- pptaxa3 %>%
 pptaxaAvgSize <- pptaxa3 %>%
   group_by(tank, week) %>%
   filter(group != "Ciliate") %>%
+  filter(group != "Amoeboid") %>%
   dplyr::summarize(., AvgS = mean(cellmass))
   
 
@@ -103,6 +106,7 @@ Cyano.Mb <- pptaxa3 %>%
 Cyano.mba <- pptaxa3 %>%
   group_by(tank, week) %>%
   filter(group == "Cyanobacteria") %>%
+  filter(group != "Amoeboid") %>%
   dplyr::summarize(., Cmba = mba(cellmass))
 
 Cyano.N <- pptaxa3 %>%
@@ -113,6 +117,7 @@ Cyano.N <- pptaxa3 %>%
 Cyano.AvgS <- pptaxa3 %>%
   group_by(tank, week) %>%
   filter(group == "Cyanobacteria") %>%
+  filter(group != "Amoeboid") %>%
   dplyr::summarize(., CAvgS = mean(cellmass))
 
 Oth.mba1 <- pptaxa3 %>%
@@ -131,20 +136,92 @@ Oth.mba <- pptaxa3 %>%
   group_by(tank, week) %>%
   filter(group != "Cyanobacteria") %>%
   filter(group != "Ciliate") %>%
+  filter(group != "Amoeboid") %>%
   dplyr::summarize(., Omba = mba(cellmass))
 
 Oth.N <- pptaxa3 %>%
   group_by(tank, week) %>%
   filter(group != "Cyanobacteria") %>%
   filter(group != "Ciliate") %>%
+  filter(group != "Amoeboid") %>%
   dplyr::summarize(., O.N = length(cellmass))
 
 Oth.AvgS <- pptaxa3 %>%
   group_by(tank, week) %>%
   filter(group != "Cyanobacteria") %>%
   filter(group != "Ciliate") %>%
+  filter(group != "Amoeboid") %>%
   dplyr::summarize(., OAvgS = mean(cellmass))
 
+CN.mba1 <- pptaxa3 %>%
+  group_by(tank, week) %>%
+  filter(colonial == "no") %>%
+  filter(group != "Ciliate") %>%
+  filter(group != "Amoeboid") %>%
+  dplyr::summarize(., CNmba1 = mba1(cellmass))
+
+CN.Mb <- pptaxa3 %>%
+  group_by(tank, week) %>%
+  filter(colonial == "no") %>%
+  filter(group != "Ciliate") %>%
+  filter(group != "Amoeboid") %>%
+  dplyr::summarize(., CNMb = Mb(cellmass))
+
+CN.mba <- pptaxa3 %>%
+  group_by(tank, week) %>%
+  filter(colonial == "no") %>%
+  filter(group != "Ciliate") %>%
+  filter(group != "Amoeboid") %>%
+  dplyr::summarize(., CNmba = mba(cellmass))
+
+CN.N <- pptaxa3 %>%
+  group_by(tank, week) %>%
+  filter(colonial == "no") %>%
+  filter(group != "Ciliate") %>%
+  filter(group != "Amoeboid") %>%
+  dplyr::summarize(., CN.N = length(cellmass))
+
+CN.AvgS <- pptaxa3 %>%
+  group_by(tank, week) %>%
+  filter(colonial == "no") %>%
+  filter(group != "Ciliate") %>%
+  filter(group != "Amoeboid") %>%
+  dplyr::summarize(., CN.AvgS = mean(cellmass))
+
+FN.mba1 <- pptaxa3 %>%
+  group_by(tank, week) %>%
+  filter(shape != "Filament") %>%
+  filter(group != "Ciliate") %>%
+  filter(group != "Amoeboid") %>%
+  dplyr::summarize(., FNmba1 = mba1(cellmass))
+
+FN.Mb <- pptaxa3 %>%
+  group_by(tank, week) %>%
+  filter(shape != "Filament") %>%
+  filter(group != "Ciliate") %>%
+  filter(group != "Amoeboid") %>%
+  dplyr::summarize(., FNMb = Mb(cellmass))
+
+FN.mba <- pptaxa3 %>%
+  group_by(tank, week) %>%
+  filter(shape != "Filament") %>%
+  filter(group != "Ciliate") %>%
+  filter(group != "Amoeboid") %>%
+  dplyr::summarize(., FNmba = mba(cellmass))
+
+FN.N <- pptaxa3 %>%
+  group_by(tank, week) %>%
+  filter(shape != "Filament") %>%
+  filter(group != "Ciliate") %>%
+  filter(group != "Amoeboid") %>%
+  dplyr::summarize(., FN.N = length(cellmass))
+
+FN.AvgS <- pptaxa3 %>%
+  group_by(tank, week) %>%
+  filter(shape != "Filament") %>%
+  filter(group != "Ciliate") %>%
+  filter(group != "Amoeboid") %>%
+  dplyr::summarize(., FN.AvgS = mean(cellmass))
 
 size.data <- pptaxaMb %>%
   left_join(., pptaxamba, by = c("week", "tank")) %>%
@@ -160,7 +237,17 @@ size.data <- pptaxaMb %>%
   left_join(., Oth.mba, by = c("week", "tank")) %>%
   left_join(., Oth.mba1, by = c("week", "tank")) %>%
   left_join(., Oth.N, by = c("week", "tank")) %>%
-  left_join(., Oth.AvgS, by = c("week", "tank"))
+  left_join(., Oth.AvgS, by = c("week", "tank")) %>%
+  left_join(., CN.Mb, by = c("week", "tank")) %>%
+  left_join(., CN.mba, by = c("week", "tank")) %>%
+  left_join(., CN.mba1, by = c("week", "tank")) %>%
+  left_join(., CN.N, by = c("week", "tank")) %>%
+  left_join(., CN.AvgS, by = c("week", "tank")) %>%
+  left_join(., FN.Mb, by = c("week", "tank")) %>%
+  left_join(., FN.mba, by = c("week", "tank")) %>%
+  left_join(., FN.mba1, by = c("week", "tank")) %>%
+  left_join(., FN.N, by = c("week", "tank")) %>%
+  left_join(., FN.AvgS, by = c("week", "tank"))
 
 ## looking at oddball values
 hist(size.data$CMb)
