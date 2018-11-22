@@ -215,8 +215,9 @@ TCVmodf <- lme(TCMb ~ 1 + week, random = ~ 1|power, data=TCvol, method="ML", na.
 
 TCVres <- data.frame(model.sel(TCVmodb, TCVmodc, TCVmodd, TCVmode, TCVmodf))
 ```
+
 ```{r Fig_S2.04 TC Strength, fig.width=4, fig.height=3}
-TCM <- ggplot(data = TCvol, aes(x = I(invTavg-mean(invTavg)), y = TCMb, ymin = 0, group = week, shape = as.factor(week), alpha = week)) +
+TCM <- ggplot(data = TCm, aes(x = I(invTavg-mean(invTavg)), y = TCMb, ymin = 0, group = week, shape = as.factor(week), alpha = week)) +
   theme_bw() +
   theme(panel.grid.minor = element_blank(), 
         panel.grid.major = element_blank(),
@@ -261,7 +262,7 @@ TCres <- data.frame(model.sel(TCmodb, TCmodc, TCmodd, TCmode, TCmodf))
 `r table_nums("Table_S2.01")`
 
 ```{r Table_S2.01 TC model comparison results}
-kable(TCres, digits=2, col.names = c('Int','T','Wk','T*Wk','df', 'logLik','AICc','d','w'))
+kable(TCres, digits=2, col.names = c('Int','T','Wk','T*Wk','df','logLik','AICc','d','w'))
 ```
 
 ## Summary of best model: trophic cascade strength
@@ -549,6 +550,24 @@ Fig2ABC <- PP.plot +
 #ggsave("Fig2ABC.png", device = "png")
 ```
 
+
+## 2.1.1b Phytoplankton metabolic biomass candidate models
+```{r, echo=FALSE}
+#### Phytoplankton coefficients for Figure 2
+data <- alldata1
+modPBF <- lme(log(mba1) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
+modPB8 <- lme(log(mba1) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+modPB7 <- lme(log(mba1) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+modPB6 <- lme(log(mba1) ~ 1 + trophic.level*I(invTi - invTT), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+modPB5 <- lme(log(mba1) ~ 1 + I(invTi - invTT) + trophic.level, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+modPB4 <- lme(log(mba1) ~ 1 + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+modPB3 <- lme(log(mba1) ~ 1 + I(invTi - invTT) + I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+modPB2 <- lme(log(mba1) ~ 1 + I(invTi - invTT), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+modPB1 <- lme(log(mba1) ~ 1 + trophic.level, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+modPB0 <- lme(log(mba1) ~ 1, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
+
+PPres <- data.frame(model.sel(modPB0, modPB1, modPB2, modPB3, modPB4, modPB5, modPB6, modPB7, modPB8, modPBF))
+```
 
 #
 ## 2.2 Net ecosystem oxygen production

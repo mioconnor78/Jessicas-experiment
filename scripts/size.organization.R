@@ -15,6 +15,13 @@ pptaxa <- pptaxa %>%
   mutate(`taxon` = str_replace(`taxon`, "Coleosphaerium", "Coelosphaerium"))
 
 pptaxa$taxon <- as.factor(pptaxa$taxon)
+
+## week numbers in this file may not align with our other data. When i used the original week numbers, there was no relationship between chla (from other datafile) and estimated cell volume and size. Based on stephanie's report, I think the week numbers here need to be adjusted by one week. She reported that week 3 = July 10. July 10 was week 2 in our other datafile. So I will adjust the week numbers here. 
+
+colnames(pptaxa)[1] <- 'weekSC'
+
+pptaxa <- pptaxa %>%
+  mutate(week = weekSC - 1)
   
 ## create a cell mass column for each taxon. first in ppinfo, then it can be joined to pptaxa
 ## first will do it by estimating volume from length information - done below, now check 
