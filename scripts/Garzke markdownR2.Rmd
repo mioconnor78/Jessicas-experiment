@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ### load libraries
 library(MuMIn)
 library(nlme)
-library(plyr)
+#library(plyr)
 library(tidyverse) 
 library(broom)
 library(reshape2)
@@ -485,7 +485,7 @@ PPres <- data.frame(model.sel(modPB0, modPB1, modPB2, modPB3, modPB4, modPB5, mo
 #
 ## 2.2 Net ecosystem oxygen production
 ```{r, fig.width=3, fig.height=3, echo = FALSE}
-data1 <- data[(data$NPP2 >= 0.00001),] #remove 21 negative values 
+data1 <- alldata1[(alldata1$NPP2 >= 0.00001),] #remove 21 negative values 
 hist(data1$NPP2)
 hist(log(data1$NPP2))
 
@@ -709,8 +709,9 @@ Fig2DEF <-
 
 ##### 2.2 Net ecosystem oxygen consumption (ER)
 
+# so data is still alldata1
 ```{r, Table_2.3, fig.width=3, fig.height=3}
-hist(data$ER2)
+hist(alldata1$ER2)
 hist(log(data$ER2))
 data2 <- data[(data$ER2 >= 0),] #no values removed
 data2 <- data[!is.na(data$ER2),]
