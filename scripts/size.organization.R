@@ -36,7 +36,10 @@ oval = function(d, l, w) (4/3)*pi*(d*l*w)
   ppinfo <- ppinfo %>%
     mutate(., d = ifelse(shape == "sphere", 0.5*(min.length.um + max.length.um), min.length.um)) %>%
     mutate(., cellvol = ifelse(shape == "sphere", sphere(d), cylinder(d, max.length.um))) %>%
-    mutate(., cellvol = ifelse(shape == "oval", oval(d/2, max.length.um/2, d/2), cellvol)) #%>% #produces volum in um^3
+    mutate(., cellvol = ifelse(shape == "oval", oval(d/2, max.length.um/2, d/2), cellvol)) %>%
+    mutate(., cellvol = ifelse(taxon == "Chroococcus", oval(10/2, max.length.um/2, 10/2), cellvol)) 
+  
+  #%>% #produces volum in um^3
     # mutate(., colvol = ifelse(colonial != "no", oval(d, max.length.um, d), vol)) #need to go back and check whether colonies are sheets, spheres or filaments
     
     
@@ -276,6 +279,52 @@ plot(size.data$Mb ~ size.data$pp.N)
 plot(size.data$mba ~ size.data$Mb)
 plot(size.data$mba1 ~ size.data$mba)
 plot(size.data$Oth.Mb ~ size.data$Oth.N)
+
+##### analysis of mean size
+pptaxa4 <- as.tibble(pptaxa3) %>%
+  group_by(week) %>%
+  left_join(., temps.pwr, by = c("week", "power")) %>%
+  mutate(., invTavg = 1/((avgTemp + 273)*k)) %>%
+  filter(., week != "0") %>%
+  filter(., week != "1") %>%
+  filter(group != "Ciliate") %>%
+  filter(group != "Amoeboid") %>%
+  filter(shape != "filament")
+
+modS1 <- lme(cellmass ~ 1 + invTavg*trophic.level, random = ~1|tank, data = pptaxa4, na.action = na.omit)
+modS2 <- lme(cellmass ~ 1 + invTavg + trophic.level, random = ~1|tank, data = pptaxa4, na.action = na.omit)
+modS3 <- lme(cellmass ~ 1 + invTavg, random = ~1|tank, data = pptaxa4, na.action = na.omit)
+modS4 <- lme(cellmass ~ 1 + trophic.level, random = ~1|tank, data = pptaxa4, na.action = na.omit)
+modS5 <- lme(cellmass ~ 1, random = ~1|tank, data = pptaxa4, na.action = na.omit)
+
+modSres <- data.frame(model.sel(modS1, modS2, modS3, modS4, modS5))
+
+plot(cellmass ~ invTavg, data = pptaxa4)
+lines(a = , b = 181.5)
+
+hist(log(pptaxa4$cellmass))
+hist(log(pptaxa4[(pptaxa4$trophic.level == "P"), ]$cellmass))
+hist(log(pptaxa4[(pptaxa4$trophic.level == "PZ"), ]$cellmass), hold = TRUE)
+
+## this isn't what i wanted, leaving it now
+ggplot(data = pptaxa4, aes(x = invTavg)) + 
+  geom_histogram(data = subset(pptaxa4, trophic.level == "P"), fill = "red", alpha = 0.2) + 
+  geom_histogram(data = subset(pptaxa4, trophic.level == "PZ"), fill = "blue", alpha = 0.2) +
+  geom_histogram(data = subset(pptaxa4, trophic.level == "PZN"), fill = "green", alpha = 0.2)
+
+PPsize <- ggplot(data = pptaxa4, aes(x = invTavg, y = log(cellmass)), group = week, shape = as.factor(week)) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  geom_point(aes(group = as.character(trophic.level), color = as.character(trophic.level), shape = as.factor(week)), size = 2)
+  theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank(),  
+        legend.text = element_text(size=6), 
+        legend.title = element_text(size = 7), 
+        strip.background = element_blank()) +
+  ylab("Phytoplankton Cell Mass \n ln(ug)")
+
+PPsize
+
+
 
 
 ##### metabolic biomass

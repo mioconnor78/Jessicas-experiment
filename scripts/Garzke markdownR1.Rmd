@@ -81,7 +81,7 @@ model.sel(CT2, CT3, CT4)
 
 ## 0.5. Temporal Results: Pp size over time (8 weeks)
 
-```{r, echo = FALSE, Fig_S2.01, fig.width=5, fig.height=3}
+```{r, echo = FALSE, Fig_S2.01b, fig.width=5, fig.height=3}
 mba1.time <- ggplot(data = alldata1, aes(x = week, y = log(FN.N), group = Tank, ymin = 0, shape = trophic.level)) +
   theme_bw() +
   theme(legend.position = "none") +
@@ -206,14 +206,15 @@ TCchla$week <- as.integer(TCchla$week)
 ```
 
 ### 1.2 duplicate TC analysis with TCmb
-```{r, echo = FALSE}
+#```{r, echo = FALSE}
 TCmodb <- lme(TCMb ~ I(invTavg-mean(invTavg))*week, random = ~ 1|power + 1|week, data=TCvol, method = "REML", na.action = na.omit)
 TCmodc <- lme(TCMb ~ I(invTavg-mean(invTavg))*week, random = ~ 1|power, data=TCvol, method = "REML", na.action = na.omit)
 
 anova(TCmodc, TCmodb)
 
 ```
-```{r}
+
+#```{r}
 ## fixed effects model:
 TCVmodb <- lme(TCMb ~ 1 + I(invTavg-mean(invTavg))*week, random = ~ 1|power, data=TCvol, method="ML", na.action=na.omit)
 TCVmodc <- lme(TCMb ~ 1 + I(invTavg-mean(invTavg)) + week, random = ~ 1|power, data=TCvol, method="ML", na.action=na.omit)
@@ -224,7 +225,7 @@ TCVmodf <- lme(TCMb ~ 1 + week, random = ~ 1|power, data=TCvol, method="ML", na.
 TCVres <- data.frame(model.sel(TCVmodb, TCVmodc, TCVmodd, TCVmode, TCVmodf))
 ```
 
-```{r Fig_S2.04 TC Strength, fig.width=4, fig.height=3}
+```{r Fig_S2.04b TC Strength, fig.width=4, fig.height=3}
 TCM <- ggplot(data = TCm, aes(x = I(invTavg-mean(invTavg)), y = TCMb, ymin = 0, group = week, shape = as.factor(week), alpha = week)) +
   theme_bw() +
   theme(panel.grid.minor = element_blank(), 
@@ -336,9 +337,8 @@ TCvals9 <- TC.func9(TCchla[(TCchla$week=="9"),]$invTavg-mean(TCchla$invTavg))
 `r fig_nums("Fig_S2.03")`
 
 ```{r Fig_S2.04 TC Strength, fig.width=4, fig.height=3}
-TC <- ggplot(data = TCchla, aes(x = I(invTavg-mean(invTavg)), y = TC, ymin = 0, group = week, shape = as.factor(week), alpha = week)) +
+TC <- ggplot(data = TCchla, aes(x = -I(invTavg-mean(invTavg)), y = TC, ymin = 0, group = week, shape = as.factor(week), alpha = week)) +
   theme_bw() +
-  #theme(legend.position = "none") +
   theme(panel.grid.minor = element_blank(), 
         panel.grid.major = element_blank(),
         legend.text = element_text(size = 6), 
@@ -353,14 +353,14 @@ TC <- ggplot(data = TCchla, aes(x = I(invTavg-mean(invTavg)), y = TC, ymin = 0, 
   xlab("Temperature \n Weekly average T - grand mean T") 
 
 TC +
-  geom_smooth(data = TCchla[(TCchla$week == '2'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals2, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray80', size = 0.5) +
-  geom_smooth(data = TCchla[(TCchla$week == '3'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals3, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray70', size = 0.5) +
-  geom_smooth(data = TCchla[(TCchla$week == '4'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals4, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray60', size = 0.5) +
-  geom_smooth(data = TCchla[(TCchla$week == '5'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals5, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray50', size = 0.5) +
-  geom_smooth(data = TCchla[(TCchla$week == '6'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals6, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray40', size = 0.5) +
-  geom_smooth(data = TCchla[(TCchla$week == '7'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals7, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray30', size = 0.5) +
-  geom_smooth(data = TCchla[(TCchla$week == '8'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals8, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray20', size = 0.5) +
-  geom_smooth(data = TCchla[(TCchla$week == '9'),], aes(x = I(invTavg-mean(invTavg)), y = TCvals9, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 0.5) 
+  geom_smooth(data = TCchla[(TCchla$week == '2'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals2, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray80', size = 0.5) +
+  geom_smooth(data = TCchla[(TCchla$week == '3'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals3, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray70', size = 0.5) +
+  geom_smooth(data = TCchla[(TCchla$week == '4'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals4, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray60', size = 0.5) +
+  geom_smooth(data = TCchla[(TCchla$week == '5'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals5, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray50', size = 0.5) +
+  geom_smooth(data = TCchla[(TCchla$week == '6'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals6, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray40', size = 0.5) +
+  geom_smooth(data = TCchla[(TCchla$week == '7'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals7, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray30', size = 0.5) +
+  geom_smooth(data = TCchla[(TCchla$week == '8'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals8, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray20', size = 0.5) +
+  geom_smooth(data = TCchla[(TCchla$week == '9'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals9, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 0.5) 
 
 ggsave("Fig1.png", device = "png")
 ```
@@ -576,7 +576,7 @@ tcp1 <- lme(log(NPP2) ~ 1 + trophic.level, random = ~ 1 | Tank, data=data1, meth
 #anova(tcp1)
 ```
 
-```{r, NEP model selection, echo=FALSE}
+```{r, NEP model selection b, echo=FALSE}
 # NPP - trying with mass normalized, mass corrected; 
 # need a PP carbon estimate for Mt, and a individual size est for mi; might help
 # chlorophyll scales with m^0.75, so if we include chla, we don't need it to scale allometrically
@@ -594,7 +594,7 @@ modNPPF <- lme(log(NPP2) ~ 1 + trophic.level*I(log(chla)) + I(invTi - invTT) +  
 modNPPFa <- lme(log(NPP2) ~ 1 + trophic.level + I(invTi - invTT) + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
 ```
 
-```{r, NEP model selection, echo=FALSE}
+```{r, NEP model selection a, echo=FALSE}
 # NPP candidate model set -------------------------------------------------
 modNPPFb <- lme(log(NPP2) ~ 1 + I(log(chla)) + I(invTi - invTT) + I(invTT - mean(invTT)) + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data1, method="ML", na.action=na.omit)
 
