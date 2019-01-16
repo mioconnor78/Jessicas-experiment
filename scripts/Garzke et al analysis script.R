@@ -6,7 +6,7 @@
 ### load libraries
 library(MuMIn)
 library(nlme)
-#library(plyr)
+library(plyr)
 library(tidyverse) 
 library(broom)
 library(reshape2)
@@ -100,8 +100,6 @@ data.t2 <- data.t2 %>%
   unite(date_complete, Year, Month, Date, sep = "-") %>%
   mutate(date_formatted = ymd(date_complete)) 
 
-## PROBLEM HERE WITH MERGING AND TEMP COLUMNS...
-
 ## join temps4 and data by the date, time and tank for each oxygen sampling time (hour)
 ## this join is creating some extra temp columns (temp.x, temp.y) but we don't need those so don't worry about them.
 data.t3 <- left_join(data.t2, temps4, by = c("date_formatted", "week", "Tank", "d1Hour" = "time")) #, suffix = c(".x", ".d1")
@@ -111,17 +109,21 @@ data.t3 <- left_join(data.t3, temps4, by = c("date_formatted", "week", "Tank", "
 data.t3 <- dplyr::rename(data.t3, temp.dk = T4hrs)
 
 data.t3 <- data.t3 %>%
-  mutate(d2.date = date_formatted + 1) %>%
-  mutate(d2.week = week + 1) 
+  mutate(d2.date = date_formatted + 1) 
 
-## ok this is nearly right but now we have a week 10 for the last day, but that doesn't exist in data.t3... so, can i work around this by calling the last four hours of week 9, week 10? and use those temps?
 temps4a <- temps4 %>%
-  #
-  2012-08-28, time  > 21 --> week == 9, date == 2012-08-29
+  mutate(date_formatted2 = date_formatted)
 
-data.t4 <- left_join(data.t3, temps4, by = c("d2.date" = "date_formatted", "d2.week" = "week", "Tank", "d2Hour" = "time")) #, suffix = c(".x", ".d2")
-data.t4 <- dplyr::rename(data.t4, temp.d2 = T4hrs)
+temps4a[(temps4$date_formatted == "2012-08-28" & temps4$time > "20"),]$date_formatted2 <- "2012-08-29"
 
+## ok this is nearly right but now we have a week 10 for the last day, but that doesn't exist in data.t3... so, can i work around this by calling the last four hours of week 9, week 10? and use those temps? or, don't merge by week (date is enough, and hten we just have to deal with the date thing.)
+
+data.t4 <- left_join(data.t3, temps4a, by = c("d2.date" = "date_formatted2", "Tank", "d2Hour" = "time")) #, suffix = c(".x", ".d2")
+
+data.t4 <- data.t4 %>%
+  dplyr::rename(temp.d2 = T4hrs) %>%
+  select(- week.y)  %>%
+  dplyr::rename(week = week.x)
 
 
 ## create a column for tank rank within trophic trt

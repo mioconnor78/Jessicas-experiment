@@ -29,7 +29,7 @@ library(captioner)
 
 ```{r load data}
 ### load data
-data <- read.csv("../data/GarzkedataA.csv")
+#data <- read.csv("../data/GarzkedataA.csv")
 alldata <- read.csv("../data/GarzkeAllwks.csv")
 ppsizes <- read.csv("../data/PPsizes.csv")
 alldata1<- left_join(alldata, ppsizes, by = c("Tank" = "tank", "week"))
@@ -72,7 +72,7 @@ Chl.time <- ggplot(data = alldata, aes(x = week, y = log(chla), ymin = 0, shape 
 
 Chl.time
 
-CT1 <- lme(I(log(chla)) ~ week, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
+CT1 <- lme(I(log(chla)) ~ week, random = ~ 1 | Tank, data=alldata, method="ML", na.action=na.omit) 
 CT2 <- lme(I(log(chla)) ~ week*trophic.level, random = ~ 1 | Tank, data=alldata, method="ML", na.action=na.omit)
 CT3 <- lme(I(log(chla)) ~ week+trophic.level, random = ~ 1 | Tank, data=alldata, method="ML", na.action=na.omit)
 CT4 <- lme(I(log(chla)) ~ week, random = ~ 1 | Tank, data=alldata, method="ML", na.action=na.omit)
@@ -122,7 +122,7 @@ Chl.temp <- ggplot(data = alldata, aes(x = temp.wk, y = log(chla), ymin = 0)) +
 
 Chl.temp
 
-CT2 <- lme(I(log(chla)) ~ temp.wk, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
+CT2 <- lme(I(log(chla)) ~ temp.wk, random = ~ 1 | Tank, data=alldata, method="ML", na.action=na.omit) 
 
 ```
 
