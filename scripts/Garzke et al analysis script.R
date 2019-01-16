@@ -38,10 +38,11 @@ temps3$Year <- rep(2012, length(temps3[,1]))
 temps4 <- temps3 %>% 
   unite(date_complete, Year, Month, Day, sep = "-") %>%
   mutate(date_formatted = ymd(date_complete)) %>% 
-  filter(!is.na(date_formatted))
+  filter(!is.na(date_formatted)) %>%
+  select(-(date_complete)) ## just added this Jan 2019 to troubleshoot
 View(temps4)
 
-## there are too many readings for 7/3/2012, so remove this date:
+## there are too many readings for 7/3/2012, so remove this date (the first date; i checked others and all have 720 observations, which is right.):
 temps4 <- temps4 %>% 
   filter(., date_formatted != "2012-07-03")
 
@@ -103,16 +104,22 @@ data.t2 <- data.t2 %>%
 
 ## join temps4 and data by the date, time and tank for each oxygen sampling time (hour)
 ## this join is creating some extra temp columns (temp.x, temp.y) but we don't need those so don't worry about them.
-data.t3 <- left_join(data.t2, temps4, by = c("date_formatted", "date_complete", "week", "Tank", "d1Hour" = "time")) #, suffix = c(".x", ".d1")
+data.t3 <- left_join(data.t2, temps4, by = c("date_formatted", "week", "Tank", "d1Hour" = "time")) #, suffix = c(".x", ".d1")
 data.t3 <- dplyr::rename(data.t3, temp.d1 = T4hrs)
 
-data.t3 <- left_join(data.t3, temps4, by = c("date_formatted", "date_complete", "week", "Tank", "dkHour" = "time")) #, suffix = c(".x", ".dk")
+data.t3 <- left_join(data.t3, temps4, by = c("date_formatted", "week", "Tank", "dkHour" = "time")) #, suffix = c(".x", ".dk")
 data.t3 <- dplyr::rename(data.t3, temp.dk = T4hrs)
 
 data.t3 <- data.t3 %>%
-  mutate(d2.date = date_formatted + 1)
+  mutate(d2.date = date_formatted + 1) %>%
+  mutate(d2.week = week + 1) 
 
-data.t4 <- left_join(data.t3, temps4, by = c("d2.date" = "date_formatted", "date_complete", "week","Tank", "d2Hour" = "time")) #, suffix = c(".x", ".d2")
+## ok this is nearly right but now we have a week 10 for the last day, but that doesn't exist in data.t3... so, can i work around this by calling the last four hours of week 9, week 10? and use those temps?
+temps4a <- temps4 %>%
+  #
+  2012-08-28, time  > 21 --> week == 9, date == 2012-08-29
+
+data.t4 <- left_join(data.t3, temps4, by = c("d2.date" = "date_formatted", "d2.week" = "week", "Tank", "d2Hour" = "time")) #, suffix = c(".x", ".d2")
 data.t4 <- dplyr::rename(data.t4, temp.d2 = T4hrs)
 
 
