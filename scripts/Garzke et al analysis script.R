@@ -6,7 +6,7 @@
 ### load libraries
 library(MuMIn)
 library(nlme)
-library(plyr)
+#library(plyr)
 library(tidyverse) 
 library(broom)
 library(reshape2)
@@ -28,6 +28,7 @@ data$Tank <- as.character(data$Tank)
 ### extract temps from datalogger data, and only use these temps.
 temps2 <- melt(temps, id = c("Hours", "Date", "Week"))
 names(temps2) <- c('time', 'date','week','Tank', 'temp')  
+temps2 <- na.omit(temps2)
 temps3 <- tidyr::separate(temps2, Tank, c("X", "Tank"), sep = 1)
 temps3 <- temps3[,-4]
 temps3 <- tidyr::separate(temps3, date, c("Day", "Month", "Year"), sep = "/")
@@ -47,6 +48,7 @@ temps4 <- temps4 %>%
 ## estimate moving avg temp over four hours
 temps4 <- temps4 %>% 
   mutate(T4hrs = rollmean(temp, 4, align = "right", fill = "NA"))
+temps4 <- na.omit(temps4)
 
 # calculate mean weekly temps
 temps.wk <- temps4 %>%
@@ -96,6 +98,8 @@ data.t2 <- data.t %>%
 data.t2 <- data.t2 %>% 
   unite(date_complete, Year, Month, Date, sep = "-") %>%
   mutate(date_formatted = ymd(date_complete)) 
+
+## PROBLEM HERE WITH MERGING AND TEMP COLUMNS...
 
 ## join temps4 and data by the date, time and tank for each oxygen sampling time (hour)
 ## this join is creating some extra temp columns (temp.x, temp.y) but we don't need those so don't worry about them.
