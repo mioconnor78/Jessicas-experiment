@@ -1,5 +1,8 @@
 ---
-title: "Temperature dependence of biomass and ecosystem function depend on species interactions. Supplementary File 2: Phytoplankton and oxygen flux results in main text."
+title: "Trophic interactions modify the temperature dependence of community biomass and ecosystem function."
+author: Jessica Garzke, Stephanie J. Connor, Ulrich Sommer and Mary I O'Connor
+date: today
+subtitle: "Supplementary File: Expanded statistical results"
 output:
   pdf_document: default
   html_document: default
@@ -15,11 +18,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ### load libraries
 library(MuMIn)
 library(nlme)
-<<<<<<< HEAD
 library(plyr)
-=======
-#library(plyr)
->>>>>>> 04f3eb90560ec84b2c2697ade69c4ce2708c1e9b
 library(tidyverse) 
 library(broom)
 library(reshape2)
@@ -39,10 +38,14 @@ ppsizes <- read.csv("../data/PPsizes.csv")
 alldata1<- left_join(alldata, ppsizes, by = c("Tank" = "tank", "week"))
 k <- 8.617342*10^-5  # eV/K
 labels <- c(P = "Algae", PZ = "Algae + Grazers", PZN = "Algae + Grazers + Predators")
+alldata$trophic.level2 <- alldata1$trophic.level
+levels(alldata$trophic.level2) <- c("A", "AG", "AGP")
 ```
 
 ```{r captions, echo = FALSE}
 table_nums <- captioner::captioner(prefix = "Table S2.") #sets prefix for all tables
+table_nums(name = "Table_S1.1", caption = "Model selection results: Chlorophyll a variation over time and with trophic treatment, weeks 2-9.", display = FALSE)
+table_nums(name = "Table_S1.2", caption = "Model selection results: Chlorophyll a variation over time and with trophic treatment, weeks 2-7.", display = FALSE)
 table_nums(name = "Table_S2.01", caption = "Model selection results for Trophic Cascade strength (Chl a) for linear mixed effects model", display = FALSE)
 table_nums(name = "Table_S2.1", caption = "Model selection results for Phytoplankton (Chl a) for linear mixed effects model", display = FALSE)
 table_nums(name = "Table_S2.2", caption = "Parameter estimates from model PB8 (Table S2.1) for Phytoplankton (Chl a) for linear mixed effects model", display = FALSE)
@@ -52,40 +55,80 @@ table_nums(name = "Table_S2.5", caption = "Model selection results for Net Ecosy
 table_nums(name = "Table_S2.6", caption = "Confidence intervals for model ER7 (Table S2.5) (For MS Figure 3", display = FALSE)
 
 fig_nums <- captioner::captioner(prefix = "Figure S2.")
-fig_nums(name = "Fig_S2.01", caption = "Chlorophyll a concentration over time", display = FALSE)
-fig_nums(name = "Fig_S2.03", caption = "Trophic Cascade strength by temperature and week", display = FALSE)
+fig_nums(name = "Fig_S1.1", caption = "Chlorophyll a concentration over time. Phytoplankton biomass, estimated as concentration of chlorophyll a pigment, for weekly sampling dates between July 3, 2012 (week 2) and August 28, 2012 (week 9). Experimental ecosystems were subjected to one of three trophic structure treatments: phytoplankton only (P), phytoplankton + zooplankton grazers (PZ), and phytoplankton, zooplankton grazers + predatory Notonectids (PZN). Tanks were sampled once per week, and gray lines connect repeated measurements of each tank (1 - 30).", display = FALSE)
+
+#fig_nums(name = "Fig_S2.X", caption = "Frequency Distribution of Trophic Cascade Strength (Weeks 2 - 8)", display = FALSE)
+
+fig_nums(name = "Fig_S2.2", caption = "Trophic Cascade strength by temperature and week", display = FALSE)
 fig_nums(name = "Fig_S2.1", caption = "Chlorophyll a concentration", display = FALSE)
 fig_nums(name = "Fig_S2.2", caption = "Trophic Treatment Effects on Chlorophyll a, Net Oxygen Ecosystem Production (NEP), and Net Ecosystem Respiration (ER)", display = FALSE)
 fig_nums(name = "Fig_S2.3", caption = "Manuscript figure 3: Effects of temperature on oxygen flux and phytoplankton standing stock", display = FALSE)
 ```
 
-## 0.01. Temporal Results: Chlorophyll over time (8 weeks)
-
-```{r, echo = FALSE, Fig_S2.01, fig.width=5, fig.height=3}
-Chl.time <- ggplot(data = alldata, aes(x = week, y = log(chla), ymin = 0, shape = trophic.level, alpha = trophic.level)) +
+# 1. Results: Temporal patterns
+## 1.1. Chlorophyll over time (8 weeks)
+```{r, echo = FALSE, Fig_S1.1, fig.width=6, fig.height=3}
+Chl.time <- ggplot(data = alldata, aes(x = week, y = log(chla), group = Tank), ymin = 0, shape = trophic.level2) +
   theme_bw() +
-  #theme(legend.position = "none") +
-  geom_point() +
-  facet_grid(trophic.level ~ .) +
+   geom_line(color = 'gray80') +
+   geom_point() +
+  facet_grid(trophic.level2 ~ .) +
   theme(panel.grid.minor = element_blank(), 
         panel.grid.major = element_blank(),  
-        legend.text = element_text(size = 6), 
-        legend.title = element_text(size = 7), 
         strip.background = element_blank()) +
-  ylab("Phytoplankton Abundance \n ln(ug Chl a / L)")
-
-Chl.time
-
-CT1 <- lme(I(log(chla)) ~ week, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
-CT2 <- lme(I(log(chla)) ~ week*trophic.level, random = ~ 1 | Tank, data=alldata, method="ML", na.action=na.omit)
-CT3 <- lme(I(log(chla)) ~ week+trophic.level, random = ~ 1 | Tank, data=alldata, method="ML", na.action=na.omit)
-CT4 <- lme(I(log(chla)) ~ week, random = ~ 1 | Tank, data=alldata, method="ML", na.action=na.omit)
-model.sel(CT2, CT3, CT4)
+    theme(legend.position = "none") +
+  ylab("Phytoplankton Abundance \n ln(ug Chl a / L)") +
+  xlab("Time (Experimental Week 2 - Week 8)")
 ```
 
-## 0.01b. Temporal Results: Pp size over time (8 weeks)
+`r fig_nums("Fig_S1.1")`
+
+```{r}
+Chl.time
+```
+
+
+&nbsp;
+
+&nbsp;
+
+\pagebreak
+
+### Full model: lme(I(log(chla)) ~ week*trophic.level, random = ~ 1 | Tank, data=alldata, method="ML", na.action=na.omit)
+
+Chlorophyll concentration (ln[Chla]) declined over time and varied with trophic treatment. There was a signficant temperature*week interaction (Table S1.1). When we re-run the model using weeks 2-7, we see evidence of a slight increase in chlorophyll concentration over time (Table S1.2). Together these results suggest the negative trend in chlorophyll is drive by the drop in week 8, across all treatments. This is concurrent with a cooling event and a large storm. 
+```{r, echo = FALSE}
+CT1 <- lme(I(log(chla)) ~ week*trophic.level, random = ~ 1 | Tank, data=alldata, method="ML", na.action=na.omit)
+CT2 <- lme(I(log(chla)) ~ week+trophic.level, random = ~ 1 | Tank, data=alldata, method="ML", na.action=na.omit)
+CT3 <- lme(I(log(chla)) ~ week, random = ~ 1 | Tank, data=alldata, method="ML", na.action=na.omit)
+CT4 <- lme(I(log(chla)) ~ 1, random = ~ 1 | Tank, data=alldata, method="ML", na.action=na.omit)
+CTres <- model.sel(CT1, CT2, CT3, CT4)
+```
+
+```{r, echo = FALSE}
+CT1s <- lme(I(log(chla)) ~ week*trophic.level, random = ~ 1 | Tank, data=alldata[(alldata$week < 8),], method="ML", na.action=na.omit)
+CT2s <- lme(I(log(chla)) ~ week+trophic.level, random = ~ 1 | Tank, data=alldata[(alldata$week < 8),], method="ML", na.action=na.omit)
+CT3s <- lme(I(log(chla)) ~ week, random = ~ 1 | Tank, data=alldata[(alldata$week < 8),], method="ML", na.action=na.omit)
+CT4s <- lme(I(log(chla)) ~ 1, random = ~ 1 | Tank, data=alldata[(alldata$week < 8),], method="ML", na.action=na.omit)
+CTsres <- model.sel(CT1s, CT2s, CT3s, CT4s)
+```
+
+`r table_nums("Table_S1.1")`
+
+```{r Table_S1.1 Chlorophyll a over time}
+kable(CTres, digits=2, col.names = c('Int','TrophicLev','Week','TL*Wk','df','logLik','AICc','d','w'))
+```
+
+
+`r table_nums("Table_S1.2")`
+
+```{r Table_S1.2 Chlorophyll a over time}
+kable(CTsres, digits=2, col.names = c('Int','TrophicLev','Week','TL*Wk','df','logLik','AICc','d','w'))
+```
+
 
 ```{r, echo = FALSE, Fig_S2.01b, fig.width=5, fig.height=3}
+## 0.01b. Temporal Results: Pp size over time (8 weeks)
 mba1.time <- ggplot(data = alldata1, aes(x = week, y = log(FN.N), group = Tank, ymin = 0, shape = trophic.level)) +
   theme_bw() +
   theme(legend.position = "none") +
@@ -99,7 +142,7 @@ mba1.time <- ggplot(data = alldata1, aes(x = week, y = log(FN.N), group = Tank, 
         strip.background = element_blank()) +
   ylab("Phytoplankton mass corrected cell size \n ln(ug / L)")
 
-mba1.time
+#mba1.time
 
 ## I'm being an idiot; in these models and figures, I'm analyzing tank-level metabolic biomass over time. but the question i need to address in the paper is about actual estimated cell size, so that needs to be donw on the raw observations, not these estimates. so, back to the size org file for that.
 
@@ -111,9 +154,10 @@ mods1 <- lme(log(Omba1) ~  1 + I(invTi - invTT) + trophic.level + trophic.level*
 
 ```
 
+
+```{r, echo = FALSE, Fig_S2.2, fig.width=5, fig.height=3}
 ## 0.02. Temporal Results: Chlorophyll over temperatures 
 
-```{r, echo = FALSE, Fig_S2.02, fig.width=5, fig.height=3}
 Chl.temp <- ggplot(data = alldata, aes(x = temp.wk, y = log(chla), ymin = 0)) +
   theme_bw() +
   theme(legend.position = "none") +
@@ -124,72 +168,91 @@ Chl.temp <- ggplot(data = alldata, aes(x = temp.wk, y = log(chla), ymin = 0)) +
         strip.background = element_blank()) +
   ylab("Phytoplankton Abundance \n ln(ug Chl a / L)")
 
-Chl.temp
-
+#Chl.temp
 CT2 <- lme(I(log(chla)) ~ temp.wk, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
-
 ```
 
-# 1. Trophic Cascade Results (Figure 2 Main text)
-## 1.1 Trophic cascade (TC) is defined as log(PZN/PZ) for Chlorophyll a
+# 2. Results: Trophic Cascade Results 
+#### These results support Table 1 and Figure 2, Main text. We defined the trophic cascade (TC) as log(AGP/AG) for Chlorophyll a. 
+
 ```{r, echo = FALSE, Fig_S2.03, fig.width=3, fig.height=3}
 ### Calculate strength of grazing and strength of the trophic cascade on chla
-#estimate mean temp for each power level
-#alldata$week <- factor(alldata$week)
-#alldata$power <- factor(alldata$power)
 
 temps.pwr <- alldata %>%
   group_by(week, power) %>%
   dplyr::summarize(avgTemp = mean(average.temp, na.rm = TRUE))
 #View(temps.pwr)
 
-TCchla <- as.tibble(alldata) %>%
+TCchla <- as_tibble(alldata) %>%
 group_by(week) %>%
 select(., week, power, trophic.level, chla) %>%
 spread(., trophic.level, chla) %>%
 left_join(., temps.pwr, by = c("week", "power")) %>%
 mutate(., invTavg = 1/((avgTemp + 273)*k)) %>%
-mutate(., TC = log(PZN/PZ)) 
+mutate(., TC = (PZN/PZ)) %>% #log 
+filter(TC < 20) # remove one outlier
 
+TCchla$week <- as.integer(TCchla$week)
 data <- TCchla
-
-hist(TCchla$TC)
-#hist(log(TCchla$TC))
 ```
 
-## exploring mass normalized trophic cascade. I didn't leave this in because I don't have high confidence in our mass normalized data, due to the coarse estimates of size. see markdownR1.Rmd for mass normalized trophic cascade results.
 
-```{r, echo = FALSE}
-
-TCchla$week <- as.integer(TCchla$week) 
-  
-```
-
-## 1.1.2 Use nlme to compare fixed and ranefs
-
-```{r, echo = FALSE}
-## in nlme
-#library(nlme)
-#TCmoda <- lme(TC ~ I(invTavg-mean(invTavg))*week, random = ~ 1|power + I(invTavg-mean(invTavg))|week, data=TCchla, method = "REML")
-# TCmodba <- lme(TC ~ I(invTavg-mean(invTavg))*week, random = list(~ 1|power, ~1|week), data=TCchla, method = "ML") this nests them and i don't want that
-TCmodb <- lme(TC ~ I(invTavg-mean(invTavg))*week, random = ~ 1|power + 1|week, data=TCchla, method = "REML")
-TCmodc <- lme(TC ~ I(invTavg-mean(invTavg))*week, random = ~ 1|power, data=TCchla, method = "REML")
-
-#anova(TCmodc, TCmodb)
-# contrary to lme4 output, b wins here, with lower aic and significant chi squared ratio.
-# for the same model (TCmodc), the outputs and inferences are similar between lmer and lme. the problem is that the model comparisons give different 'best models'; I think modc makes the most sense, i'm having a hard time understanding the 1|week random effect on intercept, when we already have a fixed effect 
+```{r, fig.width=4, fig.height=3}
+#### 2.1: TC data distribution. 
+#`r fig_nums("Fig_S2.1")`
+#hist(TCchla$TC, main = "", xlab = "TC", col = 'gray80', cex.axis = 0.8)
 ```
 
 ```{r}
-## fixed effects model:
-TCmodb <- lme(TC ~ 1 + I(invTavg-mean(invTavg))*week, random = ~ 1|power, data=TCchla, method="ML", na.action=na.omit)
-TCmodc <- lme(TC ~ 1 + I(invTavg-mean(invTavg)) + week, random = ~ 1|power, data=TCchla, method="ML", na.action=na.omit)
-TCmodd <- lme(TC ~ 1 + I(invTavg-mean(invTavg)), random = ~ 1|power, data=TCchla, method="ML", na.action=na.omit)
-TCmode <- lme(TC ~ 1 + week, random = ~ 1|power, data=TCchla, method="ML", na.action=na.omit)
-TCmodf <- lme(TC ~ 1 + week, random = ~ 1|power, data=TCchla, method="ML", na.action=na.omit)
-
-TCres <- data.frame(model.sel(TCmodb, TCmodc, TCmodd, TCmode, TCmodf))
+#plot(TCchla$TC ~ TCchla$week)
+#plot(TCchla$TC ~ I(-TCchla$week^2))
 ```
+
+&nbsp;
+
+### Full model for trophic cascade strength: 
+
+lme(log(TC) ~ 1 + I(invTavg-mean(invTavg))*week, random = ~ 1|power, data=TCchla, method="ML", na.action=na.omit)
+
+Following Equation 5 in the main text, we modeled the strength of the trophic cascade (TC) against inverse temperature (1/kT) centered on the mean temperature and experimental week (2-8). We allowed the intercept to vary randomly with the 'power' of the heater applied, which varied from 0 - 450 watts in 50 watt increments. 
+
+```{r, echo = FALSE}
+## fixed effects model:
+TCFull <- lme(log(TC) ~ 1 + I(-(invTavg-mean(invTavg)))*week, random = ~ 1|power, data=TCchla, method="ML", na.action=na.omit)
+TCmodc <- lme(log(TC) ~ 1 + I(-(invTavg-mean(invTavg))) + week, random = ~ 1|power, data=TCchla, method="ML", na.action=na.omit)
+TCmodd <- lme(log(TC) ~ 1 + I(-(invTavg-mean(invTavg))), random = ~ 1|power, data=TCchla, method="ML", na.action=na.omit)
+TCmode <- lme(log(TC) ~ 1 + week, random = ~ 1|power, data=TCchla, method="ML", na.action=na.omit)
+TCmodf <- lme(log(TC) ~ 1, random = ~ 1|power, data=TCchla, method="ML", na.action=na.omit)
+
+TCres <- data.frame(model.sel(TCFull, TCmodc, TCmodd, TCmode, TCmodf))
+
+TCFulls <- lme(log(TC) ~ 1 + I(-(invTavg-mean(invTavg)))*week, random = ~ 1|power, data=TCchla, method="REML", na.action=na.omit)
+```
+
+
+Figure with model predictions from best model (the full model), fit with REML. Model predictions here include random effects of 'power'; Figure 2 in the main text shows model estimated fixed effects without random effects. 
+&nbsp;
+
+```{r Fig_S2.2 TC Strength, fig.width=4, fig.height=3}
+TC <- ggplot(data = TCchla, aes(x = -I(invTavg-mean(invTavg)), y = log(TC), ymin = 0, group = week, shape = as.factor(week), alpha = week)) +
+  theme_bw() +
+  theme(panel.grid.minor = element_blank(), 
+        panel.grid.major = element_blank(),
+        legend.text = element_text(size = 6), 
+        legend.title = element_text(size = 7), 
+        legend.key = element_rect(fill = NA), 
+        strip.background = element_rect(colour="white", fill="white")) +
+  geom_point() +
+  scale_alpha(guide = "none") +
+  scale_shape_manual(guide = guide_legend(title = "Week"), values = c(1,2,22,23,8,15,16,17)) +
+  ylab(bquote(~"Trophic Cascade \n"~"ln(chla"[+AGP]~")/(chla"[-AG]~")")) +
+  xlab("Temperature \n Weekly average T - grand mean T") 
+
+TC + geom_line(data=transform(TCchla, TC=exp(predict(TCFulls))))
+```
+
+&nbsp;
+
 
 `r table_nums("Table_S2.01")`
 
@@ -197,17 +260,21 @@ TCres <- data.frame(model.sel(TCmodb, TCmodc, TCmodd, TCmode, TCmodf))
 kable(TCres, digits=2, col.names = c('Int','T','Wk','T*Wk','df','logLik','AICc','d','w'))
 ```
 
-## Summary of best model: trophic cascade strength
-```{r}
-summary(TCmodb)
+## Summary of best model: trophic cascade strength - Full Model.
 
-intervals(TCmodb)
+```{r}
+summary(TCFulls)
 ```
 
 ```{r}
+intervals(TCFulls)
+```
+
+```{r}
+#### This code produces Figure 2 in the main text
 #### Calculate confidence intervals and model coefficients for TC figure
 ## I"m very sure there is a better way to do this - predict values from the model. i should learn that.
-mod <- TCmodb
+mod <- TCFulls
 
 # slopes
 Slw2 <- fixef(mod)[2] + fixef(mod)[4]*0
@@ -260,7 +327,7 @@ TCvals9 <- TC.func9(TCchla[(TCchla$week=="9"),]$invTavg-mean(TCchla$invTavg))
 `r fig_nums("Fig_S2.03")`
 
 ```{r Fig_S2.04 TC Strength, fig.width=4, fig.height=3}
-TC <- ggplot(data = TCchla, aes(x = -I(invTavg-mean(invTavg)), y = TC, ymin = 0, group = week, shape = as.factor(week), alpha = week)) +
+TC <- ggplot(data = TCchla, aes(x = -I(invTavg-mean(invTavg)), y = log(TC), ymin = 0, group = week, shape = as.factor(week), alpha = week)) +
   theme_bw() +
   theme(panel.grid.minor = element_blank(), 
         panel.grid.major = element_blank(),
@@ -271,37 +338,25 @@ TC <- ggplot(data = TCchla, aes(x = -I(invTavg-mean(invTavg)), y = TC, ymin = 0,
   geom_point() +
   scale_alpha(guide = "none") +
   scale_shape_manual(guide = guide_legend(title = "Week"), values = c(1,2,22,23,8,15,16,17)) +
-  ylab(bquote(~"Trophic Cascade"~"ln(chla"[+P]~")/(chla"[-P]~")")) +
-    #paste("Trophic Cascade Strength \n", "", expression(chla[+P]), ")")) + #) ln(PZN / PZ[Chla])" +
+  ylab(bquote(~"Trophic Cascade"~"ln(chla"[AGP]~")/(chla"[AG]~")")) +
   xlab("Temperature \n Weekly average T - grand mean T") 
 
-TC +
-  geom_smooth(data = TCchla[(TCchla$week == '2'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals2, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray80', size = 0.5) +
-  geom_smooth(data = TCchla[(TCchla$week == '3'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals3, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray70', size = 0.5) +
-  geom_smooth(data = TCchla[(TCchla$week == '4'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals4, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray60', size = 0.5) +
-  geom_smooth(data = TCchla[(TCchla$week == '5'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals5, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray50', size = 0.5) +
-  geom_smooth(data = TCchla[(TCchla$week == '6'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals6, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray40', size = 0.5) +
-  geom_smooth(data = TCchla[(TCchla$week == '7'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals7, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray30', size = 0.5) +
-  geom_smooth(data = TCchla[(TCchla$week == '8'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals8, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray20', size = 0.5) +
-  geom_smooth(data = TCchla[(TCchla$week == '9'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals9, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 0.5) 
+#TC + geom_smooth(data = TCchla[(TCchla$week == '2'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals2, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray80', size = 0.5) + geom_smooth(data = TCchla[(TCchla$week == '3'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals3, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray70', size = 0.5) + geom_smooth(data = TCchla[(TCchla$week == '4'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals4, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray60', size = 0.5) + geom_smooth(data = TCchla[(TCchla$week == '5'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals5, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray50', size = 0.5) +  geom_smooth(data = TCchla[(TCchla$week == '6'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals6, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray40', size = 0.5) +  geom_smooth(data = TCchla[(TCchla$week == '7'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals7, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray30', size = 0.5) + geom_smooth(data = TCchla[(TCchla$week == '8'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals8, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray20', size = 0.5) + geom_smooth(data = TCchla[(TCchla$week == '9'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals9, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 0.5) 
 
-ggsave("Fig1.png", device = "png")
+#ggsave("Fig1.png", device = "png")
 ```
 
-### 1.2. Strength of trophic cascade on NPP2
-```{r, echo = FALSE, Fig_S2.05, fig.width=3, fig.height=3}
-#estimate mean temp for each power level
-#alldata$week <- factor(alldata$week)
-#alldata$power <- factor(alldata$power)
 
-TCNPP <- as.tibble(alldata) %>%
+```{r, echo = FALSE, Fig_S2.05, fig.width=3, fig.height=3}
+# 3. Results: Strength of trophic cascade on net ecosystem oxygen production (NPP)
+TCNPP <- as_tibble(alldata) %>%
 group_by(week) %>%
 select(., week, power, trophic.level, NPP2) %>%
 spread(., trophic.level, NPP2) %>%
 left_join(., temps.pwr, by = c("week", "power")) %>%
 mutate(., TC = log(PZN/PZ)) 
 
-hist(TCNPP$TC)
+#hist(TCNPP$TC)
 ```
 
 ```{r, Fig_S2.06, fig.width=3, fig.height=3}
@@ -317,11 +372,11 @@ TCNPP <- ggplot(data = TCNPP, aes(x = avgTemp, y = TC, ymin = 0)) +
   theme(strip.background = element_rect(colour="white", fill="white")) +
   geom_point(aes(group = week, shape = as.factor(week)), size = 2) 
 
-TCNPP
+#TCNPP
 ```
 
 
-### 2.1 Phytoplankton abundance (for Figure 3, Table 2 main text)
+# 3. Results: Phytoplankton abundance (for Figure 3, Table 2 main text)
 
 `r fig_nums("Fig_S2.1")`
 
@@ -331,7 +386,7 @@ hist(data$chla)
 hist(log(data$chla))
 ```
 
-## 2.1.1 Phytoplankton abundance candidate models
+## 3.1.1 Phytoplankton abundance candidate models
 ```{r, echo=FALSE}
 #### Phytoplankton coefficients for Figure 2
 data <- alldata
@@ -468,8 +523,9 @@ Fig2ABC <- PP.plot +
 ```
 
 
-## 2.1.1b Phytoplankton metabolic biomass candidate models
+
 ```{r, echo=FALSE}
+## 2.1.1b Phytoplankton metabolic biomass candidate models
 #### Phytoplankton coefficients for Figure 2
 data <- alldata1
 modPBF <- lme(log(mba1) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
@@ -489,11 +545,7 @@ PPres <- data.frame(model.sel(modPB0, modPB1, modPB2, modPB3, modPB4, modPB5, mo
 #
 ## 2.2 Net ecosystem oxygen production
 ```{r, fig.width=3, fig.height=3, echo = FALSE}
-<<<<<<< HEAD
-data1 <- data[(data$NPP2 >= 0.00001),] #remove 21 negative values 
-=======
 data1 <- alldata1[(alldata1$NPP2 >= 0.00001),] #remove 21 negative values 
->>>>>>> 04f3eb90560ec84b2c2697ade69c4ce2708c1e9b
 hist(data1$NPP2)
 hist(log(data1$NPP2))
 
@@ -717,14 +769,8 @@ Fig2DEF <-
 
 ##### 2.2 Net ecosystem oxygen consumption (ER)
 
-<<<<<<< HEAD
-```{r, Table_2.3, fig.width=3, fig.height=3}
-hist(data$ER2)
-=======
-# so data is still alldata1
 ```{r, Table_2.3, fig.width=3, fig.height=3}
 hist(alldata1$ER2)
->>>>>>> 04f3eb90560ec84b2c2697ade69c4ce2708c1e9b
 hist(log(data$ER2))
 data2 <- data[(data$ER2 >= 0),] #no values removed
 data2 <- data[!is.na(data$ER2),]
