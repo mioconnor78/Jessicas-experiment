@@ -178,7 +178,7 @@ CT2 <- lme(I(log(chla)) ~ temp.wk, random = ~ 1 | Tank, data=data, method="ML", 
 ```{r, echo = FALSE, Fig_S2.03, fig.width=3, fig.height=3}
 ### Calculate strength of grazing and strength of the trophic cascade on chla
 
-temps.pwr <- alldata %>%
+temps.pwr <- alldata1 %>%
   group_by(week, power) %>%
   dplyr::summarize(avgTemp = mean(average.temp, na.rm = TRUE))
 #View(temps.pwr)
@@ -395,7 +395,7 @@ alldata1$TTcenter <- alldata1$invTT - mean(alldata1$invTT)
 alldata1$logChla <- log(alldata1$chla)
 #alldata1$Tcenter <- alldata1$invTT - mean(alldata1$invTT)
 data <- alldata1
-modPBF <- lme(log(chla) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
+modPBF <- lme(log(chla) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)) + I(invTi - invTT)*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit) 
 modPB8 <- lme(log(chla) ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
 modPB7 <- lme(log(chla) ~ 1 + I(invTi - invTT) + trophic.level + trophic.level*I(invTT - mean(invTT)), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
 modPB6 <- lme(log(chla) ~ 1 + trophic.level*I(invTi - invTT), random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
@@ -417,7 +417,7 @@ kable(PPres, digits=2, col.names = c('Int','TL','Tw','Tt', 'Tw*Tt', 'Tw*TL','Tt*
 
 ```{r}
 #### Calculate confidence intervals and model coefficients
-modPB <- modPB8 #modPB7
+modPB <- modPBF #modPB8
 
 # slope for PB.PP: 
 SlPB1 <- fixef(modPB)[5]
@@ -546,7 +546,7 @@ PP.plot2 <- ggplot(data = data, aes(x = invTi, y = log(chla), ymin = -1, ymax = 
 ggsave("Fig2B.png", device = "png")
 ```
 
-```{r}
+#```{r}
 #### tring to plot with visreg
 modPBp <- lme(logChla ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*Tcenter, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
 library(visreg)
@@ -558,7 +558,7 @@ ggsave("PPplot3.png", device = "png", width = 5, height = 3)
 
 ```
 
-```{r}
+#```{r}
 #### tring to plot with sjplot
 modPBp <- lme(logChla ~ 1 + trophic.level*I(invTi - invTT) + trophic.level*Tcenter, random = ~ 1 | Tank, data=data, method="ML", na.action=na.omit)
 library(sjPlot)
