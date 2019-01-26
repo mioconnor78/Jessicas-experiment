@@ -44,30 +44,33 @@ levels(alldata$trophic.level2) <- c("A", "AG", "AGP")
 
 ```{r captions, echo = FALSE}
 table_nums <- captioner::captioner(prefix = "Table S2.") #sets prefix for all tables
-table_nums(name = "Table_S1.1", caption = "Model selection results: Chlorophyll a variation over time and with trophic treatment, weeks 2-9.", display = FALSE)
-table_nums(name = "Table_S1.2", caption = "Model selection results: Chlorophyll a variation over time and with trophic treatment, weeks 2-7.", display = FALSE)
-table_nums(name = "Table_S2.01", caption = "Model selection results for Trophic Cascade strength (Chl a) for linear mixed effects model", display = FALSE)
-table_nums(name = "Table_S2.1", caption = "Model selection results for Phytoplankton (Chl a) for linear mixed effects model", display = FALSE)
-table_nums(name = "Table_S2.2", caption = "Parameter estimates from model PB8 (Table S2.1) for Phytoplankton (Chl a) for linear mixed effects model", display = FALSE)
-table_nums(name = "Table_S2.3", caption = "Model selection results for Net Ecosystem Oxygen Production, with 1|Tank as a random effect. Model terms are: intercept (Int), trophic treatment (TL), Temperature - weekly average (Tw), temperature - expt average (Tt), interaction terms and statistical estimates", display = FALSE)
-table_nums(name = "Table_S2.4", caption = "Parameter estimates from model NPP8 (Table S2.3) for Net Ecosystem Oxygen Productivity (NEP) for linear mixed effects model(For MS Figure 3)", display = FALSE)
-table_nums(name = "Table_S2.5", caption = "Model selection results for Net Ecosystem Respiration, with 1|Tank as a random effect. Model terms are: intercept (Int), trophic treatment (TL), Temperature - weekly average (Tw), temperature - expt average (Tt), interaction terms and statistical estimates", display = FALSE)
-table_nums(name = "Table_S2.6", caption = "Confidence intervals for model ER7 (Table S2.5) (For MS Figure 3", display = FALSE)
+table_nums(name = "Table_S4.1", caption = "Model selection results: Chlorophyll a variation over time and with trophic treatment, weeks 2-9.", display = FALSE)
+table_nums(name = "Table_S4.2", caption = "Model selection results: Chlorophyll a variation over time and with trophic treatment, weeks 2-7.", display = FALSE)
+table_nums(name = "Table_S2.1", caption = "Model selection results for Trophic Cascade strength (Chl a) for linear mixed effects model", display = FALSE)
+table_nums(name = "Table_S1.1", caption = "Model selection results for Phytoplankton (Chl a) for linear mixed effects model", display = FALSE)
+table_nums(name = "Table_S1.2", caption = "Parameter estimates from model PB8 (Table S2.1) for Phytoplankton (Chl a) for linear mixed effects model", display = FALSE)
+table_nums(name = "Table_S3.3", caption = "Model selection results for Net Ecosystem Oxygen Production, with 1|Tank as a random effect. Model terms are: intercept (Int), trophic treatment (TL), Temperature - weekly average (Tw), temperature - expt average (Tt), interaction terms and statistical estimates", display = FALSE)
+table_nums(name = "Table_S3.4", caption = "Parameter estimates from model NPP8 (Table S2.3) for Net Ecosystem Oxygen Productivity (NEP) for linear mixed effects model(For MS Figure 3)", display = FALSE)
+table_nums(name = "Table_S3.5", caption = "Model selection results for Net Ecosystem Respiration, with 1|Tank as a random effect. Model terms are: intercept (Int), trophic treatment (TL), Temperature - weekly average (Tw), temperature - expt average (Tt), interaction terms and statistical estimates", display = FALSE)
+table_nums(name = "Table_S3.6", caption = "Confidence intervals for model ER7 (Table S2.5) (For MS Figure 3", display = FALSE)
 
 fig_nums <- captioner::captioner(prefix = "Figure S2.")
-fig_nums(name = "Fig_S1.1", caption = "Chlorophyll a concentration over time. Phytoplankton biomass, estimated as concentration of chlorophyll a pigment, for weekly sampling dates between July 3, 2012 (week 2) and August 28, 2012 (week 9). Experimental ecosystems were subjected to one of three trophic structure treatments: phytoplankton only (P), phytoplankton + zooplankton grazers (PZ), and phytoplankton, zooplankton grazers + predatory Notonectids (PZN). Tanks were sampled once per week, and gray lines connect repeated measurements of each tank (1 - 30).", display = FALSE)
+fig_nums(name = "Fig_S4.1", caption = "Chlorophyll a concentration over time. Phytoplankton biomass, estimated as concentration of chlorophyll a pigment, for weekly sampling dates between July 3, 2012 (week 2) and August 28, 2012 (week 9). Experimental ecosystems were subjected to one of three trophic structure treatments: phytoplankton only (P), phytoplankton + zooplankton grazers (PZ), and phytoplankton, zooplankton grazers + predatory Notonectids (PZN). Tanks were sampled once per week, and gray lines connect repeated measurements of each tank (1 - 30).", display = FALSE)
 
 #fig_nums(name = "Fig_S2.X", caption = "Frequency Distribution of Trophic Cascade Strength (Weeks 2 - 8)", display = FALSE)
 
-fig_nums(name = "Fig_S2.2", caption = "Trophic Cascade strength by temperature and week", display = FALSE)
-fig_nums(name = "Fig_S2.1", caption = "Chlorophyll a concentration", display = FALSE)
-fig_nums(name = "Fig_S2.2", caption = "Trophic Treatment Effects on Chlorophyll a, Net Oxygen Ecosystem Production (NEP), and Net Ecosystem Respiration (ER)", display = FALSE)
-fig_nums(name = "Fig_S2.3", caption = "Manuscript figure 3: Effects of temperature on oxygen flux and phytoplankton standing stock", display = FALSE)
+fig_nums(name = "Fig_S2.1", caption = "Trophic Cascade strength by temperature and week", display = FALSE)
+fig_nums(name = "Fig_S1.1", caption = "Chlorophyll a concentration", display = FALSE)
+fig_nums(name = "Fig_S1.2", caption = "Trophic Treatment Effects on Chlorophyll a, Net Oxygen Ecosystem Production (NEP), and Net Ecosystem Respiration (ER)", display = FALSE)
+fig_nums(name = "Fig_S3.3", caption = "Manuscript figure 3: Effects of temperature on oxygen flux and phytoplankton standing stock", display = FALSE)
 ```
 
-# 1. Results: Temporal patterns
-## 1.1. Chlorophyll over time (8 weeks)
-```{r, echo = FALSE, Fig_S1.1, fig.width=6, fig.height=3}
+# Results in Main text. 
+Code in Markdown file, printed here are supplemental results. I could imagine a second version of this file for the appendix in which this first section is omitted, or posted for the sake of reproducibility.
+
+# 4. Appendix Results: Temporal patterns
+## 4.1. Chlorophyll over time (8 weeks)
+```{r, echo = FALSE, Fig_S4.1, fig.width=6, fig.height=3}
 Chl.time <- ggplot(data = alldata, aes(x = week, y = log(chla), group = Tank), ymin = 0, shape = trophic.level2) +
   theme_bw() +
    geom_line(color = 'gray80') +
@@ -81,7 +84,7 @@ Chl.time <- ggplot(data = alldata, aes(x = week, y = log(chla), group = Tank), y
   xlab("Time (Experimental Week 2 - Week 8)")
 ```
 
-`r fig_nums("Fig_S1.1")`
+`r fig_nums("Fig_S4.1")`
 
 ```{r}
 Chl.time
@@ -113,21 +116,21 @@ CT4s <- lme(I(log(chla)) ~ 1, random = ~ 1 | Tank, data=alldata[(alldata$week < 
 CTsres <- model.sel(CT1s, CT2s, CT3s, CT4s)
 ```
 
-`r table_nums("Table_S1.1")`
+`r table_nums("Table_S4.1")`
 
-```{r Table_S1.1 Chlorophyll a over time}
+```{r Table_S4.1 Chlorophyll a over time}
 kable(CTres, digits=2, col.names = c('Int','TrophicLev','Week','TL*Wk','df','logLik','AICc','d','w'))
 ```
 
 
-`r table_nums("Table_S1.2")`
+`r table_nums("Table_S4.2")`
 
-```{r Table_S1.2 Chlorophyll a over time}
+```{r Table_S4.2 Chlorophyll a over time}
 kable(CTsres, digits=2, col.names = c('Int','TrophicLev','Week','TL*Wk','df','logLik','AICc','d','w'))
 ```
 
 
-```{r, echo = FALSE, Fig_S2.01b, fig.width=5, fig.height=3}
+#```{r, echo = FALSE, Fig_S4.01b, fig.width=5, fig.height=3}
 ## 0.01b. Temporal Results: Pp size over time (8 weeks)
 mba1.time <- ggplot(data = alldata1, aes(x = week, y = log(FN.N), group = Tank, ymin = 0, shape = trophic.level)) +
   theme_bw() +
@@ -155,7 +158,7 @@ mods1 <- lme(log(Omba1) ~  1 + I(invTi - invTT) + trophic.level + trophic.level*
 ```
 
 
-```{r, echo = FALSE, Fig_S2.2, fig.width=5, fig.height=3}
+```{r, echo = FALSE, Fig_S4.2, fig.width=5, fig.height=3}
 ## 0.02. Temporal Results: Chlorophyll over temperatures 
 
 Chl.temp <- ggplot(data = alldata, aes(x = temp.wk, y = log(chla), ymin = 0)) +
@@ -175,7 +178,7 @@ CT2 <- lme(I(log(chla)) ~ temp.wk, random = ~ 1 | Tank, data=data, method="ML", 
 # 2. Results: Trophic Cascade Results 
 #### These results support Table 1 and Figure 2, Main text. We defined the trophic cascade (TC) as log(AGP/AG) for Chlorophyll a. 
 
-```{r, echo = FALSE, Fig_S2.03, fig.width=3, fig.height=3}
+```{r, echo = FALSE}
 ### Calculate strength of grazing and strength of the trophic cascade on chla
 
 temps.pwr <- alldata1 %>%
@@ -235,7 +238,7 @@ Figure with model predictions from best model (the full model), fit with REML. M
 
 `r fig_nums("Fig_S2.2")`
 
-```{r Fig_S2.2 TC Strength, fig.width=4, fig.height=3}
+```{r Fig_S2.1 TC Strength, fig.width=4, fig.height=3}
 TC <- ggplot(data = TCchla, aes(x = -I(invTavg-mean(invTavg)), y = log(TC), ymin = 0, group = week, shape = as.factor(week), alpha = week)) +
   theme_bw() +
   theme(panel.grid.minor = element_blank(), 
@@ -328,7 +331,8 @@ TCvals9 <- TC.func9(TCchla[(TCchla$week=="9"),]$invTavg-mean(TCchla$invTavg))
 
 `r fig_nums("Fig_S2.03")`
 
-```{r Fig_S2.04 TC Strength, fig.width=4, fig.height=3}
+```{r, fig.width=4, fig.height=3}
+# this is the main text figure, so below, save it as figure 3.
 TC <- ggplot(data = TCchla, aes(x = -I(invTavg-mean(invTavg)), y = log(TC), ymin = 0, group = week, shape = as.factor(week), alpha = week)) +
   theme_bw() +
   theme(panel.grid.minor = element_blank(), 
@@ -345,7 +349,7 @@ TC <- ggplot(data = TCchla, aes(x = -I(invTavg-mean(invTavg)), y = log(TC), ymin
 
 #TC + geom_smooth(data = TCchla[(TCchla$week == '2'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals2, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray80', size = 0.5) + geom_smooth(data = TCchla[(TCchla$week == '3'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals3, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray70', size = 0.5) + geom_smooth(data = TCchla[(TCchla$week == '4'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals4, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray60', size = 0.5) + geom_smooth(data = TCchla[(TCchla$week == '5'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals5, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray50', size = 0.5) +  geom_smooth(data = TCchla[(TCchla$week == '6'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals6, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray40', size = 0.5) +  geom_smooth(data = TCchla[(TCchla$week == '7'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals7, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray30', size = 0.5) + geom_smooth(data = TCchla[(TCchla$week == '8'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals8, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'gray20', size = 0.5) + geom_smooth(data = TCchla[(TCchla$week == '9'),], aes(x = -I(invTavg-mean(invTavg)), y = TCvals9, ymin = 0), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 0.5) 
 
-#ggsave("Fig1.png", device = "png")
+ggsave("Fig1.png", device = "png")
 ```
 
 
