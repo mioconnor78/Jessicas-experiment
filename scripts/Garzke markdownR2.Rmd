@@ -353,7 +353,7 @@ ggsave("Fig1.png", device = "png")
 ```
 
 
-```{r, echo = FALSE, Fig_S2.05, fig.width=3, fig.height=3}
+#```{r, echo = FALSE, Fig_S2.05, fig.width=3, fig.height=3}
 # 3. Results: Strength of trophic cascade on net ecosystem oxygen production (NPP)
 TCNPP <- as_tibble(alldata) %>%
 group_by(week) %>%
@@ -365,7 +365,7 @@ mutate(., TC = log(PZN/PZ))
 #hist(TCNPP$TC)
 ```
 
-```{r, Fig_S2.06, fig.width=3, fig.height=3}
+#```{r, Fig_S2.06, fig.width=3, fig.height=3}
 
 TCNPP <- ggplot(data = TCNPP, aes(x = avgTemp, y = TC, ymin = 0)) +
   theme_bw() +
@@ -382,7 +382,7 @@ TCNPP <- ggplot(data = TCNPP, aes(x = avgTemp, y = TC, ymin = 0)) +
 ```
 
 
-# 3. Results: Phytoplankton abundance (for Figure 3, Table 2 main text)
+# 1. Results: Phytoplankton abundance (for Figure 2, Table 1 main text)
 
 `r fig_nums("Fig_S2.1")`
 
