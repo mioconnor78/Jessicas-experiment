@@ -171,16 +171,17 @@ SlPB2.u <- SlPB2 + t.stat * sqrt(vcov(modPB)[5,5] + vcov(modPB)[8,8] + 2*vcov(mo
 SlPB3.l <- SlPB3 - t.stat * sqrt(vcov(modPB)[5,5] + vcov(modPB)[9,9] + 2*vcov(modPB)[9,5])
 SlPB3.u <- SlPB3 + t.stat * sqrt(vcov(modPB)[5,5] + vcov(modPB)[9,9] + 2*vcov(modPB)[9,5])
 
-slopesPB <- (cbind(c(SlPB1, SlPB2, SlPB3), c(SlPB1.l2, SlPB2.l, SlPB3.l), c(SlPB1.u2, SlPB2.u, SlPB3.u)))
-rownames(slopesPB) <- c("P", "PZ", "PZN")
+slopesPB <- as.data.frame(cbind(c(SlPB1, SlPB2, SlPB3), c(SlPB1.l2, SlPB2.l, SlPB3.l), c(SlPB1.u2, SlPB2.u, SlPB3.u)))
+rownames(slopesPB) <- c("A", "AG", "AGP")
 colnames(slopesPB) <- c("Ea", "lower", "upper")
+slopesPB$var <- c("Mb", "Mb", "Mb")
 ```
 
 ## 1.3 Biomass (Mb) Ea estimates Table 1 and Figure 2A
 `r table_nums("Table_S2.2")`
 
 ```{r Table S2.2}
-kable(slopesPB, digits = 2)
+kable(slopesPB[,1:3], digits = 2)
 ```
 
 ## 1.4 Biomass (Mb) temperature dependence across systems, Fig 2A
@@ -212,33 +213,6 @@ PP.plot2 <- ggplot(data = data, aes(x = -invTi, y = log(chla), ymin = 0, ymax = 
 
 ```{r Figure 2A main text, Fig_S1.2, fig.width=4, fig.height=3}
 PP.plot2
-```
-
-## working plot for coefficients. eventually this will be below an will draw on a table of all the coefs.
-```{r working fig 3, eval=FALSE, include=FALSE}
-plot(NULL,                                
-     xlim = c(-6, 7),                        	
-     ylim = c(0, length(Bo.sum[,1]) + .3), 	
-     axes = F, xlab = NA, ylab = NA, cex = 0.8)
-
-# add the data
-ests.1 <- as.numeric(Bo.sum[,2]) #res.sl$trt == '1TL'
-ses.1 <- as.numeric(Bo.sum[,3]) #
-var.names <- Bo.sum$TL
-
-for (i in 1:length(ests.1)) {                                            
-  points(ests.1[i], i, pch = 19, cex = 1.2, col = 1)
-  lines(c(ests.1[i] + 1.96*ses.1[i], ests.1[i] - 1.96*ses.1[i]), c(i, i), col = 1, lwd = 2)
-  text(-7, i, adj = c(1,0), var.names[i], xpd = T, cex = .8)      # add the variable names
-  text(6, length(Ea.sum[,1]) + .3, 'B', cex = 1.2)
-  text(-6, 23, 'NPP', adj = 0, cex = 0.7)
-  text(-6, 19, 'ER', adj = 0, cex = 0.7)
-  text(-6, 15, 'NPP/Mb', adj = 0, cex = 0.7)
-  text(-6, 11, 'ER/Mt', adj = 0, cex = 0.7)
-  text(-6, 7, 'Mb', adj = 0, cex = 0.7)
-  text(-6, 3, 'Mt', adj = 0, cex = 0.7)
-  #text(-2.5, 21, 'Total biomass', adj = 0, cex = 0.8)
-}
 ```
 
 
@@ -572,16 +546,17 @@ SlN2.u <- Sl2 + t.stat * sqrt(vcov(m.avgN)[5,5] + vcov(m.avgN)[6,6] + 2*vcov(m.a
 SlN3.l <- Sl3 - t.stat * sqrt(vcov(m.avgN)[5,5] + vcov(m.avgN)[7,7] + 2*vcov(m.avgN)[7,5])
 SlN3.u <- Sl3 + t.stat * sqrt(vcov(m.avgN)[5,5] + vcov(m.avgN)[7,7] + 2*vcov(m.avgN)[7,5])
 
-slopesN <- (cbind(c(Sl1, Sl2, Sl3), c(SlN1.l2, SlN2.l, SlN3.l), c(SlN1.u2, SlN2.u, SlN3.u)))
-rownames(slopesN) <- c("P", "PZ", "PZN")
+slopesN <- as.data.frame(cbind(c(Sl1, Sl2, Sl3), c(SlN1.l2, SlN2.l, SlN3.l), c(SlN1.u2, SlN2.u, SlN3.u)))
+rownames(slopesN) <- c("A", "AG", "AGP")
 colnames(slopesN) <- c("Ea", "lower", "upper")
+slopesN$var <- c("NEP", "NEP", "NEP")
 ```
 
 ## 3.3 NEP Ea estimates Table 2 and Figure 3A
 `r table_nums("Table_S2.4")`
 
 ```{r Table S2.4}
-kable(slopesN, digits = 2)
+kable(slopesN[,1:3], digits = 2)
 ```
 
 ## 3.4 NEP temperature dependence across systems, Figure 3A
@@ -751,15 +726,16 @@ SlER2.u <- SlER2 + t.stat * sqrt(vcov(modER)[5,5] + vcov(modER)[6,6] + 2*vcov(mo
 SlER3.l <- SlER3 - t.stat * sqrt(vcov(modER)[5,5] + vcov(modER)[7,7] + 2*vcov(modER)[7,5])
 SlER3.u <- SlER3 + t.stat * sqrt(vcov(modER)[5,5] + vcov(modER)[7,7] + 2*vcov(modER)[7,5])
 
-slopesER <- (cbind(c(SlER1, SlER2, SlER3), c(SlER1.l2, SlER2.l, SlER3.l), c(SlER1.u2, SlER2.u, SlER3.u)))
-rownames(slopesER) <- c("P", "PZ", "PZN")
+slopesER <- as.data.frame(cbind(c(SlER1, SlER2, SlER3), c(SlER1.l2, SlER2.l, SlER3.l), c(SlER1.u2, SlER2.u, SlER3.u)))
+rownames(slopesER) <- c("A", "AG", "AGP")
 colnames(slopesER) <- c("Ea", "lower", "upper")
+slopesER$var <- c("ER", "ER", "ER")
 ```
 
 `r table_nums("Table_S2.6")`
 
 ```{r Table_S7}
-kable(slopesER)
+kable(slopesER[,1:3])
 ```
 
 ## 4.4 ER temperature dependence across systems
@@ -821,7 +797,67 @@ ER.plot +
 #Fig2GHI
 ```
 
-# 5. COMBINED RESULTS: Figure 5 (Full)
+# 5. COMBINED RESULTS: 
+
+## 5.1 coefficient plot
+```{r}
+###Figure 2a, slopes
+slopes <- as.data.frame(rbind(slopesPB, slopesER, slopesN))
+trt <- c("A", "AG", "AGP", "A", "AG", "AGP","A", "AG", "AGP")
+slopes$trt <- trt
+```
+
+```{r}
+png(file = "fig4.png")
+par(mar=(c(4,3,3,1)), fin = c(4,4)) #pin = c(2.3, 3.5), 
+plot(NULL,                                
+     xlim = c(-3, 4),                        	
+     ylim = c(0, length(slopes[,1]) + .3), 	
+     axes = F, xlab = NA, ylab = NA, cex = 1)
+
+# add the data
+ests.1 <- as.numeric(slopes[,1]) #res.sl$trt == '1TL'
+LCI.1 <- as.numeric(slopes[,2])
+UCI.1 <- as.numeric(slopes[,3])#
+var.names <- slopes[,5]
+
+for (i in 1:length(ests.1)) {                                            
+  points(ests.1[i], i, pch = 19, cex = 1.2, col = 1)
+  lines(c(LCI.1[i], UCI.1[i]), c(i, i), col = 1, lwd = 2)
+  text(-3.5, i, adj = c(1,0), var.names[i], xpd = T, cex = 1)   # add the variable names
+}
+axis(side = 1)                                                                                
+abline(v = 0, lty = 2, col = "grey40")
+abline(v = -0.65, lty = 3, col = "grey40") 
+abline(v = -0.32, lty = 3, col = "grey40")
+abline(v = 0.65, lty = 3, col = "grey40") 
+abline(v = 0.32, lty = 3, col = "grey40")
+abline(h = 3.5, lty = 3, col = 'grey40')
+abline(h = 6.5, lty = 3, col = 'grey40')
+text(-3, 9, 'NEP', adj = 0, cex = 1)
+text(-3, 6, 'ER', adj = 0, cex = 1)
+text(-3, 3, 'Mb', adj = 0, cex = 1)
+mtext(side = 1, "Temperature depedence (Ea)", line = 3, cex = 1.2)                                         
+mtext(side = 3, "", line = 1, cex = 0.8)   # add title
+box()
+
+dev.off()
+
+```
+
+#
+  text(6, length(Ea.sum[,1]) + .3, 'B', cex = 1.2)
+  text(-6, 23, 'NPP', adj = 0, cex = 0.7)
+  text(-6, 19, 'ER', adj = 0, cex = 0.7)
+  text(-6, 7, 'Mb', adj = 0, cex = 0.7)
+  text(-6, 3, 'Mt', adj = 0, cex = 0.7)
+  #text(-2.5, 21, 'Total biomass', adj = 0, cex = 0.8)
+
+
+
+```
+
+## 5.2 Figure 5 (Full)
 ```{r, fig.width=7, fig.height=7}
 
 multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
