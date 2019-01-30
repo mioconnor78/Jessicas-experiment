@@ -191,6 +191,10 @@ N.plot3
 ```
 
 ####
+####
+####
+
+
 ### Section S3.2: Daphnia and Copepods
 `r fig_nums("Fig_S3.4")`
 
@@ -266,13 +270,14 @@ D.plot3 <- D.plot2 +
 
 #D.plot2 + geom_line(data=transform(data.N, abundance.Daphnia=(predict(poismod.Db))))
 
-ggsave("Fig4b.png", width = 4, height = 4)
+ggsave("Fig4a.png", width = 4, height = 4)
 ```
 
-`r fig_nums("Fig_S3.5")`
+
 
 ```{r Fig_S3.5: Daphnia abundance plot, fig.width=4,fig.height=4}
-D.plot3
+#`r fig_nums("Fig_S3.5")`
+#D.plot3
 ```
 
 
@@ -346,8 +351,9 @@ C.plot3 <- C.plot2 +
 ggsave("Fig4b.png", width = 4, height = 4)
 ```
 
-`r fig_nums("Fig_S3.6")`
+
 ```{r copepod abundance figure}
+#`r fig_nums("Fig_S3.6")`
 C.plot3
 #ggsave("Dabundance.png", device = "png")
 ```

@@ -50,9 +50,9 @@ table_nums(name = "Table_S4.2", caption = "Model selection results: Chlorophyll 
 table_nums(name = "Table_S2.1", caption = "Model selection results for Trophic Cascade strength (Chl a) for linear mixed effects model", display = FALSE)
 table_nums(name = "Table_S1.1", caption = "Model selection results for Phytoplankton (Chl a) for linear mixed effects model", display = FALSE)
 table_nums(name = "Table_S1.2", caption = "Parameter estimates from model PB8 (Table S2.1) for Phytoplankton (Chl a) for linear mixed effects model", display = FALSE)
-table_nums(name = "Table_S3.3", caption = "Model selection results for Net Ecosystem Oxygen Production, with 1|Tank as a random effect. Model terms are: intercept (Int), trophic treatment (TL), Temperature - weekly average (Tw), temperature - expt average (Tt), interaction terms and statistical estimates", display = FALSE)
+table_nums(name = "Table_S3.3", caption = "Model selection results for Net Ecosystem Oxygen Production, with 1|Tank as a random effect. Model terms are: intercept (Int), trophic treatment (Zj), Temperature - weekly average (Tw), temperature - expt average (Tt), interaction terms and statistical estimates", display = FALSE)
 table_nums(name = "Table_S3.4", caption = "Parameter estimates from model NPP8 (Table S2.3) for Net Ecosystem Oxygen Productivity (NEP) for linear mixed effects model(For MS Figure 3)", display = FALSE)
-table_nums(name = "Table_S3.5", caption = "Model selection results for Net Ecosystem Respiration, with 1|Tank as a random effect. Model terms are: intercept (Int), trophic treatment (TL), Temperature - weekly average (Tw), temperature - expt average (Tt), interaction terms and statistical estimates", display = FALSE)
+table_nums(name = "Table_S3.5", caption = "Model selection results for Net Ecosystem Respiration, with 1|Tank as a random effect. Model terms are: intercept (Int), trophic treatment (Zj), Temperature - weekly average (Tw), temperature - expt average (Tt), interaction terms and statistical estimates", display = FALSE)
 table_nums(name = "Table_S3.6", caption = "Confidence intervals for model ER7 (Table S2.5) (For MS Figure 3", display = FALSE)
 
 fig_nums <- captioner::captioner(prefix = "Figure S2.")
@@ -83,6 +83,19 @@ alldata1$logChla <- log(alldata1$chla)
 data <- alldata1
 ```
 
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+
 ## 1.1 Biomass (Mb) candidate models
 ```{r Mb models, echo=FALSE}
 #### Phytoplankton coefficients for Figure 2
@@ -100,11 +113,12 @@ modPB0 <- lme(log(chla) ~ 1, random = ~ 1 | Tank, data=data, method="ML", na.act
 PPres <- data.frame(model.sel(modPB0, modPB1, modPB2, modPB3, modPB4, modPB5, modPB6, modPB7, modPB8, modPBF))
 ```
 
-## 1.2 Biomass model results
-`r table_nums("Table_S2.1")`
 
-```{r Table_S2.1}
-kable(PPres, digits=2, col.names = c('Int','TL','Tw','Tt', 'Tw*Tt', 'Tw*TL','Tt*TL', 'df', 'logLik','AICc','d','w'))
+## 1.2 Biomass model results
+`r table_nums("Table_S1.1")`
+
+```{r Table_S1.1, echo = FALSE}
+kable(PPres, digits=2, col.names = c('Int','Z~j~','T~ij~','T~M~', 'T~ij~*T~M~', 'T~ij~*Z~j~','T~M~*Z~j~', 'df', 'logLik','AICc','d','w'))
 ```
 
 ```{r Mb coefs and CI}
@@ -211,7 +225,7 @@ PP.plot2 <- ggplot(data = data, aes(x = -invTi, y = log(chla), ymin = 0, ymax = 
 
 `r fig_nums("Fig_S1.2")`
 
-```{r Figure 2A main text, Fig_S1.2, fig.width=4, fig.height=3}
+```{r Figure 2A main text, Fig_S1.2, fig.width=4, fig.height=3, echo = FALSE}
 PP.plot2
 ```
 
@@ -390,10 +404,8 @@ TC.func9 <- function(x) {IPw9 + Slw9*x}
 TCvals9 <- TC.func9(-(TCchla[(TCchla$week=="9"),]$invTavg-mean(TCchla$invTavg)))
 ```
 
-`r fig_nums("Fig_S2.03")`
-
 ```{r Figure 2B main text, fig.width=4, fig.height=3}
-# this is the main text figure, so below, save it as figure 3.
+# this is the main text figure, so below, save it as figure 3.`r fig_nums("Fig_S2.03")`
 TC <- ggplot(data = TCchla, aes(x = -I(invTavg-mean(invTavg)), y = log(TC), ymin = 0, group = week, shape = as.factor(week), alpha = week)) +
   theme_bw() +
   theme(panel.grid.minor = element_blank(), 
@@ -430,7 +442,7 @@ fig2A <- TC +
 `r table_nums("Table_S2.01")`
 
 ```{r Table_S2.01 TC model comparison results}
-kable(TCres, digits=2, col.names = c('Int','T','Wk','T*Wk','df','logLik','AICc','d','w'))
+kable(TCres, digits=2, col.names = c('Int','T~M~','Wk','T~M~*Wk','df','logLik','AICc','d','w'))
 ```
 
 ## Summary of best model: trophic cascade strength - Full Model.
@@ -481,7 +493,7 @@ NPres <- data.frame(model.sel(modNPP0, modNPP1, modNPP2, modNPP3, modNPP4, modNP
 `r table_nums("Table_S2.3")`
 
 ```{r Table S2.3}
-kable(NPres, digits=2, col.names = c('Int','TL','Tw','Tt', 'Tw*Tt', 'Tw*TL','Tt*TL', 'df', 'logLik','AICc','d','w'))
+kable(NPres, digits=2, col.names = c('Int','Z~j~','T~ij~','T~M~', 'T~ij~*T~M~', 'T~ij~*Z~j~','T~ij~*Z~j~', 'df', 'logLik','AICc','d','w'))
 ```
 
 ```{r NEP model coefs}
@@ -669,7 +681,7 @@ ERres <- data.frame(model.sel(modER0, modER1, modER2, modER3, modER4, modER5, mo
 `r table_nums("Table_S2.5")`
 
 ```{r Table S5}
-kable(ERres, digits=2, col.names = c('Int','TL','Tw','Tt', 'Tw*Tt', 'Tw*TL','Tt*TL', 'df', 'logLik','AICc','d','w'))
+kable(ERres, digits=2, col.names = c('Int','Z~j~','T~M~','T~ij~', 'T~ij~*T~M~', 'T~M~*Z~j~','T~M~*Z~j~', 'df', 'logLik','AICc','d','w'))
 ```
 
 ## 4.3 ER Ea estimates Table 3 and Figure 3b
