@@ -146,12 +146,8 @@ IPB3 <- fixef(modPB)[1] + fixef(modPB)[4] - fixef(modPB)[5]*mean(data$invTT) - f
 ```
 
 ```{r Model estimates for figure 2A}
-## i'm part way through changing this function... it now is modified from what it was before so i need to finish this. 
 PB.funcP <- function(x) {IPB1 + SlPB1*x} # for trophic level 1
 PBvalsP <- PB.funcP(data[(data$trophic.level=="P"),]$invTT)
-#PB.funcPl <- function(x) {IPB1 + (slopesPB[1,2])*x}
-#PB.funcPu <- function(x) {IPB1 + (slopesPB[1,3])*x}
-#PBvalsP <- as.data.frame(cbind(data[(data$trophic.level=="P"),]$invTT, PB.funcP(data[(data$trophic.level=="P"),]$invTT), PB.funcPl(data[(data$trophic.level=="P"),]$invTT),                       PB.funcPu(data[(data$trophic.level=="P"),]$invTT)))
 
 PB.funcPZ <- function(x) { IPB2 + SlPB2*x } # for trophic level 2
 PBvalsPZ <- PB.funcPZ(data[(data$trophic.level=="PZ"),]$invTT)
@@ -162,16 +158,11 @@ PBvalsPZN <- PB.funcPZN(data[(data$trophic.level=="PZN"),]$invTT)
 
 ```{r PP CI estimates, echo = FALSE}
 ## calculating confidence intervals for activation energies.
-#vcov(modPB) # diagonals of vcov are variances
-#vcov(modPB)[1,1] # intercept variance is:
 
 df <- length(data$chla)-(length(coef(modPB))+1)-1
 t.stat <- qt(0.975, df = df) #calculates critical t-value for the threshold (first value) and df (= n - p - 1)
 
 # slope for PB.PP: 
-#SlPB1 <- fixef(modPB)[5]
-#SlPB1.l <- intervals(modPB)$fixed[1]
-#SlPB1.u <- intervals(modPB)$fixed[3]
 SlPB1.l2 <- SlPB1 - t.stat * sqrt(vcov(modPB)[5,5])
 SlPB1.u2 <- SlPB1 + t.stat * sqrt(vcov(modPB)[5,5])
 
@@ -442,7 +433,7 @@ fig2A <- TC +
 `r table_nums("Table_S2.01")`
 
 ```{r Table_S2.01 TC model comparison results}
-kable(TCres, digits=2, col.names = c('Int','T~M~','Wk','T~M~*Wk','df','logLik','AICc','d','w'))
+kable(TCres, digits=2, col.names = c('Int','T~ij~','Wk','T~ij~*Wk','df','logLik','AICc','d','w'))
 ```
 
 ## Summary of best model: trophic cascade strength - Full Model.
@@ -723,7 +714,7 @@ RvalsPZN <- ER.funcPZN(data2[(data2$trophic.level=="PZN"),]$invTT)
 ```
 
 ```{r}
-df <- length(data$ER2)-(length(coef(modER))+1)-1
+df <- length(data2$ER2)-(length(coef(modER))+1)-1
 t.stat <- qt(0.975, df = df) #calculates critical t-value for the threshold (first value) and df (= n - p - 1)
 
 # slope for ER.PP: 
@@ -840,16 +831,16 @@ for (i in 1:length(ests.1)) {
 }
 axis(side = 1)                                                                                
 abline(v = 0, lty = 2, col = "grey40")
-abline(v = -0.65, lty = 3, col = "grey40") 
-abline(v = -0.32, lty = 3, col = "grey40")
-abline(v = 0.65, lty = 3, col = "grey40") 
-abline(v = 0.32, lty = 3, col = "grey40")
+segments(-0.65, 9.5, -0.65, 3.5, lty = 3, col = "grey40")
+segments(-0.32, 9.5, -0.32, 3.5, lty = 3, col = "grey40")
+segments(0.65, 0, 0.65, 3.5, lty = 3, col = "grey40")
+segments(0.32, 0, 0.32, 3.5, lty = 3, col = "grey40")
 abline(h = 3.5, lty = 3, col = 'grey40')
 abline(h = 6.5, lty = 3, col = 'grey40')
 text(-3, 9, 'NEP', adj = 0, cex = 1)
 text(-3, 6, 'ER', adj = 0, cex = 1)
 text(-3, 3, 'Mb', adj = 0, cex = 1)
-mtext(side = 1, "Temperature depedence (Ea)", line = 3, cex = 1.2)                                         
+mtext(side = 1, "Temperature dependence (Ea)", line = 3, cex = 1.2)                                         
 mtext(side = 3, "", line = 1, cex = 0.8)   # add title
 box()
 
