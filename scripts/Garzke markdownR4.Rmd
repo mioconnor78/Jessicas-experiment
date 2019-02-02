@@ -226,7 +226,7 @@ PP.plot2
 xlab <- expression(paste('Temperature (',~degree,'C)',sep=''))
 PP.plot <- ggplot(data = data, aes(x = -invTi, y = log(chla), ymin = -4, ymax = 3)) + #, xmin = -40.2, xmax = -38.2
   theme_bw() +
-  theme(legend.position = "none") +
+  theme(legend.position = "") +
   facet_grid(trophic.level~.) + 
   geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(week), alpha = Tankn), size = 2) + 
   theme(panel.grid.minor = element_blank(), 
@@ -237,7 +237,7 @@ PP.plot <- ggplot(data = data, aes(x = -invTi, y = log(chla), ymin = -4, ymax = 
         strip.text.y = element_blank(),
         strip.background = element_rect(colour="white", fill="white")) +
   scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
-  scale_shape_manual(values = c(1,2,22,23,16,17,8,6)) +
+  scale_shape_manual(guide = guide_legend(title = "Week"), values = c(0,1,2,3,4,15,16,17)) +
   scale_alpha("Tankn", guide = "none") +
   ylab("ln(ug Chl a / L)") +
   labs(title = "A. Phytoplankton \n Abundance", size = 3) +
@@ -615,6 +615,7 @@ NPP.plot <- ggplot(data = data1, aes(x = -invTi, y = log(NPP2), ymin = -10.5, ym
   facet_grid(trophic.level~.) + 
   geom_point(aes(group = as.character(Tankn), color = as.character(Tankn), shape = as.factor(week), alpha = Tankn), size = 2) + 
   scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
+  scale_shape_manual(guide = guide_legend(title = "Week"), values = c(0,1,2,3,4,15,16,17)) +
   scale_alpha("Tankn", guide = "none") +
   ylab("ln(umol O2 / L / hr)") +
   labs(title = "B. Net Ecosystem \n Production (NEP)", size = 3) +
@@ -781,6 +782,7 @@ ER.plot <- ggplot(data = data2, aes(x = -invTi, y = log(ER2), ymin = -8, ymax = 
   scale_colour_grey(start = 0, end = 0.6, name = "Tank", guide = "none") +
   scale_alpha("Tankn", guide = "none") +
   scale_shape(name = "Week", guide = guide_legend(ncol = 2)) +
+  scale_shape_manual(guide = guide_legend(title = "Week"), values = c(0,1,2,3,4,15,16,17)) +
   xlab("Temperature (1/kTi)") +
   ylab("ln(umol O2 / L / hr)") +
   labs(title = "C. Net Ecosystem \n Respiration (ER)", size = 3) +
@@ -851,17 +853,6 @@ dev.off()
 
 ```
 
-#
-  text(6, length(Ea.sum[,1]) + .3, 'B', cex = 1.2)
-  text(-6, 23, 'NEP', adj = 0, cex = 0.7)
-  text(-6, 19, 'ER', adj = 0, cex = 0.7)
-  text(-6, 7, 'Mb', adj = 0, cex = 0.7)
-  text(-6, 3, 'Mt', adj = 0, cex = 0.7)
-  #text(-2.5, 21, 'Total biomass', adj = 0, cex = 0.8)
-
-
-
-```
 
 ## 5.2 Figure 5 (Full)
 ```{r, fig.width=7, fig.height=7}
@@ -922,7 +913,7 @@ Chl.time <- ggplot(data = alldata, aes(x = week, y = log(chla), group = Tank), y
         strip.background = element_blank()) +
     theme(legend.position = "none") +
   ylab("Phytoplankton Abundance \n ln(ug Chl a / L)") +
-  xlab("Time (Experimental Week 2 - Week 8)")
+  xlab("Time (Experimental Week 2 - Week 9)")
 ```
 
 `r fig_nums("Fig_S4.1")`
@@ -947,6 +938,7 @@ CT2 <- lme(I(log(chla)) ~ week+trophic.level, random = ~ 1 | Tank, data=alldata,
 CT3 <- lme(I(log(chla)) ~ week, random = ~ 1 | Tank, data=alldata, method="ML", na.action=na.omit)
 CT4 <- lme(I(log(chla)) ~ 1, random = ~ 1 | Tank, data=alldata, method="ML", na.action=na.omit)
 CTres <- model.sel(CT1, CT2, CT3, CT4)
+#summary(CT1)
 ```
 
 ```{r, echo = FALSE}
@@ -963,6 +955,18 @@ CTsres <- model.sel(CT1s, CT2s, CT3s, CT4s)
 kable(CTres, digits=2, col.names = c('Int','TrophicLev','Week','TL*Wk','df','logLik','AICc','d','w'))
 ```
 
+```{r chla coefs}
+C.A <- fixef(CT1)[2]
+C.AG <- fixef(CT1)[2] + fixef(CT1)[5]
+C.AGP <- fixef(CT1)[2] + fixef(CT1)[6]
+
+Cs.A <- fixef(CT1s)[2]
+Cs.AG <- fixef(CT1s)[2] + fixef(CT1s)[5]
+Cs.AGP <- fixef(CT1s)[2] + fixef(CT1s)[6]
+
+Ctime <- cbind(All_weeks = c(C.A, C.AG, C.AGP), Weeks_2to7 = c(Cs.A, Cs.AG, Cs.AGP))
+rownames(Ctime) <- c("A", "AG", "AGP")
+```
 
 `r table_nums("Table_S4.2")`
 
@@ -970,6 +974,9 @@ kable(CTres, digits=2, col.names = c('Int','TrophicLev','Week','TL*Wk','df','log
 kable(CTsres, digits=2, col.names = c('Int','TrophicLev','Week','TL*Wk','df','logLik','AICc','d','w'))
 ```
 
+```{r}
+kable(Ctime, digits=2, col.names = c('Weeks 2-9','Weeks 2-7'))
+```
 
 ```{r, eval=FALSE, fig.height=3, Fig_S4.01b, fig.width=5, include=FALSE}
 ## 0.01b. Temporal Results: Pp size over time (8 weeks)
