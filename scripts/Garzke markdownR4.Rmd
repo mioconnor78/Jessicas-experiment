@@ -118,7 +118,7 @@ PPres <- data.frame(model.sel(modPB0, modPB1, modPB2, modPB3, modPB4, modPB5, mo
 `r table_nums("Table_S1.1")`
 
 ```{r Table_S1.1, echo = FALSE}
-kable(PPres, digits=2, col.names = c('Int','Z~j~','T~wj~','T~M~', 'T~wj~*T~M~', 'T~wj~*Z~j~','T~M~*Z~j~', 'df', 'logLik','AICc','d','w'))
+kable(PPres, digits=2, col.names = c('Int','Z~j~','T~wj~','T~M~', 'T~wj~*Z~j~', 'T~M~*Z~j~','T~M~*T~wj~', 'df', 'logLik','AICc','d','w'))
 ```
 
 ```{r Mb coefs and CI}
@@ -268,14 +268,14 @@ Fig2ABC <- PP.plot +
 ```{r TC data, echo = FALSE}
 ### Calculate strength of grazing and strength of the trophic cascade on chla
 
-temps.pwr <- alldata1 %>%
+temps.pwr <- alldata %>%
   group_by(week, power) %>%
   dplyr::summarize(avgTemp = mean(average.temp, na.rm = TRUE))
 #View(temps.pwr)
 
-TCchla <- as_tibble(alldata) %>%
+TCchla <- as_tibble(alldata1) %>%
 group_by(week) %>%
-select(., week, power, trophic.level, chla) %>%
+dplyr::select(., week, power, trophic.level, chla) %>%
 spread(., trophic.level, chla) %>%
 left_join(., temps.pwr, by = c("week", "power")) %>%
 mutate(., invTavg = 1/((avgTemp + 273)*k)) %>%
@@ -484,7 +484,7 @@ NPres <- data.frame(model.sel(modNEP0, modNEP1, modNEP2, modNEP3, modNEP4, modNE
 `r table_nums("Table_S2.3")`
 
 ```{r Table S2.3}
-kable(NPres, digits=2, col.names = c('Int','Z~j~','T~wj~','T~M~', 'T~wj~*T~M~', 'T~wj~*Z~j~','T~wj~*Z~j~', 'df', 'logLik','AICc','d','w'))
+kable(NPres, digits=2, col.names = c('Int','Z~j~','T~wj~','T~M~', 'T~wj~*Z~j~', 'T~M~*Z~j~','T~wj~*T~M~', 'df', 'logLik','AICc','d','w'))
 ```
 
 ```{r NEP model coefs}
@@ -583,7 +583,7 @@ NEP.plot2 <- ggplot(data = data1, aes(x = -invTi, y = log(NPP2), ymin = -7, ymax
   annotate("text", x = c(-39,-39,-39), y = c(-6.5, -6.7, -6.9), label = c("solid = A", "dotted = AG", "dashed = AGP"), size = 4) +
   scale_x_continuous("Temperature (1/kTi)", sec.axis = sec_axis(~(-(1/(k*+.))-273), name = xlab))
 
-  ggsave("Fig3A.png", device = "png", width = 4, height = 4)
+  ggsave("Fig5A.png", device = "png", width = 4, height = 4)
 ```       
 
 ## 3.5 NEP temperature dependence within and across systems, Figure 5
@@ -675,7 +675,7 @@ ERres <- data.frame(model.sel(modER0, modER1, modER2, modER3, modER4, modER5, mo
 `r table_nums("Table_S2.5")`
 
 ```{r Table S5}
-kable(ERres, digits=2, col.names = c('Int','Z~j~','T~M~','T~wj~', 'T~wj~*T~M~', 'T~M~*Z~j~','T~M~*Z~j~', 'df', 'logLik','AICc','d','w'))
+kable(ERres, digits=2, col.names = c('Int','Z~j~','T~wj~','T~M~', 'T~wj~*T~M~','T~wj~*Z~j~', 'T~M~*Z~j~', 'df', 'logLik','AICc','d','w'))
 ```
 
 ## 4.3 ER Ea estimates Table 3 and Figure 3b
@@ -764,7 +764,7 @@ ER.plot2 <- ggplot(data = data2, aes(x = -invTi, y = log(ER2), ymin = -7, ymax =
   labs(title = "B. Net Ecosystem Respiration (ER)", size = 3) +
   annotate("text", x = c(-39,-39,-39), y = c(-6.5, -6.7, -6.9), label = c("solid = A", "dotted = AG", "dashed = AGP"), size = 4)
 
-  ggsave("Fig3B.png", device = "png", width = 4, height = 4)
+  ggsave("Fig5B.tiff", device = "tiff", width = 4, height = 4)
 ```       
 
 
@@ -816,7 +816,7 @@ slopes$trt <- trt
 ```
 
 ```{r}
-png(file = "fig4.png")
+tiff(file = "Fig3.tiff")
 par(mar=(c(4,3,3,1)), fin = c(4,4)) #pin = c(2.3, 3.5), 
 plot(NULL,                                
      xlim = c(-3, 4),                        	
@@ -853,6 +853,31 @@ dev.off()
 
 ```
 
+### testing ER < NEP, per reviewer question
+```{r}
+ERtrial <- as_tibble(data1) %>%
+group_by(week) %>%
+dplyr::select(., week, power, trophic.level, ER2) %>%
+spread(., trophic.level, ER2) %>%
+left_join(., temps.pwr, by = c("week", "power")) %>%
+mutate(., invTavg = 1/((avgTemp + 273)*k)) %>%
+plyr::rename(., replace = c("P" = "A.ER", "PZ" = "AG.ER", "PZN" = "AGP.ER"))
+
+NEPtrial <- as_tibble(data1) %>%
+group_by(week) %>%
+dplyr::select(., week, power, trophic.level, NPP2) %>%
+spread(., trophic.level, NPP2) %>%
+left_join(., ERtrial, by = c("week", "power")) %>%
+plyr::rename(., replace = c("P" = "A.NEP", "PZ" = "AG.NEP", "PZN" = "AGP.NEP")) %>%
+mutate(., sum1 = AG.NEP + AG.ER)
+
+#plot(NEPtrial$sum1 ~ NEPtrial$A.NEP, ylim = c(-0.002, 0.016), xlim = c(-0.002, 0.016))
+
+#data1$NPPER <- data1$ER2/data1$NPP2
+#hist((data1[(data1$NPPER < 20),]$NPPER))
+#mean((data1[(data1$NPPER < 20),]$NPPER))
+#summary((data1[(data1$NPPER < 20),]$NPPER))
+```
 
 ## 5.2 Figure 5 (Full)
 ```{r, fig.width=7, fig.height=7}
@@ -894,7 +919,7 @@ multiplot(Fig2ABC, Fig2DEF, Fig2GHI, cols = 3)
 ```
 
 ```{r}
-png('Figure3.png', width = 7, height = 7, units = 'in', res = 300)
+png('Fig6.png', width = 7, height = 7, units = 'in', res = 300)
 multiplot(Fig2ABC, Fig2DEF, Fig2GHI, cols = 3)
 dev.off()
 ```
