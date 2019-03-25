@@ -1,29 +1,29 @@
 ﻿taxon,group,min.length.um,max length.um,typical.um,shape,colonial,col.diameter.um,BNF
+Amoeboid ,Amoeboid,12,40,,sphere,no,,no
 Gloeocystis,Chlorophyta,6,23,,sphere,yes,55,no
+Arthrodesmus,Chlorophyta,10,30,,oval,yes,40,no
+Chlamydomonas,Chlorophyta,10,10,,sphere,no,,no
+Paramecium,Ciliate,40,200,,oval,no,,no
+Chrysosphaerella,Cryptophyte,10,10,,sphere,sometimes,80,no
+Dinobryon,Cryptophyte,6,20,,oval,yes,200,no
+Fragilaria,Cryptophyte,2,60,,cylinder,sometimes,,no
+Fragilaria,Cryptophyte,4,50,,cylinder,yes,250,no
+Chrysophyte,Cryptophyte,5,8,,oval,no,,no
 Microcystis,Cyanobacteria,3,5,,sphere,sometimes,150,no
 Oscillatoria,Cyanobacteria,8,60,,filament,yes,20000,yes
-Chrysosphaerella,Cryptophyte,10,10,,sphere,sometimes,80,no
 Anabaena,Cyanobacteria,2,4,,filament,yes,250,no
-Dinobryon,Cryptophyte,6,20,,oval,yes,200,no
 Coelosphaerium,Cyanobacteria,4,6,,sphere,yes,70,yes
-Fragilaria,Cryptophyte,2,60,,cylinder,sometimes,,no
-Tabellaria,Diatom,5,40,,cylinder,sometimes,,no
-Fragilaria,Cryptophyte,4,50,,cylinder,yes,250,no
-Euglenid,Euglenophyta,10,30,,oval,no,,no
-Arthrodesmus,Chlorophyta,10,30,,oval,yes,40,no
 Planktothrix,Cyanobacteria,2,100,,filament,no,,yes
-Phacus,Euglenophyta,35,50,,sphere,no,,no
 Merismopedia,Cyanobacteria,10,10,,sphere,yes,80,yes
 Chroococcus,Cyanobacteria,5,40,10,oval,yes,40,no
-Chlamydomonas,Chlorophyta,10,10,,sphere,no,,no
 Synechococcus,Cyanobacteria,0.8,1.5,,sphere,,,no
-Gymnodinium,Dinoflagelate,30,60,,sphere,no,,no
-Mallomonas,Synurophyta,18,50,,oval,no,,no
 Merismopedia,Cyanobacteria,10,10,,sphere,yes,80,yes
-Paramecium,Ciliate,40,200,,oval,no,,no
 Fischerella,Cyanobacteria,10,500,,filament,yes,20000,yes
-Amoeboid ,Amoeboid,12,40,,sphere,no,,no
+Tabellaria,Diatom,5,40,,cylinder,sometimes,,no
 Eunotia,Diatom,10,100,,cylinder,no,,no
 Melosira,Diatom,20,200,,filament,yes,400,no
 Diatom3,Diatom,10,60,,cylinder,no,,no
-Chrysophyte,Cryptophyte,5,8,,oval,no,,no
+Gymnodinium,Dinoflagelate,30,60,,sphere,no,,no
+Euglenid,Euglenophyta,10,30,,oval,no,,no
+Phacus,Euglenophyta,35,50,,sphere,no,,no
+Mallomonas,Synurophyta,18,50,,oval,no,,no

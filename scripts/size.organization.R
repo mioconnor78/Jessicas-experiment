@@ -60,7 +60,9 @@ a <- 0.75
 Mb = function(x) sum(x) #total biomass
 mba <- function(x) sum(x^(a))/length(x) # average body size that accounts for size dependent changes in metabolic rate, based on a
 mb <- function(x) sum(x)/length(x)
+mb2 <- mba <- function(x) sum(x^(a))
 mba1 <- function(x) sum(x^(a-1)) # average body size that accounts for size dependent changes in metabolic rate, avg weighted by biomass rather than density (as in mba); equivalent to Mb = density/vol * (mba)
+mtriangle <- function(x) mb2(x)/Mb(x)
 
 ## so here we have total biomass, two estimates of average body size... do i have the total mass corrected size?
 

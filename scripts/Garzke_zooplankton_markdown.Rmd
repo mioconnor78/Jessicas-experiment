@@ -325,7 +325,7 @@ C.PZ <- function(x) { exp(fixef(poismod.Cc)[1] + fixef(poismod.Cc)[2]*x) } # for
 
 #data.N$Chat <- predict(poismod.Cc)
 
-C.plot2 <- ggplot(data = data.N, aes(x = -invTT, y = abundance.copepods, xmin = -40, xmax = -38.5, group = week, shape = as.factor(trophic.level), alpha = week)) +
+C.plot2 <- ggplot(data = data.N, aes(x = -invTT, y = Ct, xmin = -40, xmax = -38.5, group = week, shape = as.factor(trophic.level), alpha = week)) +
   theme_bw() +
   geom_point(aes(group = as.character(week))) +
   theme(panel.grid.minor = element_blank(), 
@@ -337,13 +337,13 @@ C.plot2 <- ggplot(data = data.N, aes(x = -invTT, y = abundance.copepods, xmin = 
         strip.background = element_rect(colour="white", fill="white")) +
   #scale_alpha("week", guide = "none") +
   scale_shape_manual(guide = guide_legend(title = "Trophic Treatment"), values = c(1,2,22,23,8,15,16,17)) +
-  ylab("Copepod density (ind/L)") + 
+  ylab("Copepod density (ind/10L)") + 
   scale_x_continuous("Temperature (1/kTi)", sec.axis =sec_axis(~((1/(k*-.))-273), name = xlab))
 
 C.plot3 <- C.plot2 +
-  geom_smooth(data = data.N, aes(x = -invTT, y = C.PZ(invTT)), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'black', size = 1.5)
+  geom_smooth(data = data.N, aes(x = -invTT, y = C.PZ(invTT)), method = "lm", se = FALSE, inherit.aes = FALSE, formula = y ~ x, color = 'blue', size = 1.5)
 
-ggsave("Fig4b.png", width = 4, height = 4)
+write.csv("Fig4b.png", width = 4, height = 4)
 ```
 
 `r fig_nums("Fig_S3.6")`
